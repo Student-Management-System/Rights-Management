@@ -7,8 +7,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
 
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.AssignmentStates;
