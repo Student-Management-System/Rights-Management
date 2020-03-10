@@ -14,6 +14,7 @@ import net.ssehub.rightsmanagement.conf.Settings;
 public class StudentManagementChangeListener {
     
     public static final StudentManagementChangeListener INSTANCE = new StudentManagementChangeListener();
+    
     private Set<String> observedCourses = new HashSet<>();
     
     /**

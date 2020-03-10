@@ -6,6 +6,9 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
 import com.google.gson.JsonParseException;
 
 import io.swagger.client.JSON;
@@ -20,6 +23,8 @@ import net.ssehub.rightsmanagement.StudentManagementChangeListener;
 @Path("/update")
 public class UpdateCallback {
 
+    private static final Logger LOGGER = Log.getLog();
+    
     /**
      * Retrieves a JSON message which was specified as <tt>text/plain</tt> converts it and handles the message.
      * @param update A {@link UpdateMessage} in serialized as JSON.
@@ -29,18 +34,24 @@ public class UpdateCallback {
     @Consumes(MediaType.TEXT_PLAIN)
 //    @Produces(MediaType.TEXT_PLAIN)
     public void helloUsingTxt(String update) {
-        System.out.println("Got String: " + update);
-        helloUsingJson(update);
+        LOGGER.debug("Received plain text message", update);
+        processMessage(update);
     }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
 //    @Produces(MediaType.TEXT_PLAIN)
     public void helloUsingJson(String json) {
+        LOGGER.debug("Received JSON message", json);
+        processMessage(json);
+    }
+
+    private void processMessage(String json) {
         UpdateMessage msg;
         try {
             msg = new JSON().deserialize(json, UpdateMessage.class);
         } catch (JsonParseException e) {
+            LOGGER.warn("Could not parse message {} to {}, cause {}", json, UpdateMessage.class.getSimpleName(), e);
             throw new BadRequestException(e);
         }
         

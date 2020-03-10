@@ -4,6 +4,9 @@ import java.io.Closeable;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+import org.eclipse.jetty.util.log.Slf4jLog;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
@@ -15,12 +18,21 @@ import org.glassfish.jersey.servlet.ServletContainer;
  */
 public class RestServer implements Closeable {
     private static final String REST_PATH = "/rest/*";
+
+    private static final Logger LOGGER = Log.getLog();
+    
     private Server server;
     
     public RestServer(int port) {
-        System.out.println("Starting server on port: " + port);
+        try {
+            Log.setLog(new Slf4jLog());
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        LOGGER.info("Starting server on port: {}", port);
         Server server = new Server(port);
-
+        
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 
         servletContextHandler.setContextPath("/");
