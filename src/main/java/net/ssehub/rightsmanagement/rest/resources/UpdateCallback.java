@@ -4,7 +4,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import com.google.gson.JsonParseException;
@@ -28,7 +27,7 @@ public class UpdateCallback {
      */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-    @Produces(MediaType.TEXT_PLAIN)
+//    @Produces(MediaType.TEXT_PLAIN)
     public void helloUsingTxt(String update) {
         System.out.println("Got String: " + update);
         helloUsingJson(update);
@@ -36,7 +35,7 @@ public class UpdateCallback {
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.TEXT_PLAIN)
+//    @Produces(MediaType.TEXT_PLAIN)
     public void helloUsingJson(String json) {
         UpdateMessage msg;
         try {
