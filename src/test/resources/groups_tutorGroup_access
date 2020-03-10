@@ -1,0 +1,5 @@
+[groups]
+JavaTutoren = tutor1, tutor2
+
+[abgabe:/]
+* = r
