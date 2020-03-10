@@ -18,6 +18,7 @@ public class RestServer implements Closeable {
     private Server server;
     
     public RestServer(int port) {
+        System.out.println("Starting server on port: " + port);
         Server server = new Server(port);
 
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
