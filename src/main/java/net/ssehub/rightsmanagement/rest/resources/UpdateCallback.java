@@ -29,15 +29,15 @@ public class UpdateCallback {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
-    public String helloUsingTxt(String update) {
+    public void helloUsingTxt(String update) {
         System.out.println("Got String: " + update);
-        return helloUsingJson(update);
+        helloUsingJson(update);
     }
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
-    public String helloUsingJson(String json) {
+    public void helloUsingJson(String json) {
         UpdateMessage msg;
         try {
             msg = new JSON().deserialize(json, UpdateMessage.class);
@@ -49,6 +49,5 @@ public class UpdateCallback {
         if (!allOK) {
             throw new NotAcceptableException("Course not managed by this service.");
         }
-        return "\n";
     }
 }
