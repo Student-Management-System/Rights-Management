@@ -1,25 +1,31 @@
 package net.ssehub.rightsmanagement.rest.resources;
+import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.google.gson.JsonParseException;
+
 import io.swagger.client.JSON;
 import io.swagger.client.model.UpdateMessage;
+import net.ssehub.rightsmanagement.StudentManagementChangeListener;
 
-@Path("/hello")
+/**
+ * Listens at <tt>server/rest/update/</tt> for changes at the student management system.
+ * @author El-Sharkawy
+ *
+ */
+@Path("/update")
 public class UpdateCallback {
 
-//    @GET
-//    @Path("/{param}")
-//    @Produces(MediaType.APPLICATION_JSON)
-//    public UserDto hello(@PathParam("param") String name) {
-//        UserDto user = new UserDto();
-//        user.setId(name);
-//        return user;
-//    }
-
+    /**
+     * Retrieves a JSON message which was specified as <tt>text/plain</tt> converts it and handles the message.
+     * @param update A {@link UpdateMessage} in serialized as JSON.
+     * @return
+     */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.TEXT_PLAIN)
@@ -32,8 +38,17 @@ public class UpdateCallback {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.TEXT_PLAIN)
     public String helloUsingJson(String json) {
-        UpdateMessage msg = new JSON().deserialize(json, UpdateMessage.class);
-        System.out.println("Got object: " + msg);
-        return msg + "\n";
+        UpdateMessage msg;
+        try {
+            msg = new JSON().deserialize(json, UpdateMessage.class);
+        } catch (JsonParseException e) {
+            throw new BadRequestException(e);
+        }
+        
+        boolean allOK = StudentManagementChangeListener.INSTANCE.onChange(msg);
+        if (!allOK) {
+            throw new NotAcceptableException("Course not managed by this service.");
+        }
+        return "\n";
     }
 }

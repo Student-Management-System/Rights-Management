@@ -16,7 +16,6 @@ public class Settings {
      * Singleton constructor.
      */
     private Settings() {
-        System.out.println(Settings.class.getResource(settingsFile));
         try (InputStream configFile = Settings.class.getResourceAsStream(settingsFile)) {
             prop.load(configFile);            
         } catch (IOException ex) {
@@ -24,13 +23,32 @@ public class Settings {
          } 
     }
     
+    /**
+     * Returns the value of the specified setting.
+     * @param key The setting for which the value should be returned.
+     * @return The value of the specified setting, or <tt>null</tt> if it wasn't specified.
+     */
     public String get(String key) {
         return prop.getProperty(key);
     }
     
+    /**
+     * Returns the value of the specified setting as integer.
+     * @param key The setting for which the value should be returned.
+     * @return The value of the specified setting, or <tt>0</tt> if it wasn't specified.
+     */
     public int getAsInt(String key) {
         String strValue = get(key);
-        return Integer.valueOf(strValue);
+        int result = 0;
+        if (null != strValue) {
+            try {
+                result = Integer.valueOf(strValue);
+            } catch (NumberFormatException exc) {
+                //TODO SE: Log exception
+                exc.printStackTrace();
+            }
+        }
+        return result;
     }
 
 }

@@ -6,8 +6,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.glassfish.jersey.servlet.ServletContainer;
 
-import net.ssehub.rightsmanagement.conf.Settings;
-
 /**
  * Simple rest server that listens for changes on the Student-Management-System.
  * Based on <a href="https://www.dovydasvenckus.dev/rest/2017/08/20/jersey-on-embedded-jetty/">
@@ -47,16 +45,10 @@ public class RestServer implements Closeable {
     public void close() {
         server.destroy();
     }
-    
 
     @Override
     protected void finalize() throws Throwable {
         close();
         super.finalize();
     }
-    
-    public static void main(String[] args) {
-        new RestServer(Settings.INSTANCE.getAsInt("server.listen.port"));
-    }
-
 }
