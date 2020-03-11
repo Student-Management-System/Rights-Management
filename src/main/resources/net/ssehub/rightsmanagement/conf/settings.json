@@ -1,0 +1,17 @@
+{
+  "restServerPort": 0,
+  "courses": [
+    {
+      "courseName": "java",
+      "semester": "wise1920",
+      "repositoryPath": "/repository",
+      "svnName": "/svn/"
+    },
+    {
+      "courseName": "Info",
+      "semester": "WiSe1920",
+      "repositoryPath": "/repository2",
+      "svnName": "/svn2/"
+    }
+  ]
+}

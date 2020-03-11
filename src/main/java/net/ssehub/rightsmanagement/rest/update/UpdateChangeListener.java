@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.swagger.client.model.UpdateMessage;
+import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 
 /**
@@ -22,8 +23,8 @@ public class UpdateChangeListener {
      */
     private UpdateChangeListener() {
         // TODO SE: Move handler creation out of this class.
-        String courseID = Settings.INSTANCE.get("mgmtsystem.course") 
-            + "-" + Settings.INSTANCE.get("mgmtsystem.semester");
+        CourseConfiguration config = Settings.INSTANCE.getConfig().getCourses().get(0);
+        String courseID = config.getCourseName() + "-" + config.getSemester();
         
         register(new UpdateHandler(courseID));
     }

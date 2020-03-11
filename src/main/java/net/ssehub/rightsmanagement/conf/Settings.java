@@ -1,54 +1,65 @@
 package net.ssehub.rightsmanagement.conf;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
+import java.io.Writer;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
+import com.google.gson.Gson;
+
+import io.gsonfire.GsonFireBuilder;
+import io.swagger.client.JSON;
 
 public class Settings {
     
     public static final Settings INSTANCE = new Settings();
     
-    private static final String settingsFile = "settings.properties";
+    private static final String settingsFile = "settings.json";
+    private static final Logger LOGGER = Log.getLog();
     
-    private Properties prop = new Properties();
+    private Configuration config;
+    private JSON jsonParser;
     
     /**
      * Singleton constructor.
      */
     private Settings() {
-        try (InputStream configFile = Settings.class.getResourceAsStream(settingsFile)) {
-            prop.load(configFile);            
-        } catch (IOException ex) {
-            ex.printStackTrace();
-         } 
+        jsonParser = new JSON();
+        Gson gson = new GsonFireBuilder().createGsonBuilder()
+            .setPrettyPrinting()
+            .create();
+        jsonParser.setGson(gson);
+      
+        // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
+        try {
+            URL url = Settings.class.getResource(settingsFile);
+            String content = Files.readString(Paths.get(url.toURI()));
+            loadConfig(content);
+        } catch (IOException | URISyntaxException e) {
+            LOGGER.warn("Could not read configuration from {}, cause {}", settingsFile, e);
+        } 
     }
     
-    /**
-     * Returns the value of the specified setting.
-     * @param key The setting for which the value should be returned.
-     * @return The value of the specified setting, or <tt>null</tt> if it wasn't specified.
-     */
-    public String get(String key) {
-        return prop.getProperty(key);
+    void loadConfig(String configAsJson) {
+        config = jsonParser.deserialize(configAsJson, Configuration.class);
     }
     
-    /**
-     * Returns the value of the specified setting as integer.
-     * @param key The setting for which the value should be returned.
-     * @return The value of the specified setting, or <tt>0</tt> if it wasn't specified.
-     */
-    public int getAsInt(String key) {
-        String strValue = get(key);
-        int result = 0;
-        if (null != strValue) {
-            try {
-                result = Integer.valueOf(strValue);
-            } catch (NumberFormatException exc) {
-                //TODO SE: Log exception
-                exc.printStackTrace();
-            }
+    void saveConfiguration(Writer out) {
+        String configAsJson = jsonParser.serialize(config);
+        try {
+            out.write(configAsJson);
+            out.flush();
+        } catch (IOException e) {
+            LOGGER.warn("Could not save configuration, cause {}", e);
         }
-        return result;
     }
-
+    
+    public Configuration getConfig() {
+        return config;
+    }
 }

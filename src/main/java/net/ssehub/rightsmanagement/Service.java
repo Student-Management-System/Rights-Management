@@ -11,7 +11,7 @@ import net.ssehub.rightsmanagement.rest.RestServer;
 public class Service {
 
     public static void main(String[] args) {
-        new RestServer(Settings.INSTANCE.getAsInt("server.listen.port"));
+        new RestServer(Settings.INSTANCE.getConfig().getRestPort());
     }
 
 }
