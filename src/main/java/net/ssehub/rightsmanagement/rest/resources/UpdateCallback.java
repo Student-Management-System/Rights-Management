@@ -13,7 +13,8 @@ import com.google.gson.JsonParseException;
 
 import io.swagger.client.JSON;
 import io.swagger.client.model.UpdateMessage;
-import net.ssehub.rightsmanagement.StudentManagementChangeListener;
+import net.ssehub.rightsmanagement.update.UpdateChangeListener;
+import net.ssehub.rightsmanagement.update.WrongFormatException;
 
 /**
  * Listens at <tt>server/rest/update/</tt> for changes at the student management system.
@@ -44,6 +45,10 @@ public class UpdateCallback {
         processMessage(json);
     }
 
+    /**
+     * Parsed the JSON message and processes the the update via {@link UpdateChangeListener}.
+     * @param json A JSON representation of {@link UpdateMessage}.
+     */
     private void processMessage(String json) {
         UpdateMessage msg;
         try {
@@ -53,9 +58,10 @@ public class UpdateCallback {
             throw new BadRequestException(e);
         }
         
-        boolean allOK = StudentManagementChangeListener.INSTANCE.onChange(msg);
-        if (!allOK) {
-            throw new NotAcceptableException("Course not managed by this service.");
+        try {
+            UpdateChangeListener.INSTANCE.onChange(msg);
+        } catch (WrongFormatException e) {
+            throw new NotAcceptableException(e);
         }
     }
 }
