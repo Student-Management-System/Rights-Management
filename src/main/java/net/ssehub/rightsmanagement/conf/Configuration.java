@@ -101,12 +101,30 @@ public class Configuration {
     
     private int restServerPort;
     private List<CourseConfiguration> courses;
+    private String cacheDir;
     
     /**
+     * Configurations of courses managed by this service.
      * @return the courses
      */
     public List<CourseConfiguration> getCourses() {
         return courses;
+    }
+    
+    /**
+     * The port at which service listens for incoming update events.
+     * @return the restPort
+     */
+    public int getRestPort() {
+        return restServerPort;
+    }
+    
+    /**
+     * The location where to store cached information of managed courses.
+     * @return the cacheDir
+     */
+    public String getCacheDir() {
+        return cacheDir;
     }
     
     /**
@@ -117,17 +135,16 @@ public class Configuration {
     }
     
     /**
-     * @return the restPort
-     */
-    public int getRestPort() {
-        return restServerPort;
-    }
-    
-    /**
      * @param restPort the restPort to set
      */
     public void setRestPort(int restPort) {
         this.restServerPort = restPort;
     }
 
+    /**
+     * @param cacheDir the cacheDir to set
+     */
+    public void setCacheDir(String cacheDir) {
+        this.cacheDir = cacheDir;
+    }
 }

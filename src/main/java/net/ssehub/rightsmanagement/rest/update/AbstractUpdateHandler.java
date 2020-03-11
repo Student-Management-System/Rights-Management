@@ -16,7 +16,7 @@ import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
  * @author El-Sharkawy
  *
  */
-public class UpdateHandler {
+public abstract class AbstractUpdateHandler {
     
     private CourseConfiguration courseConfig;
     
@@ -24,7 +24,7 @@ public class UpdateHandler {
      * Creates a handler to manage updates for a course.
      * @param CourseConfiguration The configuration for the managed course.
      */
-    public UpdateHandler(CourseConfiguration courseConfig) {
+    public AbstractUpdateHandler(CourseConfiguration courseConfig) {
         this.courseConfig = courseConfig;
     }
     
@@ -44,7 +44,7 @@ public class UpdateHandler {
          * Second: Write access file.
          * Should be done before updating the repository to avoid accidentally access to newly files and folders.
          */
-        AccessWriter writer = createWriter(courseConfig);
+        AccessWriter writer = createWriter();
         try {
             // TODO SE: Change write() to write(course)
             writer.write();
@@ -56,7 +56,15 @@ public class UpdateHandler {
         /*
          * Third: Update repository.
          */
-        updateRepository(courseConfig, course);
+        updateRepository(course);
+    }
+    
+    /**
+     * Returns the configuration of the managed course, which is updated by this handler.
+     * @return The configuration of the managed course.
+     */
+    protected final CourseConfiguration getConfig() {
+        return courseConfig;
     }
     
     /**
@@ -65,32 +73,28 @@ public class UpdateHandler {
      * @param msg The update request produced by the student management service
      * @return The complete set-up for the whole course.
      */
-    protected Course computeFullConfiguration(UpdateMessage msg) {
-        return new Course();
-    }
+    protected abstract Course computeFullConfiguration(UpdateMessage msg);
     
     /**
      * Creates the {@link AccessWriter} to write the access file.
      * May be overwritten for testing purposes.
-     * @param config The configuration for the managed course.
      * @return The writer to use.
      * @throws IOException If the named file exists but is a directory rather than a regular file,
      *     does not exist but cannot be created, or cannot be opened for any other reason
      */
-    protected AccessWriter createWriter(CourseConfiguration config) throws IOException {
-        Writer writer = new FileWriter(config.getAccessPath());
+    protected AccessWriter createWriter() throws IOException {
+        Writer writer = new FileWriter(courseConfig.getAccessPath());
         return new AccessWriter(writer);
     }
     
     /**
      * Updates the repository.
      * May be overwritten for testing purposes or to support alternative repositories.
-     * @param config The configuration for the managed course.
      * @throws IOException
      */
-    protected void updateRepository(CourseConfiguration config, Course course) throws IOException {
+    protected void updateRepository(Course course) throws IOException {
         try {
-            Repository repository = new Repository(config.getRepositoryPath());
+            Repository repository = new Repository(courseConfig.getRepositoryPath());
             // TODO SE: Write the course
         } catch (RepositoryNotFoundException e) {
             throw new IOException(e);

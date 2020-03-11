@@ -2,12 +2,9 @@ package net.ssehub.rightsmanagement.rest.update;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import io.swagger.client.model.UpdateMessage;
-import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
-import net.ssehub.rightsmanagement.conf.Settings;
 
 /**
  * Observer that specifies how to react on changes at the student management system.
@@ -18,29 +15,23 @@ public class UpdateChangeListener {
     
     public static final UpdateChangeListener INSTANCE = new UpdateChangeListener();
     
-    private Map<String, UpdateHandler> observedCourses = new HashMap<>();
+    private Map<String, AbstractUpdateHandler> observedCourses = new HashMap<>();
     
     /**
      * Singleton constructor
      */
-    private UpdateChangeListener() {
-        // TODO SE: Move handler creation out of this class.
-        List<CourseConfiguration> courses = Settings.getConfig().getCourses();
-        for (CourseConfiguration courseConfiguration : courses) {
-            register(new UpdateHandler(courseConfiguration));            
-        }
-    }
+    private UpdateChangeListener() { }
     
     /**
-     * Registers an {@link UpdateHandler} for a managed course.
-     * @param handler An {@link UpdateHandler} for course managed by this service.
+     * Registers an {@link AbstractUpdateHandler} for a managed course.
+     * @param handler An {@link AbstractUpdateHandler} for course managed by this service.
      */
-    public void register(UpdateHandler handler) {
+    public void register(AbstractUpdateHandler handler) {
         observedCourses.put(handler.getCourseID(), handler);
     }
     
     /**
-     * Handles the incoming update request and selects the {@link UpdateHandler} for the specified repository.
+     * Handles the incoming update request and selects the {@link AbstractUpdateHandler} for the specified repository.
      * Will throw an exception if a course was specified that is not managed by the RightsManagement service.
      * @param update The update message received by the student management system.
      * @throws WrongFormatException If the update message points not to a managed course / repository.
@@ -52,7 +43,7 @@ public class UpdateChangeListener {
             throw new WrongFormatException("No course specified");
         }
         
-        UpdateHandler handler = observedCourses.get(update.getCourseId());
+        AbstractUpdateHandler handler = observedCourses.get(update.getCourseId());
         if (null == handler) {
             throw new WrongFormatException(update.getCourseId() + " not managed by this service.");
         }
