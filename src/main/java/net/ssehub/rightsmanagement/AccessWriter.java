@@ -1,5 +1,6 @@
 package net.ssehub.rightsmanagement;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -10,12 +11,13 @@ import net.ssehub.rightsmanagement.model.AssignmentStates;
 import net.ssehub.rightsmanagement.model.Group;
 
 /**
- * Writes the accessess for the svn.
+ * Writes the access file (containing access right set-up) for the svn.
  * 
  * @author Kunold
+ * @author El-Sharkawy
  *
  */
-public class AccessWriter {
+public class AccessWriter implements Closeable {
     private static final String GROUP_SECTION = "[groups]";
     private static final String ASSIGNMENT = " = ";
     private static final String LINE_BREAK = "\n";
@@ -168,5 +170,10 @@ public class AccessWriter {
         out.append(LINE_BREAK);
         
         writePermissions();
+    }
+
+    @Override
+    public void close() throws IOException {
+        out.close();
     }
 }

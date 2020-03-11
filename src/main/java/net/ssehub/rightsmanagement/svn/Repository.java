@@ -179,23 +179,5 @@ public class Repository {
             throw new RepositoryNotFoundException(e + " repository not found");
         }
     }
-    
-//    /**
-//     * Will be removed.
-//     * @param args .
-//     * @throws Exception .
-//     */
-//    public static void main(String[] args) throws Exception {
-//        // ToDo: main methode muss noch entfernt und der rest sinnvoll ausgelagert werden
-//        try {
-//            Repository repos = new Repository("/repository/abgabe");
-//            String ha = args[0];
-//            String[] groups = new String[args.length - 1];
-//            System.arraycopy(args, 1, groups, 0, groups.length);
-//            repos.createOrModifyAssignment(ha, groups);
-//        } catch (RepositoryNotFoundException e) {
-//            throw new RepositoryNotFoundException(e + " repository not found");
-//        }
-//    }
 
 }

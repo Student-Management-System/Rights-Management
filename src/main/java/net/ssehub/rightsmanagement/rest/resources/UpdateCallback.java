@@ -1,6 +1,9 @@
 package net.ssehub.rightsmanagement.rest.resources;
+import java.io.IOException;
+
 import javax.ws.rs.BadRequestException;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.InternalServerErrorException;
 import javax.ws.rs.NotAcceptableException;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -55,13 +58,18 @@ public class UpdateCallback {
             msg = new JSON().deserialize(json, UpdateMessage.class);
         } catch (JsonParseException e) {
             LOGGER.warn("Could not parse message {} to {}, cause {}", json, UpdateMessage.class.getSimpleName(), e);
+            // Malformed input -> client side error
             throw new BadRequestException(e);
         }
         
         try {
             UpdateChangeListener.INSTANCE.onChange(msg);
         } catch (WrongFormatException e) {
+            // Malformed input -> client side error
             throw new NotAcceptableException(e);
+        } catch (IOException e) {
+            // internal error -> server side error
+            throw new InternalServerErrorException(e);
         }
     }
 }

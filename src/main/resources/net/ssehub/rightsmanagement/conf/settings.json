@@ -4,14 +4,16 @@
     {
       "courseName": "java",
       "semester": "wise1920",
-      "repositoryPath": "/repository",
-      "svnName": "/svn/"
+      "repositoryPath": "/repository/java/",
+      "accessPath": "/repository/java.access",
+      "svnName": "java-abgaben"
     },
     {
       "courseName": "Info",
       "semester": "WiSe1920",
-      "repositoryPath": "/repository2",
-      "svnName": "/svn2/"
+      "repositoryPath": "/repository/info/",
+      "accessPath": "/repository/info.access",
+      "svnName": "info-abgaben"
     }
   ]
 }

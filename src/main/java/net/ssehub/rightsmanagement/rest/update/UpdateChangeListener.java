@@ -1,5 +1,6 @@
 package net.ssehub.rightsmanagement.rest.update;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -43,8 +44,9 @@ public class UpdateChangeListener {
      * Will throw an exception if a course was specified that is not managed by the RightsManagement service.
      * @param update The update message received by the student management system.
      * @throws WrongFormatException If the update message points not to a managed course / repository.
+     * @throws IOException If the update message couldn't be written to disk
      */
-    public void onChange(UpdateMessage update) throws WrongFormatException {
+    public void onChange(UpdateMessage update) throws WrongFormatException, IOException {
         // Not ensured that mandatory fields are set, the JSON parser will accept also empty mandatory fields!
         if (null == update.getCourseId()) {
             throw new WrongFormatException("No course specified");
