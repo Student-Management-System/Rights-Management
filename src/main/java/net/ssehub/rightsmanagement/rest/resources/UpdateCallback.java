@@ -32,7 +32,6 @@ public class UpdateCallback {
      */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
-//    @Produces(MediaType.TEXT_PLAIN)
     public void helloUsingTxt(String update) {
         LOGGER.debug("Received plain text message", update);
         processMessage(update);
@@ -40,7 +39,6 @@ public class UpdateCallback {
     
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
-//    @Produces(MediaType.TEXT_PLAIN)
     public void helloUsingJson(String json) {
         LOGGER.debug("Received JSON message", json);
         processMessage(json);
