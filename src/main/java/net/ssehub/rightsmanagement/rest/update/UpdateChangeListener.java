@@ -23,7 +23,7 @@ public class UpdateChangeListener {
      */
     private UpdateChangeListener() {
         // TODO SE: Move handler creation out of this class.
-        CourseConfiguration config = Settings.INSTANCE.getConfig().getCourses().get(0);
+        CourseConfiguration config = Settings.getConfig().getCourses().get(0);
         String courseID = config.getCourseName() + "-" + config.getSemester();
         
         register(new UpdateHandler(courseID));

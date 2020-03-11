@@ -15,6 +15,11 @@ import com.google.gson.Gson;
 import io.gsonfire.GsonFireBuilder;
 import io.swagger.client.JSON;
 
+/**
+ * Singleton that reads and stores the configuration of the whole application (except for logging).
+ * @author El-Sharkawy
+ *
+ */
 public class Settings {
     
     public static final Settings INSTANCE = new Settings();
@@ -35,14 +40,26 @@ public class Settings {
             .create();
         jsonParser.setGson(gson);
       
+    }
+    
+    /**
+     * Loads the configuration from the settings file.
+     * Needs to be done <b>once</b> at startup.
+     * @throws IOException If the default configuration could not be read.
+     */
+    public void init() throws IOException {
         // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
         try {
             URL url = Settings.class.getResource(settingsFile);
             String content = Files.readString(Paths.get(url.toURI()));
             loadConfig(content);
-        } catch (IOException | URISyntaxException e) {
+        } catch (IOException e) {
             LOGGER.warn("Could not read configuration from {}, cause {}", settingsFile, e);
-        } 
+            throw e;
+        } catch (URISyntaxException e) {
+            LOGGER.warn("Could not read configuration from {}, cause {}", settingsFile, e);
+            throw new IOException(e);
+        }
     }
     
     void loadConfig(String configAsJson) {
@@ -59,7 +76,12 @@ public class Settings {
         }
     }
     
-    public Configuration getConfig() {
-        return config;
+    /**
+     * Returns the whole configuration.
+     * Static method only for convince reasons. 
+     * @return The configuration of the application.
+     */
+    public static Configuration getConfig() {
+        return INSTANCE.config;
     }
 }

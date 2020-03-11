@@ -1,5 +1,7 @@
 package net.ssehub.rightsmanagement;
 
+import java.io.IOException;
+
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.rest.RestServer;
 
@@ -11,7 +13,14 @@ import net.ssehub.rightsmanagement.rest.RestServer;
 public class Service {
 
     public static void main(String[] args) {
-        new RestServer(Settings.INSTANCE.getConfig().getRestPort());
+        try {
+            Settings.INSTANCE.init();
+        } catch (IOException e) {
+            // Abort application
+            System.exit(1);
+        }
+        
+        new RestServer(Settings.getConfig().getRestPort());
     }
 
 }
