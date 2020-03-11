@@ -21,10 +21,19 @@ public class UpdateChangeListener {
      * Singleton constructor
      */
     private UpdateChangeListener() {
+        // TODO SE: Move handler creation out of this class.
         String courseID = Settings.INSTANCE.get("mgmtsystem.course") 
             + "-" + Settings.INSTANCE.get("mgmtsystem.semester");
         
-        observedCourses.put(courseID, new UpdateHandler(courseID));
+        register(new UpdateHandler(courseID));
+    }
+    
+    /**
+     * Registers an {@link UpdateHandler} for a managed course.
+     * @param handler An {@link UpdateHandler} for course managed by this service.
+     */
+    public void register(UpdateHandler handler) {
+        observedCourses.put(handler.getCourseID(), handler);
     }
     
     /**

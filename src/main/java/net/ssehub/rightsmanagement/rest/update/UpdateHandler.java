@@ -11,6 +11,12 @@ class UpdateHandler {
     
     private String courseID;
     
+    /**
+     * Creates a handler to manage updates for a course.
+     * @param courseID The ID of the managed course.
+     *     Must be the same ID as send by the student management service as part of the {@link UpdateMessage}s.
+     *     Must not be <tt>null</tt>.
+     */
     UpdateHandler(String courseID) {
         this.courseID = courseID;
     }
@@ -19,4 +25,11 @@ class UpdateHandler {
         
     }
 
+    /**
+     * Returns the ID of the managed course.
+     * @return The ID of the course, won't be <tt>null</tt>.
+     */
+    public String getCourseID() {
+        return courseID;
+    }
 }
