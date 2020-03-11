@@ -1,6 +1,7 @@
 package net.ssehub.rightsmanagement.rest.update;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.swagger.client.model.UpdateMessage;
@@ -23,10 +24,10 @@ public class UpdateChangeListener {
      */
     private UpdateChangeListener() {
         // TODO SE: Move handler creation out of this class.
-        CourseConfiguration config = Settings.getConfig().getCourses().get(0);
-        String courseID = config.getCourseName() + "-" + config.getSemester();
-        
-        register(new UpdateHandler(courseID));
+        List<CourseConfiguration> courses = Settings.getConfig().getCourses();
+        for (CourseConfiguration courseConfiguration : courses) {
+            register(new UpdateHandler(courseConfiguration));            
+        }
     }
     
     /**

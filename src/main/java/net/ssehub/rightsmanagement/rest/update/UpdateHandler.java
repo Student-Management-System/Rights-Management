@@ -1,6 +1,7 @@
 package net.ssehub.rightsmanagement.rest.update;
 
 import io.swagger.client.model.UpdateMessage;
+import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 
 /**
  * Handles the updates for <b>one</b> repository.
@@ -9,7 +10,7 @@ import io.swagger.client.model.UpdateMessage;
  */
 class UpdateHandler {
     
-    private String courseID;
+    private CourseConfiguration courseConfig;
     
     /**
      * Creates a handler to manage updates for a course.
@@ -17,8 +18,8 @@ class UpdateHandler {
      *     Must be the same ID as send by the student management service as part of the {@link UpdateMessage}s.
      *     Must not be <tt>null</tt>.
      */
-    UpdateHandler(String courseID) {
-        this.courseID = courseID;
+    UpdateHandler(CourseConfiguration courseConfig) {
+        this.courseConfig = courseConfig;
     }
     
     public void update(UpdateMessage msg) {
@@ -30,6 +31,6 @@ class UpdateHandler {
      * @return The ID of the course, won't be <tt>null</tt>.
      */
     public String getCourseID() {
-        return courseID;
+        return courseConfig.getCourseName() + "-" + courseConfig.getSemester();
     }
 }
