@@ -100,6 +100,7 @@ public class Configuration {
     }
     
     private int restServerPort;
+    private String mgmtURL;
     private List<CourseConfiguration> courses;
     private String cacheDir;
     
@@ -128,6 +129,14 @@ public class Configuration {
     }
     
     /**
+     * The URL to query the student management system.
+     * @return the mgmtURL
+     */
+    public String getMgmtURL() {
+        return mgmtURL;
+    }
+    
+    /**
      * @param courses the courses to set
      */
     public void setCourses(List<CourseConfiguration> courses) {
@@ -146,5 +155,12 @@ public class Configuration {
      */
     public void setCacheDir(String cacheDir) {
         this.cacheDir = cacheDir;
+    }
+
+    /**
+     * @param mgmtURL the mgmtURL to set
+     */
+    public void setMgmtURL(String mgmtURL) {
+        this.mgmtURL = mgmtURL;
     }
 }

@@ -6,7 +6,9 @@ import java.util.List;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.rest.RestServer;
+import net.ssehub.rightsmanagement.rest.update.AbstractUpdateHandler;
 import net.ssehub.rightsmanagement.rest.update.IncrementalUpdateHandler;
+import net.ssehub.rightsmanagement.rest.update.RestUpdateHandler;
 import net.ssehub.rightsmanagement.rest.update.UpdateChangeListener;
 
 /**
@@ -16,6 +18,8 @@ import net.ssehub.rightsmanagement.rest.update.UpdateChangeListener;
  */
 public class Service {
 
+    private static final boolean PULL_FULL_CONFIG_ON_UPDATE = true;
+    
     /**
      * Starting point of this service.
      * @param args Will be ignored
@@ -32,7 +36,9 @@ public class Service {
         
         List<CourseConfiguration> courses = Settings.getConfig().getCourses();
         for (CourseConfiguration courseConfiguration : courses) {
-            UpdateChangeListener.INSTANCE.register(new IncrementalUpdateHandler(courseConfiguration)); 
+            AbstractUpdateHandler handler =
+                UpdateChangeListener.INSTANCE.createHandler(courseConfiguration, PULL_FULL_CONFIG_ON_UPDATE);
+            UpdateChangeListener.INSTANCE.register(handler); 
         }
         
         new RestServer(Settings.getConfig().getRestPort());

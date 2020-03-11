@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.swagger.client.model.UpdateMessage;
+import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 
 /**
  * Observer that specifies how to react on changes at the student management system.
@@ -49,6 +50,20 @@ public class UpdateChangeListener {
         }
         
         handler.update(update);
+    }
+    
+    /**
+     * Factory method to create an {@link AbstractUpdateHandler} for the specified configuration.<p>
+     * <b>Note:</b> This won't register the handler.
+     * @param config The configuration of the course specifying which course is handled.
+     * @param pullFullconfigOnChange <tt>true</tt> handler will always pull the full configuration on an update,
+     *     <tt>false</tt> the handler will operate on local cache.
+     * @return The handler to handle updates.
+     * @throws IOException If caching was specified and the required file cannot be created and does not exist.
+     * @see {@link #register(AbstractUpdateHandler)}
+     */
+    public AbstractUpdateHandler createHandler(CourseConfiguration config, boolean pullFullconfigOnChange) throws IOException {
+        return pullFullconfigOnChange ? new RestUpdateHandler(config) : new IncrementalUpdateHandler(config);
     }
 
 }
