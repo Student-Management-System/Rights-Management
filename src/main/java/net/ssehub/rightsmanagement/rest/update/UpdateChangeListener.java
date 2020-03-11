@@ -1,4 +1,4 @@
-package net.ssehub.rightsmanagement.update;
+package net.ssehub.rightsmanagement.rest.update;
 
 import java.util.HashMap;
 import java.util.Map;
