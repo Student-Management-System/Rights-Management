@@ -8,12 +8,15 @@ import org.eclipse.jetty.util.log.Logger;
 
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
+import io.swagger.client.api.AssignmentsApi;
 import io.swagger.client.api.GroupsApi;
+import io.swagger.client.model.AssignmentDto;
 import io.swagger.client.model.GroupDto;
 import io.swagger.client.model.UpdateMessage;
 import io.swagger.client.model.UserDto;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
+import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 
@@ -27,6 +30,7 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
     private static final Logger LOGGER = Log.getLog();
 
     private GroupsApi groupsAPI;
+    private AssignmentsApi assignmentsAPI;
     
     /**
      * Creates an {@link AbstractUpdateHandler} that pulls always the complete information from the student management
@@ -36,7 +40,9 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
     public RestUpdateHandler(CourseConfiguration courseConfig) {
         super(courseConfig);
         String url = Settings.getConfig().getMgmtURL();
-        groupsAPI =  new GroupsApi(new ApiClient().setBasePath(url));
+        ApiClient client = new ApiClient().setBasePath(url);
+        groupsAPI = new GroupsApi(client);
+        assignmentsAPI = new AssignmentsApi(client);
     }
 
     @Override
@@ -45,7 +51,8 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
         course.setCourseName(getConfig().getCourseName());
         course.setSemester(getConfig().getSemester());
         
-        List<Group> homeworkGroups = new ArrayList<>();       
+        // Gather all homework groups
+        List<Group> homeworkGroups = new ArrayList<>();
         try {
             List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(getCourseID());
             for (GroupDto groupDto : groupsOfServer) {
@@ -60,8 +67,41 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
             }
             course.setHomeworkGroups(homeworkGroups);
         } catch (ApiException e) {
-            LOGGER.warn("Could not query student management system via \"" + Settings.getConfig().getMgmtURL()
-                + "\".", e);
+            LOGGER.warn("Could not query student management system for Groups via \""
+                + Settings.getConfig().getMgmtURL() + "\".", e);
+        }
+        
+        // TODO SE: Efficient query for tutors is missing
+        
+        // Collect assignments
+        List<Assignment> assignments = new ArrayList<>();
+        try {
+            List<AssignmentDto> assignmentsOfServer = assignmentsAPI.getAssignmentsOfCourse(getCourseID());
+            for (AssignmentDto assignmentDto : assignmentsOfServer) {
+                Assignment assignment = new Assignment();
+                assignment.setName(assignmentDto.getName());
+                assignment.setStatus(assignmentDto.getState());
+                switch (assignmentDto.getCollaborationType()) {
+                case GROUP:
+                    assignment.addAllParticipants(homeworkGroups);
+                    assignments.add(assignment);
+                    break;
+                case SINGLE:
+                    // TODO SE: Missing assignment.addAll(User)
+                    assignments.add(assignment);
+                    break;
+                case GROUP_OR_SINGLE:
+                    // Falls through
+                default:
+                    LOGGER.warn("Assignment \"" + assignment.getName() + "\" is set to \""
+                    + assignmentDto.getCollaborationType() + "\" which is not supported.");
+                    // Skip broken assignments -> Do not add them to list
+                }
+            }
+            course.setAssignments(assignments);
+        } catch (ApiException e) {
+            LOGGER.warn("Could not query student management system for Assignments via \""
+                + Settings.getConfig().getMgmtURL() + "\".", e);
         }
         
         return course;

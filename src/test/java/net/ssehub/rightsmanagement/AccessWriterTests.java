@@ -10,8 +10,8 @@ import java.io.StringWriter;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import io.swagger.client.model.AssignmentDto.StateEnum;
 import net.ssehub.rightsmanagement.model.Assignment;
-import net.ssehub.rightsmanagement.model.AssignmentStates;
 import net.ssehub.rightsmanagement.model.Group;
 
 /**
@@ -60,6 +60,7 @@ public class AccessWriterTests {
         AccessWriter aWriter = new AccessWriter(sWriter);
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_oneGroup_access");
@@ -78,6 +79,7 @@ public class AccessWriterTests {
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.addGroup(getMemberGroup("JP002"));
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_twoGroups_access");
@@ -95,6 +97,7 @@ public class AccessWriterTests {
         AccessWriter aWriter = new AccessWriter(sWriter);
         aWriter.addTutorGroup(getTutorGroup());
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_tutorGroup_access");
@@ -114,6 +117,7 @@ public class AccessWriterTests {
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.addGroup(getMemberGroup("JP002"));
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_tutor_and_users_access");
@@ -129,7 +133,7 @@ public class AccessWriterTests {
         // Create test data for writing
         Assignment hw = new Assignment();
         hw.setName("Unsichtbare_Abgabe");
-        hw.setStatus(AssignmentStates.INVISIBLE);
+        hw.setStatus(StateEnum.INVISIBLE);
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -138,6 +142,7 @@ public class AccessWriterTests {
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.addHomework(hw);
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("permissions_invisibleAssignment");
@@ -153,7 +158,7 @@ public class AccessWriterTests {
         // Create test data for writing
         Assignment hw = new Assignment();
         hw.setName("In_Bearbeitung_Abgabe");
-        hw.setStatus(AssignmentStates.IN_PROGRESS);
+        hw.setStatus(StateEnum.IN_PROGRESS);
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -162,6 +167,7 @@ public class AccessWriterTests {
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.addHomework(hw);
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("permissions_in_progressAssignment");
@@ -178,7 +184,7 @@ public class AccessWriterTests {
         Assignment hw = new Assignment();
         // reuse Unsichtbare_Abgabe because the rights should remain the same
         hw.setName("Unsichtbare_Abgabe");
-        hw.setStatus(AssignmentStates.IN_REVIEW);
+        hw.setStatus(StateEnum.IN_REVIEW);
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -187,6 +193,7 @@ public class AccessWriterTests {
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.addHomework(hw);
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         // reuse permissions_invisibleAssignment because the rights should remain the same
@@ -204,7 +211,7 @@ public class AccessWriterTests {
         Assignment hw = new Assignment();
         // reuse Unsichtbare_Abgabe because the rights should remain the same
         hw.setName("Bewertet_Abgabe");
-        hw.setStatus(AssignmentStates.EVALUATED);
+        hw.setStatus(StateEnum.EVALUATED);
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -213,6 +220,7 @@ public class AccessWriterTests {
         aWriter.addGroup(getMemberGroup("JP001"));
         aWriter.addHomework(hw);
         aWriter.write();
+        aWriter.close();
         
         // Compare expected and actual output of aWriter
         // reuse permissions_invisibleAssignment because the rights should remain the same

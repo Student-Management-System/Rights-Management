@@ -12,8 +12,10 @@ import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
+import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
+import net.ssehub.rightsmanagement.model.IParticipant;
 
 /**
  * Tests the {@link RestUpdateHandler}.<p>
@@ -75,13 +77,15 @@ public class RestUpdateHandlerTest {
      */
     @Test
     public void testComputeFullConfiguration() {
-        // IDs used for the test
+        // Values of the student management system used for the test
         String courseName = "java";
         String semester = "wise1920";
         String groupNameForTesting = "Testgroup 1";
+        String userNameForTesting = "a019ea22-5194-4b83-8d31-0de0dc9bca53";
+        String assignmentNameForTesting = "Test_Assignment 01 (Java)";
         int exptectedNoOfGroups = 2;
         int exptectedNoOfMembers = 2;
-        String userNameForTesting = "a019ea22-5194-4b83-8d31-0de0dc9bca53";
+        int exptectedNoOfAssignments = 3;
         
         // Init and execute
         CourseConfiguration config = createConfig("java", "wise1920");
@@ -106,6 +110,23 @@ public class RestUpdateHandlerTest {
         Assertions.assertEquals(groupNameForTesting, groupForTest.getName());
         Assertions.assertEquals(exptectedNoOfMembers, groupForTest.getMembers().size());
         Assertions.assertTrue(groupForTest.getMembers().contains(userNameForTesting));
+        
+        // Test assignments
+        List<Assignment> assignments = course.getAssignments();
+        Assertions.assertNotNull(assignments);
+        Assertions.assertFalse(assignments.isEmpty(), "Course has no assignments");
+        Assertions.assertEquals(assignments.size(), exptectedNoOfAssignments);
+        Assignment assignmentForTest = assignments.stream()
+            .filter(a -> assignmentNameForTesting.equals(a.getName()))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(assignmentForTest, "Expected assignment \""
+            + assignmentNameForTesting + "\" not part of assignments");
+        Assertions.assertEquals(assignmentNameForTesting, assignmentForTest.getName());
+        // Expected assignment to be a group work
+        for (IParticipant participant : assignmentForTest) {
+            Assertions.assertSame(Group.class, participant.getClass(), "Group assignment containts individuals.");
+        }
     }
 
 }

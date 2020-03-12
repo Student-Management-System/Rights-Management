@@ -1,29 +1,43 @@
 package net.ssehub.rightsmanagement.model;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
+
+import io.swagger.client.model.AssignmentDto.StateEnum;
 
 /**
  * Manages the Assignments.
  * 
  * @author Kunold
+ * @author El-Sharkawy
  *
  */
 public class Assignment implements Iterable<IParticipant> {
 
     private String name;
     
-    private AssignmentStates status;
+    private StateEnum status;
     
     private Set<IParticipant> participants = new TreeSet<>();
     
     /**
-     * Adds participants to the set of participants
+     * Adds one participant to the assignment.
      * @param participant to add to the set.
      */
     public void addParticipant(IParticipant participant) {
         participants.add(participant);
+    }
+    
+    /**
+     * Adds all specified participants to the assignment.
+     * @param participants to add to the set.
+     */
+    public void addAllParticipants(Collection<? extends IParticipant> participants) {
+        for (IParticipant participant : participants) {
+            addParticipant(participant);
+        }
     }
     
     /**
@@ -46,7 +60,7 @@ public class Assignment implements Iterable<IParticipant> {
      * Sets the status of a assignment.
      * @param status of the assignment.
      */
-    public void setStatus(AssignmentStates status) {
+    public void setStatus(StateEnum status) {
         if (null != status) {
             this.status = status;
         }
@@ -56,7 +70,7 @@ public class Assignment implements Iterable<IParticipant> {
      * Getter for the status of the assignment.
      * @return the status of the assignment.
      */
-    public AssignmentStates getStatus() {
+    public StateEnum getStatus() {
         return status;
     }
 

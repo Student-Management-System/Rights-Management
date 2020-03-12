@@ -6,8 +6,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.swagger.client.model.AssignmentDto.StateEnum;
 import net.ssehub.rightsmanagement.model.Assignment;
-import net.ssehub.rightsmanagement.model.AssignmentStates;
 import net.ssehub.rightsmanagement.model.Group;
 
 /**
@@ -135,9 +135,9 @@ public class AccessWriter implements Closeable {
             for (Assignment assignment : assignments) {
                 
                 String rights = "";
-                if (assignment.getStatus() == AssignmentStates.IN_PROGRESS) {
+                if (assignment.getStatus() == StateEnum.IN_PROGRESS) {
                     rights = READ_WRITE;
-                } else if (assignment.getStatus() == AssignmentStates.EVALUATED) {
+                } else if (assignment.getStatus() == StateEnum.EVALUATED) {
                     rights = READ;
                 }
                 
