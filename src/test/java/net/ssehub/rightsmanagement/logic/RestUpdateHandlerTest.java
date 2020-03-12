@@ -82,12 +82,12 @@ public class RestUpdateHandlerTest {
         String courseName = "java";
         String semester = "wise1920";
         String groupNameForTesting = "Testgroup 1";
-        String userNameForTesting = "a019ea22-5194-4b83-8d31-0de0dc9bca53";
+        String userNameForTesting = "mmustermann";
         String assignmentNameForTesting = "Test_Assignment 01 (Java)";
         StateEnum expectedAssignmentState = StateEnum.IN_PROGRESS;
         int exptectedNoOfGroups = 2;
         int exptectedNoOfMembers = 2;
-        int exptectedNoOfAssignments = 3;
+        int exptectedNoOfAssignments = 5;
         
         // Init and execute
         CourseConfiguration config = createConfig("java", "wise1920");

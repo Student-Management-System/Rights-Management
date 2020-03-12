@@ -9,6 +9,7 @@ import org.eclipse.jetty.util.log.Logger;
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
 import io.swagger.client.api.AssignmentsApi;
+import io.swagger.client.api.CoursesApi;
 import io.swagger.client.api.GroupsApi;
 import io.swagger.client.model.AssignmentDto;
 import io.swagger.client.model.GroupDto;
@@ -18,6 +19,7 @@ import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
+import net.ssehub.rightsmanagement.model.Member;
 
 /**
  * Pulls information from the <b>student management system</b>.
@@ -32,6 +34,7 @@ public class DataPullService {
     private String semester;
     private String courseID;
     
+    private CoursesApi courseAPI;
     private GroupsApi groupsAPI;
     private AssignmentsApi assignmentsAPI;
     
@@ -55,6 +58,7 @@ public class DataPullService {
         ApiClient client = new ApiClient().setBasePath(serverURL);
         groupsAPI = new GroupsApi(client);
         assignmentsAPI = new AssignmentsApi(client);
+        courseAPI = new CoursesApi(client);
         
         this.courseName = courseName;
         this.semester = semester;
@@ -70,6 +74,35 @@ public class DataPullService {
         course.setCourseName(courseName);
         course.setSemester(semester);
         
+        Group tutors = new Group();
+        List<Member> studentsOfCourse = new ArrayList<Member>();
+        try {
+            List<UserDto> usersOfCourse = courseAPI.getUsersOfCourse(courseID);
+            for (UserDto userDto : usersOfCourse) {
+                switch (userDto.getRole()) {
+                case STUDENT:
+                    Member student = new Member();
+                    student.setMemberName(userDto.getRzName());
+                    studentsOfCourse.add(student);
+                    break;
+                case LECTURER:
+                    // falls through
+                case TUTOR:
+                    tutors.addMembers(userDto.getRzName());
+                case SYSTEM_ADMIN:
+                    // Falls Through
+                case MGTM_ADMIN:
+                    // Falls Through
+                default:
+                    LOGGER.warn("{} is an administrator and user of the course {}. Cannot handle this user.",
+                            userDto.getRzName(), courseID);
+                }
+            }
+        } catch (ApiException e) {
+            LOGGER.warn("Could not query student management system for Users via \""
+                    + Settings.getConfig().getMgmtURL() + "\".", e);
+        }
+        
         // Gather all homework groups
         List<Group> homeworkGroups = new ArrayList<>();
         try {
@@ -80,7 +113,7 @@ public class DataPullService {
                 
                 List<UserDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
                 for (UserDto userDto : userofGroup) {
-                    group.addMembers(userDto.getId());
+                    group.addMembers(userDto.getRzName());
                 }
                 homeworkGroups.add(group);
             }
@@ -90,7 +123,6 @@ public class DataPullService {
                 + Settings.getConfig().getMgmtURL() + "\".", e);
         }
         
-        // TODO SE: Efficient query for tutors is missing
         
         // Collect assignments
         List<Assignment> assignments = new ArrayList<>();
@@ -106,7 +138,7 @@ public class DataPullService {
                     assignments.add(assignment);
                     break;
                 case SINGLE:
-                    // TODO SE: Missing assignment.addAll(User)
+                    assignment.addAllParticipants(studentsOfCourse);
                     assignments.add(assignment);
                     break;
                 case GROUP_OR_SINGLE:
