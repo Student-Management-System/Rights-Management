@@ -42,9 +42,9 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
                 cacheFile.getAbsolutePath());
             
             try (FileWriter writer = new FileWriter(cacheFile)) {
-                Course course = new Course();
-                course.setCourseName(getConfig().getCourseName());
-                course.setSemester(getConfig().getSemester());
+                // Pull initial configuration from server
+                DataPullService connector = new DataPullService(courseConfig);
+                Course course = connector.computeFullConfiguration();
                 String content = parser.serialize(course);
                 writer.write(content);
             } catch (IOException e) {
