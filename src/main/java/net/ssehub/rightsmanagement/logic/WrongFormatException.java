@@ -1,4 +1,4 @@
-package net.ssehub.rightsmanagement.rest.update;
+package net.ssehub.rightsmanagement.logic;
 
 public class WrongFormatException extends Exception {
 

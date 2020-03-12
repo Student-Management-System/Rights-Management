@@ -4,12 +4,12 @@ import java.io.IOException;
 import java.util.List;
 
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
+import net.ssehub.rightsmanagement.logic.AbstractUpdateHandler;
+import net.ssehub.rightsmanagement.logic.IncrementalUpdateHandler;
+import net.ssehub.rightsmanagement.logic.RestUpdateHandler;
+import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.rest.RestServer;
-import net.ssehub.rightsmanagement.rest.update.AbstractUpdateHandler;
-import net.ssehub.rightsmanagement.rest.update.IncrementalUpdateHandler;
-import net.ssehub.rightsmanagement.rest.update.RestUpdateHandler;
-import net.ssehub.rightsmanagement.rest.update.UpdateChangeListener;
 
 /**
  * Main class that listens for changes and applies these changes to the observed SVN repository.

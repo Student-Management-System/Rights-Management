@@ -16,8 +16,8 @@ import com.google.gson.JsonParseException;
 
 import io.swagger.client.JSON;
 import io.swagger.client.model.UpdateMessage;
-import net.ssehub.rightsmanagement.rest.update.UpdateChangeListener;
-import net.ssehub.rightsmanagement.rest.update.WrongFormatException;
+import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
+import net.ssehub.rightsmanagement.logic.WrongFormatException;
 
 /**
  * Listens at <tt>server/rest/update/</tt> for changes at the student management system.

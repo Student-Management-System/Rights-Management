@@ -1,4 +1,4 @@
-package net.ssehub.rightsmanagement.rest.update;
+package net.ssehub.rightsmanagement.logic;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,14 +35,15 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
         course.setCourseName(getConfig().getCourseName());
         course.setSemester(getConfig().getSemester());
         
-        List<Group> homeworkGroups = new ArrayList<>();
-        
+        List<Group> homeworkGroups = new ArrayList<>();       
         try {
             List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(getCourseID());
             for (GroupDto groupDto : groupsOfServer) {
                 Group group = new Group();
                 group.setGroupName(groupDto.getName());
-                for (UserDto userDto : groupDto.getUsers()) {
+                
+                List<UserDto> userofGroup = groupsAPI.getUsersOfGroup(getCourseID(), groupDto.getId());
+                for (UserDto userDto : userofGroup) {
                     group.addMembers(userDto.getId());
                 }
             }

@@ -1,4 +1,4 @@
-package net.ssehub.rightsmanagement.rest.update;
+package net.ssehub.rightsmanagement.logic;
 
 import java.io.IOException;
 import java.util.HashMap;
