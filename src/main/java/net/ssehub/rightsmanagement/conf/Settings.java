@@ -62,11 +62,11 @@ public class Settings {
         }
     }
     
-    void loadConfig(String configAsJson) {
+    public void loadConfig(String configAsJson) {
         config = jsonParser.deserialize(configAsJson, Configuration.class);
     }
     
-    void saveConfiguration(Writer out) {
+    public void saveConfiguration(Writer out) {
         String configAsJson = jsonParser.serialize(config);
         try {
             out.write(configAsJson);

@@ -78,6 +78,7 @@ public class Configuration {
         }
 
         /**
+         * The name of the course as used by the management system.
          * @param courseName the courseName to set
          */
         public void setCourseName(String courseName) {
@@ -85,6 +86,7 @@ public class Configuration {
         }
 
         /**
+         * The name of the semester as used by the management system.
          * @param semester the semester to set
          */
         public void setSemester(String semester) {

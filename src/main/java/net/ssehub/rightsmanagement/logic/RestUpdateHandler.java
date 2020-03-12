@@ -3,6 +3,9 @@ package net.ssehub.rightsmanagement.logic;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
+
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
 import io.swagger.client.api.GroupsApi;
@@ -20,9 +23,16 @@ import net.ssehub.rightsmanagement.model.Group;
  *
  */
 public class RestUpdateHandler extends AbstractUpdateHandler {
+    
+    private static final Logger LOGGER = Log.getLog();
 
     private GroupsApi groupsAPI;
     
+    /**
+     * Creates an {@link AbstractUpdateHandler} that pulls always the complete information from the student management
+     * system at each update request.
+     * @param courseConfig The configuration for the managed course.
+     */
     public RestUpdateHandler(CourseConfiguration courseConfig) {
         super(courseConfig);
         String url = Settings.getConfig().getMgmtURL();
@@ -46,11 +56,12 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
                 for (UserDto userDto : userofGroup) {
                     group.addMembers(userDto.getId());
                 }
+                homeworkGroups.add(group);
             }
             course.setHomeworkGroups(homeworkGroups);
         } catch (ApiException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.warn("Could not query student management system via \"" + Settings.getConfig().getMgmtURL()
+                + "\".", e);
         }
         
         return course;

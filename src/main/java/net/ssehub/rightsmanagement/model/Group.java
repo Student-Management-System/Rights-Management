@@ -4,8 +4,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.ssehub.rightsmanagement.AccessWriter;
-
 /**
  * Manages the Groups and Members.
  * 
@@ -45,6 +43,14 @@ public class Group implements Iterable<String>, IParticipant {
                 this.members.add(members[i]);
             }
         }
+    }
+    
+    /**
+     * Returns the full list of group members.
+     * @return The members of the group.
+     */
+    public Set<String> getMembers() {
+        return members;
     }
 
     @Override
