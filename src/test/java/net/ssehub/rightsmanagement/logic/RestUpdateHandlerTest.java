@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.JSON;
+import io.swagger.client.model.AssignmentDto.StateEnum;
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
@@ -83,6 +84,7 @@ public class RestUpdateHandlerTest {
         String groupNameForTesting = "Testgroup 1";
         String userNameForTesting = "a019ea22-5194-4b83-8d31-0de0dc9bca53";
         String assignmentNameForTesting = "Test_Assignment 01 (Java)";
+        StateEnum expectedAssignmentState = StateEnum.IN_PROGRESS;
         int exptectedNoOfGroups = 2;
         int exptectedNoOfMembers = 2;
         int exptectedNoOfAssignments = 3;
@@ -127,6 +129,7 @@ public class RestUpdateHandlerTest {
         for (IParticipant participant : assignmentForTest) {
             Assertions.assertSame(Group.class, participant.getClass(), "Group assignment containts individuals.");
         }
+        Assertions.assertSame(expectedAssignmentState, assignmentForTest.getStatus());
     }
 
 }
