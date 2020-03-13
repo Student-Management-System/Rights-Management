@@ -46,7 +46,7 @@ public abstract class AbstractUpdateHandler {
          */
         AccessWriter writer = createWriter();
         try {
-            writer.write(course);
+            writer.write(course, courseConfig.getSvnName());
         } finally {
             writer.close();
         }

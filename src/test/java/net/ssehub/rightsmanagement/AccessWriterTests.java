@@ -56,7 +56,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -77,7 +77,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -98,7 +98,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -120,7 +120,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -148,7 +148,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -176,7 +176,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -205,7 +205,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -235,7 +235,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course);
+        aWriter.write(course, "abgabe");
         aWriter.close();
         
         // Compare expected and actual output of aWriter

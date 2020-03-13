@@ -19,13 +19,14 @@ import net.ssehub.rightsmanagement.model.IParticipant;
  *
  */
 public class AccessWriter implements Closeable {
-    private static final String GROUP_SECTION = "[groups]";
+    private static final String SECTION_START = "[";
+    private static final String SECTION_END = "]";
+    private static final String GROUP_SECTION = SECTION_START + "groups" + SECTION_END;
     private static final String ASSIGNMENT = " = ";
     private static final String LINE_BREAK = "\n";
     private static final String GROUP_PREFIX = "@";
-    private static final String BASE_PATH = "[abgabe:/";
-    private static final String SLASH = "/";
-    private static final String BRACE = "]";
+    private static final String REPOSITORY_SEPARATOR = ":";
+    private static final String PATH_SEPARATOR = "/";
     private static final String ALL_USER = "* = ";
     private static final String READ = "r";
     private static final String READ_WRITE = "rw";
@@ -88,13 +89,28 @@ public class AccessWriter implements Closeable {
         }
     }
     
+    private void writePath(String repositoryName, String... path) throws IOException {
+        out.append(SECTION_START);
+        out.append(repositoryName);
+        out.append(REPOSITORY_SEPARATOR);
+        out.append(PATH_SEPARATOR);
+        
+        if (null != path) {
+            for (String segment : path) {
+                out.append(segment);
+                out.append(PATH_SEPARATOR);
+            }
+        }
+        out.append(SECTION_END);
+        out.append(LINE_BREAK);
+    }
+    
     /**
      * Writes the permissions per assignment and group.
      * @throws IOException If an I/O error occurs during writing.
      */
-    private void writePermissions(Course course) throws IOException {
-        out.append(BASE_PATH + BRACE);
-        out.append(LINE_BREAK);
+    private void writePermissions(Course course, String svnName) throws IOException {
+        writePath(svnName);
         out.append(ALL_USER + READ);
 
         Group tutorGroup = course.getTutors();
@@ -115,8 +131,7 @@ public class AccessWriter implements Closeable {
                 for (IParticipant participant : assignment) {
                     out.append(LINE_BREAK);
                     out.append(LINE_BREAK);
-                    out.append(BASE_PATH + assignment.getName() + SLASH + participant.getName() + BRACE);
-                    out.append(LINE_BREAK);
+                    writePath(svnName, assignment.getName(), participant.getName());
                     out.append(ALL_USER);
                     out.append(LINE_BREAK);
                     out.append(GROUP_PREFIX + tutorGroup.getName() + ASSIGNMENT + READ_WRITE);                        
@@ -137,12 +152,12 @@ public class AccessWriter implements Closeable {
      * Writes the groups and the svn path.
      * @throws IOException If an I/O error occurs during writing.
      */
-    public void write(Course course) throws IOException {
+    public void write(Course course, String svnName) throws IOException {
         writeGroups(course);
         
         out.append(LINE_BREAK);
         
-        writePermissions(course);
+        writePermissions(course, svnName);
     }
 
     @Override
