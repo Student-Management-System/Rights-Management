@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.jetty.util.log.Log;
+import org.eclipse.jetty.util.log.Logger;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
@@ -13,7 +15,6 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import net.ssehub.rightsmanagement.model.Assignment;
-import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.IParticipant;
 
 
@@ -21,17 +22,16 @@ import net.ssehub.rightsmanagement.model.IParticipant;
  * This class manages the svn repository and creates the folders if needed.
  * 
  * @author Kunold
+ * @author El-Sharkawy
  *
  */
 public class Repository {
     
     private static final int LATEST_REVISION = -1;
     
+    private static final Logger LOGGER = Log.getLog();
+    
     private File file;
-    
-    private Assignment assignment;
-    
-    private Group group;
     
     /**
      * Constructor of Repository.
@@ -90,25 +90,25 @@ public class Repository {
         String msg = updateAssignment ? "Update " + assignment : "Initialize " + assignment;
         ISVNEditor svnEditor = con.getCommitEditor(msg, null, false, null);
         
-        System.out.println("Open root");
+        LOGGER.debug("Open root");
         svnEditor.openRoot(LATEST_REVISION);
       
         // We checked that assignment already exists -> No need to re-create it
         if (!updateAssignment) {
-            System.out.println("Create assignment");
+            LOGGER.debug("Folder for assignment: {}", assignment);
             svnEditor.addDir(assignment, null, LATEST_REVISION);
         }
         
         // Add missing groups inside of assignment
-        System.out.println("Create all other groups");
+        LOGGER.debug("Create group folders for assignment: {}", assignment);
         for (int i = 0; i < groups.length; i++) {
             svnEditor.addDir(assignment + "/" + groups[i], null, LATEST_REVISION);            
         }
-        System.out.println("Write delta");
+        LOGGER.debug("Write delta");
         svnEditor.closeDir();
         svnEditor.closeEdit();
         con.closeSession();
-        System.out.println("Finished");
+        LOGGER.debug("Finished");
     }
     
     /**
@@ -125,7 +125,7 @@ public class Repository {
             List<String> newGroups = new ArrayList<>();
             if (pathExists(repos, assignment.getName())) {
                 // If folders exists do nothing
-                System.out.println("Folders are already existing");
+                LOGGER.debug("Folder for assignment \"{}\" exist already", assignment);
                 for (IParticipant member : assignment) {
                     if (!pathExists(repos, assignment + "/" + member.getName())) {
                         newGroups.add(member.getName());
@@ -144,40 +144,4 @@ public class Repository {
             repos.closeSession();
         }
     }
-    
-    
-    /**
-     * Creates folders for groups that doesn`t exist for an existing assignment.
-     * @param assignment for that the group is created.
-     * @param group the group to create.
-     * @throws Exception .
-     */
-    public void createGroups(String assignment, String group) throws Exception {
-        SVNRepository con = loadRepository();
-        ISVNEditor svnEditor = con.getCommitEditor("Create " + assignment + " folders", null, false, null);
-        
-        System.out.println("Open root");
-        svnEditor.openDir(assignment, LATEST_REVISION);
-        System.out.println("Create group");
-        svnEditor.addDir(assignment + "/" + group, null, LATEST_REVISION);
-        svnEditor.closeDir();
-        svnEditor.closeEdit();
-        con.closeSession();
-        System.out.println("Finished");
-    }
-
-    /**
-     * Creates the repository.
-     * @param assignment the assignmentObjekt.
-     * @throws Exception .
-     */
-    public void createRepo(Assignment assignment) throws Exception {
-        try {
-            Repository repos = new Repository("/repository/abgabe");
-            repos.createOrModifyAssignment(assignment);
-        } catch (RepositoryNotFoundException e) {
-            throw new RepositoryNotFoundException(e + " repository not found");
-        }
-    }
-
 }
