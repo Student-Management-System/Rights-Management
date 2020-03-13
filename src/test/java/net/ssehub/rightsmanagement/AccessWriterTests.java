@@ -6,12 +6,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.model.AssignmentDto.StateEnum;
 import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 
 /**
@@ -55,11 +57,14 @@ public class AccessWriterTests {
      */
     @Test
     public void testOneGroupWithTwoMembersAndPermissionsAllRead() throws IOException { 
+        // Create test data for writing
+        Course course = new Course();
+        course.setHomeworkGroups(Arrays.asList(getMemberGroup("JP001")));
+        
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -73,12 +78,14 @@ public class AccessWriterTests {
      */
     @Test
     public void testTwoGroupsWithTwoMembersAndPermissionsAllRead() throws IOException {        
+        // Create test data for writing
+        Course course = new Course();
+        course.setHomeworkGroups(Arrays.asList(getMemberGroup("JP001"), getMemberGroup("JP002")));
+        
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.addGroup(getMemberGroup("JP002"));
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -92,11 +99,14 @@ public class AccessWriterTests {
      */
     @Test
     public void testTutorGroupWithMembersAndPermissionsAllRead() throws IOException {
+        // Create test data for writing
+        Course course = new Course();
+        course.setTutors(getTutorGroup());
+        
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addTutorGroup(getTutorGroup());
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -110,13 +120,15 @@ public class AccessWriterTests {
      */
     @Test
     public void testTutorGroupAndMemberGroupsWithMembers() throws IOException {     
+        // Create test data for writing
+        Course course = new Course();
+        course.setTutors(getTutorGroup());
+        course.setHomeworkGroups(Arrays.asList(getMemberGroup("JP001"), getMemberGroup("JP002")));
+        
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addTutorGroup(getTutorGroup());
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.addGroup(getMemberGroup("JP002"));
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -131,17 +143,20 @@ public class AccessWriterTests {
     @Test
     public void testPermissionsWithInvisibleHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
+        Course course = new Course();
+        course.setTutors(getTutorGroup());
+        Group group = getMemberGroup("JP001");
+        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment();
         hw.setName("Unsichtbare_Abgabe");
         hw.setStatus(StateEnum.INVISIBLE);
+        hw.addParticipant(group);
+        course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addTutorGroup(getTutorGroup());
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.addHomework(hw);
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -156,17 +171,20 @@ public class AccessWriterTests {
     @Test
     public void testPermissionsWithInProgressHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
+        Course course = new Course();
+        course.setTutors(getTutorGroup());
+        Group group = getMemberGroup("JP001");
+        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment();
         hw.setName("In_Bearbeitung_Abgabe");
         hw.setStatus(StateEnum.IN_PROGRESS);
+        hw.addParticipant(group);
+        course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addTutorGroup(getTutorGroup());
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.addHomework(hw);
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -181,18 +199,21 @@ public class AccessWriterTests {
     @Test
     public void testPermissionsWithInReviewHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
+        Course course = new Course();
+        course.setTutors(getTutorGroup());
+        Group group = getMemberGroup("JP001");
+        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment();
         // reuse Unsichtbare_Abgabe because the rights should remain the same
         hw.setName("Unsichtbare_Abgabe");
         hw.setStatus(StateEnum.IN_REVIEW);
+        hw.addParticipant(group);
+        course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addTutorGroup(getTutorGroup());
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.addHomework(hw);
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -207,19 +228,22 @@ public class AccessWriterTests {
      */
     @Test
     public void testPermissionsWithEvaluatedHomeworkAndOneGroup() throws IOException {
-        
+        // Create test data for writing
+        Course course = new Course();
+        course.setTutors(getTutorGroup());
+        Group group = getMemberGroup("JP001");
+        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment();
         // reuse Unsichtbare_Abgabe because the rights should remain the same
         hw.setName("Bewertet_Abgabe");
         hw.setStatus(StateEnum.EVALUATED);
+        hw.addParticipant(group);
+        course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.addTutorGroup(getTutorGroup());
-        aWriter.addGroup(getMemberGroup("JP001"));
-        aWriter.addHomework(hw);
-        aWriter.write();
+        aWriter.write(course);
         aWriter.close();
         
         // Compare expected and actual output of aWriter

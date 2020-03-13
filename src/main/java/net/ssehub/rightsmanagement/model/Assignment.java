@@ -91,5 +91,4 @@ public class Assignment implements Iterable<IParticipant> {
         }
         return participants;
     }
-   
 }

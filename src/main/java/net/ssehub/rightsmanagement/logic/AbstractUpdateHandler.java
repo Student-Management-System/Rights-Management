@@ -46,8 +46,7 @@ public abstract class AbstractUpdateHandler {
          */
         AccessWriter writer = createWriter();
         try {
-            // TODO SE: Change write() to write(course)
-            writer.write();
+            writer.write(course);
         } finally {
             writer.close();
         }
