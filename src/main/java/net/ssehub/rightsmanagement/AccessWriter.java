@@ -43,6 +43,7 @@ public class AccessWriter implements Closeable {
     
     /**
      * Writes the groups to AccessWriter.
+     * @param course The set-up of the course, which should be reflected in the repository
      * @throws IOException If an I/O error occurs during writing.
      */
     private void writeGroups(Course course) throws IOException {
@@ -107,6 +108,8 @@ public class AccessWriter implements Closeable {
     
     /**
      * Writes the permissions per assignment and group.
+     * @param course The set-up of the course, which should be reflected in the repository
+     * @param svnName The name of the repository as used inside the URL.
      * @throws IOException If an I/O error occurs during writing.
      */
     private void writePermissions(Course course, String svnName) throws IOException {
@@ -150,6 +153,8 @@ public class AccessWriter implements Closeable {
     
     /**
      * Writes the groups and the svn path.
+     * @param course The set-up of the course, which should be reflected in the repository
+     * @param svnName The name of the repository as used inside the URL.
      * @throws IOException If an I/O error occurs during writing.
      */
     public void write(Course course, String svnName) throws IOException {
