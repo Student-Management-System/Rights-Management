@@ -1,11 +1,9 @@
 package net.ssehub.rightsmanagement;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 import org.junit.jupiter.api.Assertions;
@@ -20,9 +18,12 @@ import net.ssehub.rightsmanagement.model.Group;
  * This class contains the test cases that belongs to {@link AccessWriter}.
  * 
  * @author Kunold
+ * @author El-Sharkawy
  *
  */
 public class AccessWriterTests {
+    
+    private static final File TEST_FOLDER = new File(AllTests.TEST_FOLDER, "AccessWriter");
 
     /**
      * Reads the access file with the data to test.
@@ -30,25 +31,16 @@ public class AccessWriterTests {
      * @return a String with the test data that is read from the file.
      */
     private static String readAccessFile(String fileName) {
-        String contents = null;
-        
-        try (BufferedReader reader = new BufferedReader(new FileReader(new File(AllTests.TEST_FOLDER, fileName)))) {
-            StringBuffer exptected = new StringBuffer();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                exptected.append(line);
-                exptected.append('\n');
-            }
-            
-            contents = exptected.toString();
-        } catch (FileNotFoundException e) {
-            Assertions.fail("Could not find access file for camparison: " + AllTests.TEST_FOLDER.getAbsolutePath() + "/"
-                + fileName);
+        String content = null;
+        // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
+        File path = new File(TEST_FOLDER, fileName);
+        try {
+            content = Files.readString(path.toPath()).trim();
         } catch (IOException e) {
-            Assertions.fail("Could not read comparison file " + fileName);
+            Assertions.fail("Could not read configuration from " + path.getAbsolutePath(), e);
         }
         
-        return contents;
+        return content;
     }
     
     /**
@@ -69,7 +61,7 @@ public class AccessWriterTests {
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_oneGroup_access");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -90,7 +82,7 @@ public class AccessWriterTests {
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_twoGroups_access");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -111,7 +103,7 @@ public class AccessWriterTests {
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_tutorGroup_access");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -133,7 +125,7 @@ public class AccessWriterTests {
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("groups_tutor_and_users_access");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -161,7 +153,7 @@ public class AccessWriterTests {
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("permissions_invisibleAssignment");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -189,7 +181,7 @@ public class AccessWriterTests {
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("permissions_in_progressAssignment");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -219,7 +211,7 @@ public class AccessWriterTests {
         // Compare expected and actual output of aWriter
         // reuse permissions_invisibleAssignment because the rights should remain the same
         String expected = readAccessFile("permissions_invisibleAssignment");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     /**
@@ -249,7 +241,7 @@ public class AccessWriterTests {
         // Compare expected and actual output of aWriter
         // reuse permissions_invisibleAssignment because the rights should remain the same
         String expected = readAccessFile("permissions_evaluatedAssignment");
-        Assertions.assertEquals(expected, sWriter.toString());
+        Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
     // Create test data for writing -----------------------------------------------------------------------------------

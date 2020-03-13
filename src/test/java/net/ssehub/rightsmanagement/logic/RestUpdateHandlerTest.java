@@ -1,12 +1,16 @@
 package net.ssehub.rightsmanagement.logic;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.nio.file.Files;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.AccessWriter;
+import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
 
@@ -18,12 +22,33 @@ import net.ssehub.rightsmanagement.model.Course;
 public class RestUpdateHandlerTest {
     
     private static final CourseConfiguration CONFIG;
+    private static final File TEST_FOLDER = new File(AllTests.TEST_FOLDER, "RestUpdateHandler");
     
     static {
         CourseConfiguration config = new CourseConfiguration();
         config.setCourseName("java");
         config.setSemester("wise1920");
+        config.setSvnName("javaAssignments");
         CONFIG = config;
+    }
+    
+    /**
+     * Reads the access file with the data to test.
+     * @param fileName the name of the file that contains the test data.
+     * @return a String with the test data that is read from the file.
+     */
+    private static String readAccessFile(String fileName) {
+        String content = null;
+        // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
+        File path = new File(TEST_FOLDER, fileName);
+        try {
+            content = Files.readString(path.toPath());
+            content.trim();
+        } catch (IOException e) {
+            Assertions.fail("Could not read configuration from " + path.getAbsolutePath(), e);
+        }
+        
+        return content;
     }
     
     /**
@@ -50,7 +75,7 @@ public class RestUpdateHandlerTest {
          * @return The written content to the simulated access file.
          */
         public String getAccessContent() {
-            return sWriter.toString();
+            return sWriter.toString().trim();
         }
         
         @Override
@@ -81,7 +106,9 @@ public class RestUpdateHandlerTest {
         handler.update(null);
         String content = handler.getAccessContent();
         
-        System.out.println(content);
+        // Expects a minimal access file with almost no configuration
+        String expected = readAccessFile("minimalAccess");
+        Assertions.assertEquals(expected, content);
     }
 
 }
