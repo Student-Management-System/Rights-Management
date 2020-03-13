@@ -75,6 +75,7 @@ public class DataPullService {
         course.setSemester(semester);
         
         Group tutors = new Group();
+        course.setTutors(tutors);
         List<Member> studentsOfCourse = new ArrayList<Member>();
         try {
             List<UserDto> usersOfCourse = courseAPI.getUsersOfCourse(courseID);

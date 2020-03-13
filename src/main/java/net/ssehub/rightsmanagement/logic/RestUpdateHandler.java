@@ -1,8 +1,5 @@
 package net.ssehub.rightsmanagement.logic;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
-
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
@@ -14,8 +11,6 @@ import net.ssehub.rightsmanagement.model.Course;
  */
 public class RestUpdateHandler extends AbstractUpdateHandler {
     
-    private static final Logger LOGGER = Log.getLog();
-
     private DataPullService connector;
     
     /**
@@ -24,8 +19,18 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
      * @param courseConfig The configuration for the managed course.
      */
     public RestUpdateHandler(CourseConfiguration courseConfig) {
+        this(courseConfig, new DataPullService(courseConfig));
+    }
+    
+    /**
+     * Internal constructor for testing purpose.
+     * @param courseConfig The configuration for the managed course.
+     * @param connector The connector to use {@link DataPullService#DataPullService(CourseConfiguration)} or
+     *      <tt>null</tt> during tests.
+     */
+    protected RestUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) {
         super(courseConfig);
-        connector = new DataPullService(courseConfig);
+        this.connector = connector;
     }
 
     @Override
