@@ -4,11 +4,9 @@ import java.io.IOException;
 import java.util.List;
 
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
-import net.ssehub.rightsmanagement.logic.AbstractUpdateHandler;
-import net.ssehub.rightsmanagement.logic.IncrementalUpdateHandler;
-import net.ssehub.rightsmanagement.logic.RestUpdateHandler;
-import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
 import net.ssehub.rightsmanagement.conf.Settings;
+import net.ssehub.rightsmanagement.logic.AbstractUpdateHandler;
+import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
 import net.ssehub.rightsmanagement.rest.RestServer;
 
 /**
