@@ -111,7 +111,7 @@ public class Repository {
             // Add missing groups inside of assignment
             LOGGER.debug("Create group folders for assignment: {}", assignment);
             for (int i = 0; i < groups.length; i++) {
-                svnEditor.addDir(assignment + "/" + groups[i], null, LATEST_REVISION);         
+                svnEditor.addDir(toPath(assignment, groups[i]), null, LATEST_REVISION);         
                 svnEditor.closeDir();
             }
             LOGGER.debug("Write delta");
@@ -120,6 +120,17 @@ public class Repository {
             con.closeSession();
         }
         LOGGER.debug("Finished");
+    }
+    
+    /**
+     * Creates the absolute path to an submission folder for an assignment.
+     * @param assignmentName The name of the assignment
+     * @param participantName The name of the participant (group name for group assignments or user name for
+     * single user assignments)
+     * @return <tt>assignmentName / participantName)</tt>
+     */
+    private String toPath(String assignmentName, String participantName) {
+        return assignmentName + "/" + participantName;
     }
     
     /**
@@ -138,7 +149,7 @@ public class Repository {
                 // If folders exists do nothing
                 LOGGER.debug("Folder of assignment \"{}\" already existing", assignment.getName());
                 for (IParticipant member : assignment) {
-                    if (!pathExists(repos, assignment + "/" + member.getName())) {
+                    if (!pathExists(repos, toPath(assignment.getName(), member.getName()))) {
                         newGroups.add(member.getName());
                     }
                 }

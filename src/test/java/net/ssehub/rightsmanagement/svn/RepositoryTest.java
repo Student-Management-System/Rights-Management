@@ -2,6 +2,7 @@
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -116,7 +117,7 @@ public class RepositoryTest {
         Group group2 = new Group();
         group2.setGroupName("group2");
         group2.addMembers("student3", "student4");
-        assignment.addParticipant(group2);
+        assignment.addAllParticipants(Arrays.asList(group1, group2));
         Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group1.getName() + "/"));
         Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + group2.getName() + "/"));
         
@@ -136,11 +137,13 @@ public class RepositoryTest {
      */
     @AfterEach
     public void tearDown() {    
-        try {
-            FileUtils.deleteDirectory(repositoryTestFolder);
-        } catch (IOException e) {
-            Assertions.fail("Could not clean up " + repositoryTestFolder.getAbsolutePath() + " after test. "
-                    + "Please delete this folder manually, otherwise next tests will fails.", e);
+        if (repositoryTestFolder.exists()) {
+            try {
+                FileUtils.deleteDirectory(repositoryTestFolder);
+            } catch (IOException e) {
+                Assertions.fail("Could not clean up " + repositoryTestFolder.getAbsolutePath() + " after test. "
+                        + "Please delete this folder manually, otherwise next tests will fails.", e);
+            }
         }
     }
 }
