@@ -19,10 +19,10 @@ import net.ssehub.rightsmanagement.model.IParticipant;
 
 
 /**
- * This class manages the svn repository and creates the folders if needed.
+ * This class manages the SVN repository and creates the folders if needed.
  * 
- * @author Kunold
  * @author El-Sharkawy
+ * @author Kunold
  *
  */
 public class Repository {
@@ -53,7 +53,9 @@ public class Repository {
     /**
      * Loads the repository.
      * @return the loaded repository.
-     * @throws SVNException .
+     * @throws SVNException If there's no implementation for the specified protocol (the user may have forgotten to
+     *     register a specific factory that creates <b>SVNRepository</b> instances for that protocol or the SVNKit
+     *     library does not support that protocol at all)
      */
     private SVNRepository loadRepository() throws SVNException {   
         FSRepositoryFactory.setup();
@@ -65,8 +67,9 @@ public class Repository {
      * Checks if a specified path in the repository exists.
      * @param path that is checked for existence.
      * @param readOnlyConnection builds a connection only to read..
-     * @return true if the path exists and false if the path doesn`t exist.
-     * @throws SVNException .
+     * @return <tt>true</tt> if the path exists and <tt>false</tt> if the path doesn`t exist.
+     * @throws SVNException if a failure occurred while connecting to a repository or the user's authentication failed
+     *     (see {@link org.tmatesoft.svn.core.SVNAuthenticationException})
      */
     private boolean pathExists(SVNRepository readOnlyConnection, String path) throws SVNException {
         boolean exists = true;
@@ -78,11 +81,33 @@ public class Repository {
         return exists;
     }
     
-    public boolean pathExists(String path) throws SVNException {
+    /**
+     * Checks if a specified path in the repository exists.
+     * Only intended for testing purpose.
+     * @param path  that is checked for existence.
+     * @return <tt>true</tt> if the path exists and <tt>false</tt> if the path doesn`t exist.
+     * @throws SVNException If a failure occurred while connecting to a repository or the user's authentication failed
+     *     (see {@link org.tmatesoft.svn.core.SVNAuthenticationException})
+     */
+    boolean pathExists(String path) throws SVNException {
         SVNRepository readOnlyConnection = loadRepository();
         boolean result = pathExists(readOnlyConnection, path);
         readOnlyConnection.closeSession();
         return result;
+    }
+    
+    /**
+     * Returns the Latest revision of the repository.
+     * Only intended for testing purpose to check if repository has changed.
+     * @return The latest revision number
+     * @throws SVNException If a failure occurred while connecting to a repository or the user's authentication failed
+     *     (see {@link org.tmatesoft.svn.core.SVNAuthenticationException})
+     */
+    long lastRevision() throws SVNException {
+        SVNRepository readOnlyConnection = loadRepository();
+        long lastRevision = readOnlyConnection.getLatestRevision();
+        readOnlyConnection.closeSession();
+        return lastRevision;
     }
     
     /**
@@ -144,19 +169,19 @@ public class Repository {
     public void createOrModifyAssignment(Assignment assignment) throws Exception {
         SVNRepository repos = loadRepository();
         try {
-            List<String> newGroups = new ArrayList<>();
+            List<String> newSubmisionFolders = new ArrayList<>();
             if (pathExists(repos, assignment.getName())) {
                 // If folders exists do nothing
                 LOGGER.debug("Folder of assignment \"{}\" already existing", assignment.getName());
                 for (IParticipant member : assignment) {
                     if (!pathExists(repos, toPath(assignment.getName(), member.getName()))) {
-                        newGroups.add(member.getName());
+                        newSubmisionFolders.add(member.getName());
                     }
                 }
                 repos.closeSession();
                 // only create folders if newGroups is not empty
-                if (!newGroups.isEmpty()) {
-                    String[] groupArray = newGroups.toArray(new String[0]);
+                if (!newSubmisionFolders.isEmpty()) {
+                    String[] groupArray = newSubmisionFolders.toArray(new String[0]);
                     createFolders(true, assignment.getName(), groupArray);
                 }
             } else {

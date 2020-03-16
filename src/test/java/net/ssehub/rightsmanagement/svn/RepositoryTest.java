@@ -29,7 +29,7 @@ public class RepositoryTest {
      * Tests:
      * <ul>
      *   <li><b>Creation</b> of a new assignment</li>
-     *   <li><b>Creation</b> a submission folder for a <b>user</b></li>
+     *   <li><b>Creation</b> of a submission folder for a <b>user</b></li>
      * </ul>
      * @throws RepositoryNotFoundException If the unpacked test repository could not be found
      * @throws SVNException In case of {@link Repository#pathExists(String)} is broken (which is used to validate the
@@ -62,7 +62,7 @@ public class RepositoryTest {
      * Tests:
      * <ul>
      *   <li><b>Creation</b> of a new assignment</li>
-     *   <li><b>Creation</b> a submission folder for a <b>group</b></li>
+     *   <li><b>Creation</b> of a submission folder for a <b>group</b></li>
      * </ul>
      * @throws RepositoryNotFoundException If the unpacked test repository could not be found
      * @throws SVNException In case of {@link Repository#pathExists(String)} is broken (which is used to validate the
@@ -97,7 +97,7 @@ public class RepositoryTest {
      * <ul>
      *   <li><b>Modification</b> of an existent assignment</li>
      *   <li><b>Keeping</b> a submission folder for an existing group</li>
-     *   <li><b>Creation</b> a submission folder for a new <b>group</b></li>
+     *   <li><b>Creation</b> of a submission folder for a new <b>group</b></li>
      * </ul>
      * @throws RepositoryNotFoundException If the unpacked test repository could not be found
      * @throws SVNException In case of {@link Repository#pathExists(String)} is broken (which is used to validate the
@@ -130,6 +130,37 @@ public class RepositoryTest {
         
         Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group1.getName() + "/"));
         Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group2.getName() + "/"));
+    }
+    
+    /**
+     * Tests:
+     * <ul>
+     *   <li><b>Modification</b> of an existent assignment</li>
+     *   <li><b>Missing groups</b> to create</li>
+     * </ul>
+     * @throws RepositoryNotFoundException If the unpacked test repository could not be found
+     * @throws SVNException In case of {@link Repository#pathExists(String)} is broken (which is used to validate the
+     *     results).
+     */
+    @Test
+    public void testCreationOfAssignmentWithEmptyGroup() throws RepositoryNotFoundException, SVNException {
+        repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz"));
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath());
+        long oldRevision = repoReader.lastRevision();
+        
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
+        Assignment assignment = new Assignment();
+        assignment.setName("Homework");
+        
+        // Write changes to repository
+        try {
+            repoWriter.createOrModifyAssignment(assignment);
+        } catch (Exception e) {
+            Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
+        }
+        
+        long newRevision = repoReader.lastRevision(); 
+        Assertions.assertSame(oldRevision, newRevision, "Repository was altered altough there was no data to write");
     }
     
     /**
