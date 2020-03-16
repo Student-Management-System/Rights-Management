@@ -7,6 +7,7 @@ import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.logic.AbstractUpdateHandler;
 import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
+import net.ssehub.rightsmanagement.logic.UpdateChangeListener.UpdateStrategy;
 import net.ssehub.rightsmanagement.rest.RestServer;
 
 /**
@@ -16,8 +17,6 @@ import net.ssehub.rightsmanagement.rest.RestServer;
  */
 public class Service {
 
-    private static final boolean PULL_FULL_CONFIG_ON_UPDATE = true;
-    
     /**
      * Starting point of this service.
      * @param args Will be ignored
@@ -34,8 +33,8 @@ public class Service {
         
         List<CourseConfiguration> courses = Settings.getConfig().getCourses();
         for (CourseConfiguration courseConfiguration : courses) {
-            AbstractUpdateHandler handler =
-                UpdateChangeListener.INSTANCE.createHandler(courseConfiguration, PULL_FULL_CONFIG_ON_UPDATE);
+            AbstractUpdateHandler handler = 
+                UpdateChangeListener.INSTANCE.createHandler(courseConfiguration, UpdateStrategy.IMMEDIATELY);
             UpdateChangeListener.INSTANCE.register(handler); 
         }
         

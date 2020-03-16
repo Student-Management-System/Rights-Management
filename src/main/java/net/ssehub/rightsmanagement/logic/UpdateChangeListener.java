@@ -14,6 +14,18 @@ import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
  */
 public class UpdateChangeListener {
     
+    /**
+     * Supported {@link AbstractUpdateHandler} to perform the update.
+     * @author El-Sharkawy
+     *
+     */
+    public static enum UpdateStrategy {
+        IMMEDIATELY,
+        EVERY_MINUTE,
+        FIVE_MINUTES,
+        INCREMENTAL;
+    }
+    
     public static final UpdateChangeListener INSTANCE = new UpdateChangeListener();
     
     private Map<String, AbstractUpdateHandler> observedCourses = new HashMap<>();
@@ -62,8 +74,28 @@ public class UpdateChangeListener {
      * @throws IOException If caching was specified and the required file cannot be created and does not exist.
      * @see {@link #register(AbstractUpdateHandler)}
      */
-    public AbstractUpdateHandler createHandler(CourseConfiguration config, boolean pullFullconfigOnChange) throws IOException {
-        return pullFullconfigOnChange ? new RestUpdateHandler(config) : new IncrementalUpdateHandler(config);
+    public AbstractUpdateHandler createHandler(CourseConfiguration config, UpdateStrategy strategy) throws IOException {
+        AbstractUpdateHandler result;
+        switch (strategy) {
+        case IMMEDIATELY: 
+            result = new RestUpdateHandler(config);
+            break;
+        case EVERY_MINUTE:
+            result = new DelayedRestUpdateHandler(config, 60 * 1000);
+            break;
+        case FIVE_MINUTES:
+            result = new DelayedRestUpdateHandler(config, 5 * 60 * 1000);
+            break;
+        case INCREMENTAL:
+            result = new IncrementalUpdateHandler(config);
+            break;
+        default:
+            result = new RestUpdateHandler(config);
+            break;
+                
+        }
+        
+        return result;
     }
 
 }
