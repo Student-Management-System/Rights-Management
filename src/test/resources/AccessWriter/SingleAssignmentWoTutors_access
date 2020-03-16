@@ -1,0 +1,8 @@
+[groups]
+
+[submissionSystem:/]
+* = r
+
+[submissionSystem:/Exam/musterma/]
+* = 
+musterma = rw

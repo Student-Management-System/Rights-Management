@@ -1,0 +1,10 @@
+[groups]
+Tutors = tutor1, tutor2
+
+[submissionSystem:/]
+* = r
+
+[submissionSystem:/Exam/musterma/]
+* = 
+@Tutors = rw
+musterma = r

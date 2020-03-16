@@ -22,7 +22,7 @@ public class AccessWriter implements Closeable {
     private static final String SECTION_START = "[";
     private static final String SECTION_END = "]";
     private static final String GROUP_SECTION = SECTION_START + "groups" + SECTION_END;
-    private static final String ASSIGNMENT = " = ";
+    private static final String RIGHTS_ASSIGNMENT = " = ";
     private static final String LINE_BREAK = "\n";
     private static final String GROUP_PREFIX = "@";
     private static final String REPOSITORY_SEPARATOR = ":";
@@ -55,7 +55,7 @@ public class AccessWriter implements Closeable {
         Group tutorGroup = course.getTutors();
         if (null != tutorGroup && !tutorGroup.getMembers().isEmpty()) {
             out.append(tutorGroup.getName());
-            out.append(ASSIGNMENT);
+            out.append(RIGHTS_ASSIGNMENT);
             boolean isFirst = true;
             for (String member : tutorGroup) {
                 if (isFirst) {
@@ -74,7 +74,7 @@ public class AccessWriter implements Closeable {
         if (null != groups) {
             for (Group group : groups) {
                 out.append(group.getName());
-                out.append(ASSIGNMENT);
+                out.append(RIGHTS_ASSIGNMENT);
                 boolean isFirst = true;
                 for (String member : group) {
                     if (isFirst) {
@@ -137,12 +137,16 @@ public class AccessWriter implements Closeable {
                     writePath(svnName, assignment.getName(), participant.getName());
                     out.append(ALL_USER);
                     out.append(LINE_BREAK);
-                    out.append(GROUP_PREFIX + tutorGroup.getName() + ASSIGNMENT + READ_WRITE);                        
-                    out.append(LINE_BREAK);
+                    if (null != tutorGroup) {
+                        out.append(GROUP_PREFIX);                        
+                        out.append(tutorGroup.getName());                        
+                        out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
+                        out.append(LINE_BREAK);
+                    }
                     if (participant instanceof Group) {
                         out.append(GROUP_PREFIX);
                     }
-                    out.append(participant.getName() + ASSIGNMENT + rights);
+                    out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
                 }
             }
             

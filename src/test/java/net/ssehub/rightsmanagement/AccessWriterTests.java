@@ -13,6 +13,7 @@ import io.swagger.client.model.AssignmentDto.StateEnum;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
+import net.ssehub.rightsmanagement.model.Member;
 
 /**
  * This class contains the test cases that belongs to {@link AccessWriter}.
@@ -241,6 +242,63 @@ public class AccessWriterTests {
         // Compare expected and actual output of aWriter
         // reuse permissions_invisibleAssignment because the rights should remain the same
         String expected = readAccessFile("permissions_evaluatedAssignment");
+        Assertions.assertEquals(expected, sWriter.toString().trim());
+    }
+    
+    /**
+     * Tests rights assignment for a single assignment (no group work), <b>without</b> a tutor group.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    @Test
+    public void testPermissionsForSingleAssignmentWoTutors() throws IOException {
+        // Create test data for writing
+        Course course = new Course();
+        Assignment hw = new Assignment();
+        hw.setName("Exam");
+        hw.setStatus(StateEnum.IN_PROGRESS);
+        Member aStudent = new Member();
+        aStudent.setMemberName("musterma");
+        hw.addParticipant(aStudent);
+        course.setAssignments(Arrays.asList(hw));
+        
+        // Simulate writing data to access file
+        StringWriter sWriter = new StringWriter();
+        AccessWriter aWriter = new AccessWriter(sWriter);
+        aWriter.write(course, "submissionSystem");
+        aWriter.close();
+        
+        // Compare expected and actual output of aWriter
+        String expected = readAccessFile("SingleAssignmentWoTutors_access");
+        Assertions.assertEquals(expected, sWriter.toString().trim());
+    }
+    
+    /**
+     * Tests rights assignment for a single assignment (no group work), <b>with</b> a tutor group.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    @Test
+    public void testPermissionsForSingleAssignmentWithTutors() throws IOException {
+        // Create test data for writing
+        Course course = new Course();
+        Group tutors = getTutorGroup();
+        tutors.setGroupName("Tutors");
+        course.setTutors(tutors);
+        Assignment hw = new Assignment();
+        hw.setName("Exam");
+        hw.setStatus(StateEnum.EVALUATED);
+        Member aStudent = new Member();
+        aStudent.setMemberName("musterma");
+        hw.addParticipant(aStudent);
+        course.setAssignments(Arrays.asList(hw));
+        
+        // Simulate writing data to access file
+        StringWriter sWriter = new StringWriter();
+        AccessWriter aWriter = new AccessWriter(sWriter);
+        aWriter.write(course, "submissionSystem");
+        aWriter.close();
+        
+        // Compare expected and actual output of aWriter
+        String expected = readAccessFile("SingleAssignmentWithTutors_access");
         Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
