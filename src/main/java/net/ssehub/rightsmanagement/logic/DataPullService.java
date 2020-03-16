@@ -90,6 +90,7 @@ public class DataPullService {
                     // falls through
                 case TUTOR:
                     tutors.addMembers(userDto.getRzName());
+                    break;
                 case SYSTEM_ADMIN:
                     // Falls Through
                 case MGTM_ADMIN:
