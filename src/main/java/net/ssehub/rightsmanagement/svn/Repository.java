@@ -78,6 +78,10 @@ public class Repository {
         return exists;
     }
     
+    public boolean pathExists(String path) throws SVNException {
+        return pathExists(loadRepository(), path);
+    }
+    
     /**
      * Creates folders for assignment and groups if the assignment folder doesn`t exist yet.
      * @param updateAssignment is true if not needed to update and is false if needed to update. 
