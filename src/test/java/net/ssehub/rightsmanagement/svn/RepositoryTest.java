@@ -164,11 +164,44 @@ public class RepositoryTest {
     }
     
     /**
+     * Tests that constructor throws an exception if a location is specified which does not exist.
+     */
+    @Test
+    public void testRepositoryWithoutExistingLocalRepository() {
+        File notExisting = new File("a_not_existing_file");
+        
+        // Test precondition: File does not exist
+        Assertions.assertFalse(notExisting.exists());
+        
+        // Test that exception is thrown
+        Exception exception = Assertions.assertThrows(RepositoryNotFoundException.class, 
+            () -> new Repository(notExisting.getAbsolutePath()));
+        Assertions.assertTrue(exception.getMessage().contains("repository location"));
+    }
+    
+    /**
+     * Tests that constructor throws an exception if a location is specified that is not a directory.
+     */
+    @Test
+    public void testRepositoryPointingToFile() {
+        File testFile = new File(TEST_FOLDER, "EmptyRepository.tar.gz");
+        
+        // Test precondition: File exists but is not a directory
+        Assertions.assertTrue(testFile.exists());
+        Assertions.assertTrue(testFile.isFile());
+        
+        // Test that exception is thrown
+        Exception exception = Assertions.assertThrows(RepositoryNotFoundException.class, 
+                () -> new Repository(testFile.getAbsolutePath()));
+        Assertions.assertTrue(exception.getMessage().contains("repository directory"));
+    }
+    
+    /**
      * Cleans up after each test execution.
      */
     @AfterEach
     public void tearDown() {    
-        if (repositoryTestFolder.exists()) {
+        if (null != repositoryTestFolder && repositoryTestFolder.exists()) {
             try {
                 FileUtils.deleteDirectory(repositoryTestFolder);
             } catch (IOException e) {
