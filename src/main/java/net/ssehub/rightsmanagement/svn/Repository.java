@@ -79,7 +79,10 @@ public class Repository {
     }
     
     public boolean pathExists(String path) throws SVNException {
-        return pathExists(loadRepository(), path);
+        SVNRepository readOnlyConnection = loadRepository();
+        boolean result = pathExists(readOnlyConnection, path);
+        readOnlyConnection.closeSession();
+        return result;
     }
     
     /**
@@ -91,27 +94,31 @@ public class Repository {
      */
     private void createFolders(boolean updateAssignment, String assignment, String... groups) throws Exception {
         SVNRepository con = loadRepository();
-        String msg = updateAssignment ? "Update " + assignment : "Initialize " + assignment;
-        ISVNEditor svnEditor = con.getCommitEditor(msg, null, false, null);
-        
-        LOGGER.debug("Open root");
-        svnEditor.openRoot(LATEST_REVISION);
-      
-        // We checked that assignment already exists -> No need to re-create it
-        if (!updateAssignment) {
-            LOGGER.debug("Folder for assignment: {}", assignment);
-            svnEditor.addDir(assignment, null, LATEST_REVISION);
+        try {
+            String msg = updateAssignment ? "Update " + assignment : "Initialize " + assignment;
+            ISVNEditor svnEditor = con.getCommitEditor(msg, null, false, null);
+            
+            LOGGER.debug("Open root");
+            svnEditor.openRoot(LATEST_REVISION);
+          
+            // We checked that assignment already exists -> No need to re-create it
+            if (!updateAssignment) {
+                LOGGER.debug("Create folder for assignment: {}", assignment);
+                svnEditor.addDir(assignment, null, LATEST_REVISION);
+                svnEditor.closeDir();
+            }
+            
+            // Add missing groups inside of assignment
+            LOGGER.debug("Create group folders for assignment: {}", assignment);
+            for (int i = 0; i < groups.length; i++) {
+                svnEditor.addDir(assignment + "/" + groups[i], null, LATEST_REVISION);         
+                svnEditor.closeDir();
+            }
+            LOGGER.debug("Write delta");
+            svnEditor.closeEdit();
+        } finally {
+            con.closeSession();
         }
-        
-        // Add missing groups inside of assignment
-        LOGGER.debug("Create group folders for assignment: {}", assignment);
-        for (int i = 0; i < groups.length; i++) {
-            svnEditor.addDir(assignment + "/" + groups[i], null, LATEST_REVISION);            
-        }
-        LOGGER.debug("Write delta");
-        svnEditor.closeDir();
-        svnEditor.closeEdit();
-        con.closeSession();
         LOGGER.debug("Finished");
     }
     
@@ -129,12 +136,13 @@ public class Repository {
             List<String> newGroups = new ArrayList<>();
             if (pathExists(repos, assignment.getName())) {
                 // If folders exists do nothing
-                LOGGER.debug("Folder of assignment \"{}\" already existing", assignment);
+                LOGGER.debug("Folder of assignment \"{}\" already existing", assignment.getName());
                 for (IParticipant member : assignment) {
                     if (!pathExists(repos, assignment + "/" + member.getName())) {
                         newGroups.add(member.getName());
                     }
                 }
+                repos.closeSession();
                 // only create folders if newGroups is not empty
                 if (!newGroups.isEmpty()) {
                     String[] groupArray = newGroups.toArray(new String[0]);
