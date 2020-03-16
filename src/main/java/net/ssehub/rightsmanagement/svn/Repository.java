@@ -125,7 +125,7 @@ public class Repository {
             List<String> newGroups = new ArrayList<>();
             if (pathExists(repos, assignment.getName())) {
                 // If folders exists do nothing
-                LOGGER.debug("Folder for assignment \"{}\" exist already", assignment);
+                LOGGER.debug("Folder of assignment \"{}\" already existing", assignment);
                 for (IParticipant member : assignment) {
                     if (!pathExists(repos, assignment + "/" + member.getName())) {
                         newGroups.add(member.getName());
