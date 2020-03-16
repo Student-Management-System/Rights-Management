@@ -7,10 +7,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.tmatesoft.svn.core.SVNException;
 
 import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.Unzipper;
 import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
 
 /**
@@ -28,10 +30,12 @@ public class RepositoryTest {
      *   <li><b>Creation</b> of a new assignment</li>
      *   <li><b>Creation</b> a submission folder for a <b>user</b></li>
      * </ul>
-     * @throws Exception
+     * @throws RepositoryNotFoundException If the unpacked test repository could not be found
+     * @throws SVNException In case of {@link Repository#pathExists(String)} is broken (which is used to validate the
+     *     results).
      */
     @Test
-    public void testCreationOfSingleAssignment() throws Exception {
+    public void testCreationOfSingleAssignment() throws RepositoryNotFoundException, SVNException {
         repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "EmptyRepository.tar.gz"));
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
@@ -40,10 +44,45 @@ public class RepositoryTest {
         Member aStudent = new Member();
         aStudent.setMemberName("aStudent");
         assignment.addParticipant(aStudent);
-        repoWriter.createOrModifyAssignment(assignment);
+        try {
+            repoWriter.createOrModifyAssignment(assignment);
+        } catch (Exception e) {
+            Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
+        }
         
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath());
         Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + aStudent.getName() + "/"));
+    }
+    
+    /**
+     * Tests:
+     * <ul>
+     *   <li><b>Creation</b> of a new assignment</li>
+     *   <li><b>Creation</b> a submission folder for a <b>group</b></li>
+     * </ul>
+     * @throws RepositoryNotFoundException If the unpacked test repository could not be found
+     * @throws SVNException In case of {@link Repository#pathExists(String)} is broken (which is used to validate the
+     *     results).
+     */
+    @Test
+    public void testCreationOfGroupAssignment() throws RepositoryNotFoundException, SVNException {
+        repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "EmptyRepository.tar.gz"));
+        
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
+        Assignment assignment = new Assignment();
+        assignment.setName("Homework");
+        Group group = new Group();
+        group.setGroupName("group1");
+        group.addMembers("student1", "student2");
+        assignment.addParticipant(group);
+        try {
+            repoWriter.createOrModifyAssignment(assignment);
+        } catch (Exception e) {
+            Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
+        }
+        
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath());
+        Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group.getName() + "/"));
     }
     
     /**
