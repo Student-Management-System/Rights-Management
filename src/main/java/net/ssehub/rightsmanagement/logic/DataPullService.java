@@ -80,7 +80,7 @@ public class DataPullService {
         try {
             List<UserDto> usersOfCourse = courseAPI.getUsersOfCourse(courseID);
             for (UserDto userDto : usersOfCourse) {
-                switch (userDto.getRole()) {
+                switch (userDto.getCourseRole()) {
                 case STUDENT:
                     Member student = new Member();
                     student.setMemberName(userDto.getRzName());
@@ -91,10 +91,6 @@ public class DataPullService {
                 case TUTOR:
                     tutors.addMembers(userDto.getRzName());
                     break;
-                case SYSTEM_ADMIN:
-                    // Falls Through
-                case MGTM_ADMIN:
-                    // Falls Through
                 default:
                     LOGGER.warn("{} is an administrator and user of the course {}. Cannot handle this user.",
                             userDto.getRzName(), courseID);

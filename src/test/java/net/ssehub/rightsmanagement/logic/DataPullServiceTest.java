@@ -30,11 +30,12 @@ public class DataPullServiceTest {
         String semester = "wise1920";
         String groupNameForTesting = "Testgroup 1";
         String userNameForTesting = "mmustermann";
+        String tutorNameForTesting = "jdoe";
         String assignmentNameForTesting = "Test_Assignment 01 (Java)";
         StateEnum expectedAssignmentState = StateEnum.IN_PROGRESS;
         int exptectedNoOfGroups = 2;
         int exptectedNoOfMembers = 2;
-        int exptectedNoOfTutors = 0;
+        int exptectedNoOfTutors = 2;
         int exptectedNoOfAssignments = 5;
         
         // Init and execute
@@ -48,7 +49,9 @@ public class DataPullServiceTest {
         // Test the tutors
         Group tutors = course.getTutors();
         Assertions.assertNotNull(tutors);
-        Assertions.assertEquals(tutors.getMembers().size(), exptectedNoOfTutors);
+        Assertions.assertEquals(exptectedNoOfTutors, tutors.getMembers().size());
+        Assertions.assertTrue(tutors.getMembers().contains(tutorNameForTesting), "Expected tutor " + tutorNameForTesting
+            + " not part of tutors");
         
         // Test homework groups
         List<Group> groups = course.getHomeworkGroups();
