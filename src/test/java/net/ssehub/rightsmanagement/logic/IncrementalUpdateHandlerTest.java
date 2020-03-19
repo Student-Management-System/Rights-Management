@@ -8,6 +8,7 @@ import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.model.UpdateMessage;
@@ -103,6 +104,34 @@ public class IncrementalUpdateHandlerTest {
             .findAny()
             .orElse(null);
         Assertions.assertNull(removedGroup, "Specified group not removed.");
+    }
+    
+    /**
+     * Tests insertion of a new Assignment.
+     */
+    @Disabled
+    @Test
+    public void testAssignmentInsert() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedAssignmentName = "Test Assignment 01 (Java)";
+        initEmptyCourse();
+        
+        // Precondition: Assignment should not be part
+        Assertions.assertTrue(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_AssignmentInsert");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentInsert.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be added
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        Assignment newAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
+            + "or test data has changed.");
     }
     
     /**
