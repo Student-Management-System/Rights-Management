@@ -36,6 +36,20 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
      */
     public IncrementalUpdateHandler(CourseConfiguration courseConfig) throws IOException {
         super(courseConfig);
+        init();
+    }
+    
+    /**
+     * Alternative constructor for testing.
+     * @param CourseConfiguration The configuration for the managed course.
+     * @throws IOException If caching file does not exist and cannot be created.
+     */
+    protected IncrementalUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) throws IOException {
+        super(courseConfig, connector);
+        init();
+    }
+    
+    private void init() {
         cacheFile = new File(Settings.getConfig().getCacheDir(), getCourseID() + ".json");
         if (!cacheFile.exists()) {
             LOGGER.info("{} does not exist, assuming new course. Creating the file for caching course information.",

@@ -114,7 +114,8 @@ public class IncrementalUpdateHandlerTest {
     private class HandlerForTesting extends IncrementalUpdateHandler {
 
         public HandlerForTesting(CourseConfiguration courseConfig) throws IOException {
-            super(courseConfig);
+            super(courseConfig, new DataPullService("http://147.172.178.30:3000", COURSE_NAME_FOR_TESTING,
+                SEMESTER_FOR_TESTING));
         }
         
         @Override
