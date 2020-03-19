@@ -11,15 +11,13 @@ import net.ssehub.rightsmanagement.model.Course;
  */
 public class RestUpdateHandler extends AbstractUpdateHandler {
     
-    private DataPullService connector;
-    
     /**
      * Creates an {@link AbstractUpdateHandler} that pulls always the complete information from the student management
      * system at each update request.
      * @param courseConfig The configuration for the managed course.
      */
     public RestUpdateHandler(CourseConfiguration courseConfig) {
-        this(courseConfig, new DataPullService(courseConfig));
+        super(courseConfig);
     }
     
     /**
@@ -29,13 +27,12 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
      *      <tt>null</tt> during tests.
      */
     protected RestUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) {
-        super(courseConfig);
-        this.connector = connector;
+        super(courseConfig, connector);
     }
 
     @Override
     protected Course computeFullConfiguration(UpdateMessage msg) {
-        return connector.computeFullConfiguration();
+        return getDataPullService().computeFullConfiguration();
     }
 
 }

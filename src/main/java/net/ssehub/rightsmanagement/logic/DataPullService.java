@@ -102,25 +102,8 @@ public class DataPullService {
         }
         
         // Gather all homework groups
-        List<Group> homeworkGroups = new ArrayList<>();
-        try {
-            List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(courseID);
-            for (GroupDto groupDto : groupsOfServer) {
-                Group group = new Group();
-                group.setGroupName(groupDto.getName());
-                
-                List<UserDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
-                for (UserDto userDto : userofGroup) {
-                    group.addMembers(userDto.getRzName());
-                }
-                homeworkGroups.add(group);
-            }
-            course.setHomeworkGroups(homeworkGroups);
-        } catch (ApiException e) {
-            LOGGER.warn("Could not query student management system for Groups via \""
-                + Settings.getConfig().getMgmtURL() + "\".", e);
-        }
-        
+        List<Group> homeworkGroups = loadGroups();
+        course.setHomeworkGroups(homeworkGroups);
         
         // Collect assignments
         List<Assignment> assignments = new ArrayList<>();
@@ -155,4 +138,27 @@ public class DataPullService {
         
         return course;
     }
+    
+    public List<Group> loadGroups() {
+        // Gather all homework groups
+        List<Group> homeworkGroups = new ArrayList<>();
+        try {
+            List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(courseID);
+            for (GroupDto groupDto : groupsOfServer) {
+                Group group = new Group();
+                group.setGroupName(groupDto.getName());
+                
+                List<UserDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
+                for (UserDto userDto : userofGroup) {
+                    group.addMembers(userDto.getRzName());
+                }
+                homeworkGroups.add(group);
+            }
+        } catch (ApiException e) {
+            LOGGER.warn("Could not query student management system for Groups via \""
+                + Settings.getConfig().getMgmtURL() + "\".", e);
+        }
+        
+        return homeworkGroups;
+    }    
 }

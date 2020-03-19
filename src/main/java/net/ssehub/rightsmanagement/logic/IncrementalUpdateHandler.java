@@ -39,18 +39,25 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         cacheFile = new File(Settings.getConfig().getCacheDir(), getCourseID() + ".json");
         if (!cacheFile.exists()) {
             LOGGER.info("{} does not exist, assuming new course. Creating the file for caching course information.",
-                cacheFile.getAbsolutePath());
+                    cacheFile.getAbsolutePath());
             
             try (FileWriter writer = new FileWriter(cacheFile)) {
                 // Pull initial configuration from server
-                DataPullService connector = new DataPullService(courseConfig);
-                Course course = connector.computeFullConfiguration();
+                Course course = loadCourse();
                 String content = parser.serialize(course);
                 writer.write(content);
             } catch (IOException e) {
                 LOGGER.warn("Could not create {}, cause {}", cacheFile.getAbsolutePath(), e);                
             }
         }
+    }
+    
+    /**
+     * Loads the full course configuration during initialization, may be overwritten for testing purpose.
+     * @return The complete course information
+     */
+    protected Course loadCourse() {
+        return getDataPullService().computeFullConfiguration();
     }
 
     @Override
@@ -62,17 +69,22 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         // TODO SE: missing
         switch (msg.getAffectedObject()) {
         case GROUP:
-            List<Group> groups = course.getHomeworkGroups();
-            switch (msg.getType()) {
-            case INSERT:
-                // TODO SE: API missing
-            }
+            /*
+             * TODO SE: Consider to load only the specified group. Currently, all groups are loaded since there
+             * is no other API available.
+             */
+            List<Group> groups = getDataPullService().loadGroups();
+            course.setHomeworkGroups(groups);
             break;
         }
         
         return course;
     }
     
+    /**
+     * Loads the locally cached course information.
+     * @return The locally saved {@link Course}.
+     */
     private Course getCachedState() {
         Course result = null;
         try {

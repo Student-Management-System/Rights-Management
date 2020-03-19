@@ -1,6 +1,6 @@
 {
   "restServerPort": 0,
-  "mgmtURL": "http://147.172.178.30:3000/",
+  "mgmtURL": "http://147.172.178.30:3000",
   "cacheDir": "cache/",
   "courses": [
     {

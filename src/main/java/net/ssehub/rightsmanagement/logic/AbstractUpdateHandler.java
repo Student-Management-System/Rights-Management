@@ -7,9 +7,9 @@ import java.io.Writer;
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
+import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.svn.Repository;
-import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
 
 /**
  * Handles the updates for <b>one</b> repository.
@@ -19,13 +19,27 @@ import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
 public abstract class AbstractUpdateHandler {
     
     private CourseConfiguration courseConfig;
+    private DataPullService connector;
     
     /**
      * Creates a handler to manage updates for a course.
      * @param CourseConfiguration The configuration for the managed course.
      */
     public AbstractUpdateHandler(CourseConfiguration courseConfig) {
+        this(courseConfig, new DataPullService(courseConfig));
+    }
+    
+    protected AbstractUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) {
         this.courseConfig = courseConfig;
+        this.connector = connector;
+    }
+    
+    /**
+     * Returns the connector to pull information from the <b>student management system</b> via REST.
+     * @return The connection to the <b>student management system</b>.
+     */
+    protected DataPullService getDataPullService() {
+        return connector;
     }
     
     /**
@@ -94,8 +108,10 @@ public abstract class AbstractUpdateHandler {
     protected void updateRepository(Course course) throws IOException {
         try {
             Repository repository = new Repository(courseConfig.getRepositoryPath());
-            // TODO SE: Write the course
-        } catch (RepositoryNotFoundException e) {
+            for (Assignment assignment : course.getAssignments()) {
+                repository.createOrModifyAssignment(assignment);
+            }
+        } catch (Exception e) {
             throw new IOException(e);
         }
     }
