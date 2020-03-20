@@ -73,6 +73,35 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests update of a Group.
+     */
+    @Test
+    public void testGroupUpdate() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String notExpectedGroupName = "Testgruppe 5";
+        initEmptyCourse();
+        Group group = new Group();
+        group.setGroupName("Testgruppe 5");
+        cachedState.setHomeworkGroups(Arrays.asList(group));
+        
+        // Precondition: Group should be part
+        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_GroupUpdate");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("GroupUpdate.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Group should be updatet
+        Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
+        Group updatedGroup = changedCourse.getHomeworkGroups().stream()
+            .filter(g -> !g.getName().contains(notExpectedGroupName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(updatedGroup, "Specified group not updated");
+    }
+    
+    /**
      * Tests removing a Group.
      */
     @Test
@@ -139,14 +168,14 @@ public class IncrementalUpdateHandlerTest {
     @Test
     public void testAssignmentUpdate() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedAssignmentName = "Test_Assignment 01 (Java)";
+        String notExpectedAssignmentName = "Test Assignment";
         
         initEmptyCourse();
         Assignment assignment = new Assignment();
-        assignment.setName("Test_Assignment");
+        assignment.setName("Test Assignment");
         cachedState.setAssignments(Arrays.asList(assignment));
         
-        // Precondition: Assignment should not be part
+        // Precondition: Assignment should be part
         Assertions.assertFalse(cachedState.getAssignments().isEmpty());
         
         // Apply update
@@ -154,10 +183,10 @@ public class IncrementalUpdateHandlerTest {
         UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentUpdate.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
-        // Post condition: Assignment should be added
+        // Post condition: Assignment should be updatet
         Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
         Assignment updatedAssignment = changedCourse.getAssignments().stream()
-            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .filter(a -> !a.getName().contains(notExpectedAssignmentName))
             .findAny()
             .orElse(null);
         Assertions.assertNotNull(updatedAssignment, "Specified assignment not updated");
