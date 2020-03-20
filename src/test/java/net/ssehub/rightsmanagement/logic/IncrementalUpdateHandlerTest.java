@@ -113,6 +113,12 @@ public class IncrementalUpdateHandlerTest {
      */
     private class HandlerForTesting extends IncrementalUpdateHandler {
 
+        /**
+         * Creates a {@link IncrementalUpdateHandler} instance, that can be used for testing and does not write to
+         * the local disk.
+         * @param courseConfig The configuration for the managed course.
+     * @throws IOException If caching file does not exist and cannot be created.
+         */
         public HandlerForTesting(CourseConfiguration courseConfig) throws IOException {
             super(courseConfig, new DataPullService("http://147.172.178.30:3000", COURSE_NAME_FOR_TESTING,
                 SEMESTER_FOR_TESTING));

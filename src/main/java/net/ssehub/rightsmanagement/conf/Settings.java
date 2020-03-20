@@ -24,7 +24,7 @@ public class Settings {
     
     public static final Settings INSTANCE = new Settings();
     
-    private static final String settingsFile = "settings.json";
+    private static final String SETTINGS_FILE = "settings.json";
     private static final Logger LOGGER = Log.getLog();
     
     private Configuration config;
@@ -50,22 +50,31 @@ public class Settings {
     public void init() throws IOException {
         // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
         try {
-            URL url = Settings.class.getResource(settingsFile);
+            URL url = Settings.class.getResource(SETTINGS_FILE);
             String content = Files.readString(Paths.get(url.toURI()));
             loadConfig(content);
         } catch (IOException e) {
-            LOGGER.warn("Could not read configuration from {}, cause {}", settingsFile, e);
+            LOGGER.warn("Could not read configuration from {}, cause {}", SETTINGS_FILE, e);
             throw e;
         } catch (URISyntaxException e) {
-            LOGGER.warn("Could not read configuration from {}, cause {}", settingsFile, e);
+            LOGGER.warn("Could not read configuration from {}, cause {}", SETTINGS_FILE, e);
             throw new IOException(e);
         }
     }
     
+    /**
+     * Parsed the given configuration and loads it.
+     * @param configAsJson The configuration to use at the whole application.
+     */
     public void loadConfig(String configAsJson) {
         config = jsonParser.deserialize(configAsJson, Configuration.class);
     }
     
+    /**
+     * Saves the currently used configuration.
+     * May be used to create a new configuration or to create test cases.
+     * @param out The writer to save the configuration.
+     */
     public void saveConfiguration(Writer out) {
         String configAsJson = jsonParser.serialize(config);
         try {

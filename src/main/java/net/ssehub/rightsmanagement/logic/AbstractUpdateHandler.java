@@ -4,12 +4,15 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.tmatesoft.svn.core.SVNException;
+
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.svn.Repository;
+import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
 
 /**
  * Handles the updates for <b>one</b> repository.
@@ -23,12 +26,18 @@ public abstract class AbstractUpdateHandler {
     
     /**
      * Creates a handler to manage updates for a course.
-     * @param CourseConfiguration The configuration for the managed course.
+     * @param courseConfig The configuration for the managed course.
      */
     public AbstractUpdateHandler(CourseConfiguration courseConfig) {
         this(courseConfig, new DataPullService(courseConfig));
     }
     
+    /**
+     * Alternative constructor for testing purpose.
+     * @param courseConfig The configuration for the managed course.
+     * @param connector A manually created {@link DataPullService}
+     *     (otherwise the configuration will be used to create it).
+     */
     protected AbstractUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) {
         this.courseConfig = courseConfig;
         this.connector = connector;
@@ -103,6 +112,7 @@ public abstract class AbstractUpdateHandler {
     /**
      * Updates the repository.
      * May be overwritten for testing purposes or to support alternative repositories.
+     * @param course The data to be reflected in access file and SVN repository.
      * @throws IOException
      */
     protected void updateRepository(Course course) throws IOException {
@@ -111,7 +121,7 @@ public abstract class AbstractUpdateHandler {
             for (Assignment assignment : course.getAssignments()) {
                 repository.createOrModifyAssignment(assignment);
             }
-        } catch (Exception e) {
+        } catch (SVNException | RepositoryNotFoundException e) {
             throw new IOException(e);
         }
     }

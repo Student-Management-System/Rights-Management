@@ -71,6 +71,7 @@ public class Configuration {
         }
 
         /**
+         * The absolute path the the repository (its base folder).
          * @param repositoryPath the repositoryPath to set
          */
         public void setRepositoryPath(String repositoryPath) {
@@ -94,6 +95,7 @@ public class Configuration {
         }
 
         /**
+         * The name of the repository as used inside the access file.
          * @param svnName the svnName to set
          */
         public void setSvnName(String svnName) {
@@ -139,6 +141,7 @@ public class Configuration {
     }
     
     /**
+     * Configurations of courses managed by this service.
      * @param courses the courses to set
      */
     public void setCourses(List<CourseConfiguration> courses) {
@@ -146,6 +149,7 @@ public class Configuration {
     }
     
     /**
+     * The port at which service listens for incoming update events.
      * @param restPort the restPort to set
      */
     public void setRestPort(int restPort) {
@@ -153,6 +157,7 @@ public class Configuration {
     }
 
     /**
+     * The location where to store cached information of managed courses.
      * @param cacheDir the cacheDir to set
      */
     public void setCacheDir(String cacheDir) {
@@ -160,6 +165,7 @@ public class Configuration {
     }
 
     /**
+     * The URL to query the student management system.
      * @param mgmtURL the mgmtURL to set
      */
     public void setMgmtURL(String mgmtURL) {

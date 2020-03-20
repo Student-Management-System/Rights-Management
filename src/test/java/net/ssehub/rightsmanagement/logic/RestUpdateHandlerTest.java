@@ -62,6 +62,13 @@ public class RestUpdateHandlerTest {
         private StringWriter sWriter;
         private Course courseForTesting;
         
+        /**
+         * Creates a {@link RestUpdateHandler} instance that can be used for testing and does not write to local disk.
+         * The configuration for the managed course.
+         * @param config The configuration for the managed course.
+         * @param course The {@link Course} set-up to apply during the test
+         *     (check if all information are handled correctly).
+         */
         public HandlerForTesting(CourseConfiguration config, Course course) {
             // DataPullService not used in test -> set it to null to avoid rest calls
             super(config, null);

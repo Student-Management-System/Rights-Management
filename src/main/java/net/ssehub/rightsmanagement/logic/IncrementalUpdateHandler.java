@@ -31,7 +31,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
 
     /**
      * Creates a handler to manage updates for a course, which uses a local cache to reduce the total traffic.
-     * @param CourseConfiguration The configuration for the managed course.
+     * @param courseConfig The configuration for the managed course.
      * @throws IOException If caching file does not exist and cannot be created.
      */
     public IncrementalUpdateHandler(CourseConfiguration courseConfig) throws IOException {
@@ -41,7 +41,9 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
     
     /**
      * Alternative constructor for testing.
-     * @param CourseConfiguration The configuration for the managed course.
+     * @param courseConfig The configuration for the managed course.
+     * @param connector The connector to use {@link DataPullService#DataPullService(CourseConfiguration)} or
+     *      <tt>null</tt> during tests.
      * @throws IOException If caching file does not exist and cannot be created.
      */
     protected IncrementalUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) throws IOException {

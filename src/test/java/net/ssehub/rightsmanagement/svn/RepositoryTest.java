@@ -1,4 +1,4 @@
- package net.ssehub.rightsmanagement.svn;
+package net.ssehub.rightsmanagement.svn;
 
 import java.io.File;
 import java.io.IOException;
@@ -26,7 +26,7 @@ public class RepositoryTest {
     private File repositoryTestFolder;
     
     /**
-     * Tests:
+     * Tests.
      * <ul>
      *   <li><b>Creation</b> of a new assignment</li>
      *   <li><b>Creation</b> of a submission folder for a <b>user</b></li>
@@ -51,7 +51,7 @@ public class RepositoryTest {
         // Write changes to repository
         try {
             repoWriter.createOrModifyAssignment(assignment);
-        } catch (Exception e) {
+        } catch (SVNException e) {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
@@ -59,7 +59,7 @@ public class RepositoryTest {
     }
     
     /**
-     * Tests:
+     * Tests.
      * <ul>
      *   <li><b>Creation</b> of a new assignment</li>
      *   <li><b>Creation</b> of a submission folder for a <b>group</b></li>
@@ -85,7 +85,7 @@ public class RepositoryTest {
         // Write changes to repository
         try {
             repoWriter.createOrModifyAssignment(assignment);
-        } catch (Exception e) {
+        } catch (SVNException e) {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
@@ -93,7 +93,7 @@ public class RepositoryTest {
     }
     
     /**
-     * Tests:
+     * Tests.
      * <ul>
      *   <li><b>Modification</b> of an existent assignment</li>
      *   <li><b>Keeping</b> a submission folder for an existing group</li>
@@ -124,7 +124,7 @@ public class RepositoryTest {
         // Write changes to repository
         try {
             repoWriter.createOrModifyAssignment(assignment);
-        } catch (Exception e) {
+        } catch (SVNException e) {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
@@ -133,7 +133,7 @@ public class RepositoryTest {
     }
     
     /**
-     * Tests:
+     * Tests.
      * <ul>
      *   <li><b>Modification</b> of an existent assignment</li>
      *   <li><b>Missing groups</b> to create</li>
@@ -155,7 +155,7 @@ public class RepositoryTest {
         // Write changes to repository
         try {
             repoWriter.createOrModifyAssignment(assignment);
-        } catch (Exception e) {
+        } catch (SVNException e) {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
@@ -192,7 +192,7 @@ public class RepositoryTest {
         
         // Test that exception is thrown
         Exception exception = Assertions.assertThrows(RepositoryNotFoundException.class, 
-                () -> new Repository(testFile.getAbsolutePath()));
+            () -> new Repository(testFile.getAbsolutePath()));
         Assertions.assertTrue(exception.getMessage().contains("repository directory"));
     }
     

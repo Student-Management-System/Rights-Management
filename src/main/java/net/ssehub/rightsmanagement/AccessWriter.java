@@ -90,6 +90,14 @@ public class AccessWriter implements Closeable {
         }
     }
     
+    /**
+     * Writes a Path section to the access file, which can be configured.<p>
+     * This will be:
+     * <tt>repository:path</tt>
+     * @param repositoryName The name of the repository
+     * @param path The full path inside the repository.
+     * @throws IOException If an I/O error occurs
+     */
     private void writePath(String repositoryName, String... path) throws IOException {
         out.append(SECTION_START);
         out.append(repositoryName);

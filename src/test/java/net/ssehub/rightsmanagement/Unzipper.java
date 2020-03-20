@@ -67,7 +67,7 @@ public class Unzipper {
             }
         } catch (IOException e) {
             Assertions.fail("Could not unpack archive " + archiveFile.getAbsolutePath()
-               + " to " + destFolder.getAbsolutePath(), e);
+                + " to " + destFolder.getAbsolutePath(), e);
         }
         
         return destFolder;

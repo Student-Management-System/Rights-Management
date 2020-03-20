@@ -112,12 +112,12 @@ public class Repository {
     
     /**
      * Creates folders for assignment and groups if the assignment folder doesn`t exist yet.
-     * @param updateAssignment is true if not needed to update and is false if needed to update. 
-     * @param assignment that is created.
-     * @param groups that are created.
-     * @throws Exception .
+     * @param updateAssignment <tt>true</tt> if an existing assignment shall be updated, <tt>false</tt>otherwise.
+     * @param assignment The name of the assignment that is created/updated.
+     * @param groups The name of the participants for which sub folders shall be created.
+     * @throws SVNException If a failure occurred while connecting to a repository
      */
-    private void createFolders(boolean updateAssignment, String assignment, String... groups) throws Exception {
+    private void createFolders(boolean updateAssignment, String assignment, String... groups) throws SVNException {
         SVNRepository con = loadRepository();
         try {
             String msg = updateAssignment ? "Update " + assignment : "Initialize " + assignment;
@@ -162,11 +162,10 @@ public class Repository {
      * Checks if for an assignment and the groups that belongs to the assignment, already exists folder or if they need
      * to be created.
      * @param assignment is checked if there already exists a folder for it or if a folder must be created.
-     * @param groups that belongs to a assignment and it`s checked if for the groups already exist folders or if the 
      * folders need to be created.
-     * @throws Exception .
+     * @throws SVNException If a failure occurred while connecting to a repository
      */
-    public void createOrModifyAssignment(Assignment assignment) throws Exception {
+    public void createOrModifyAssignment(Assignment assignment) throws SVNException {
         SVNRepository repos = loadRepository();
         try {
             List<String> newSubmisionFolders = new ArrayList<>();

@@ -93,7 +93,8 @@ public class DataPullService {
                     break;
                 default:
                     LOGGER.warn("{} is an administrator and user of the course {}. Cannot handle this user.",
-                            userDto.getRzName(), courseID);
+                        userDto.getRzName(), courseID);
+                    break;
                 }
             }
         } catch (ApiException e) {
@@ -126,8 +127,9 @@ public class DataPullService {
                     // Falls through
                 default:
                     LOGGER.warn("Assignment \"" + assignment.getName() + "\" is set to \""
-                    + assignmentDto.getCollaborationType() + "\" which is not supported.");
+                        + assignmentDto.getCollaborationType() + "\" which is not supported.");
                     // Skip broken assignments -> Do not add them to list
+                    break;
                 }
             }
             course.setAssignments(assignments);
@@ -135,7 +137,6 @@ public class DataPullService {
             LOGGER.warn("Could not query student management system for Assignments via \""
                 + Settings.getConfig().getMgmtURL() + "\".", e);
         }
-        
         return course;
     }
     

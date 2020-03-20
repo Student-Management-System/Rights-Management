@@ -31,7 +31,7 @@ public class UpdateChangeListener {
     private Map<String, AbstractUpdateHandler> observedCourses = new HashMap<>();
     
     /**
-     * Singleton constructor
+     * Singleton constructor.
      */
     private UpdateChangeListener() { }
     
@@ -68,8 +68,7 @@ public class UpdateChangeListener {
      * Factory method to create an {@link AbstractUpdateHandler} for the specified configuration.<p>
      * <b>Note:</b> This won't register the handler.
      * @param config The configuration of the course specifying which course is handled.
-     * @param pullFullconfigOnChange <tt>true</tt> handler will always pull the full configuration on an update,
-     *     <tt>false</tt> the handler will operate on local cache.
+     * @param strategy Specifies the strategy what kind of update handler should be used.
      * @return The handler to handle updates.
      * @throws IOException If caching was specified and the required file cannot be created and does not exist.
      * @see {@link #register(AbstractUpdateHandler)}
