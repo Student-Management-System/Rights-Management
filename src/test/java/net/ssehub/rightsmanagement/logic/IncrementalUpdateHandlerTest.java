@@ -109,11 +109,10 @@ public class IncrementalUpdateHandlerTest {
     /**
      * Tests insertion of a new Assignment.
      */
-    @Disabled
     @Test
     public void testAssignmentInsert() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedAssignmentName = "Test Assignment 01 (Java)";
+        String expectedAssignmentName = "Test_Assignment 01 (Java)";
         initEmptyCourse();
         
         // Precondition: Assignment should not be part
