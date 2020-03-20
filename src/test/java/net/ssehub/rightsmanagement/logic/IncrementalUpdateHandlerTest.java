@@ -73,7 +73,7 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests update of a Group.
+     * Tests update a Group.
      */
     @Test
     public void testGroupUpdate() {
@@ -163,7 +163,7 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests update of an Assignment.
+     * Tests update an Assignment.
      */
     @Test
     public void testAssignmentUpdate() {
