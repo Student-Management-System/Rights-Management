@@ -10,9 +10,11 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
 import io.swagger.client.JSON;
+import io.swagger.client.api.AssignmentsApi;
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
+import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 
@@ -91,6 +93,12 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
              */
             List<Group> groups = getDataPullService().loadGroups();
             course.setHomeworkGroups(groups);
+            break;
+        case ASSIGNMENT:
+            // TODO TK: Implement loadAssignments() Method in DataPullService
+            //List<Assignment> assignments = getDataPullService().loadAssignments();
+            //course.setAssignments(assignments);
+            System.out.println("Habs mir gedacht");
             break;
         }
         

@@ -3,10 +3,12 @@ package net.ssehub.rightsmanagement.logic;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.model.UpdateMessage;
@@ -20,6 +22,7 @@ import net.ssehub.rightsmanagement.model.Group;
 /**
  * Tests the {@link IncrementalUpdateHandler}.
  * @author El-Sharkawy
+ * @author Kunold
  *
  */
 public class IncrementalUpdateHandlerTest {
@@ -66,6 +69,68 @@ public class IncrementalUpdateHandlerTest {
             .findAny()
             .orElse(null);
         Assertions.assertNotNull(newGroup, "Specified group not added. Either algorithm is broken "
+            + "or test data has changed.");
+    }
+    
+    /**
+     * Tests removing a Group.
+     */
+    @Test
+    public void testGroupRemove() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedGroupName = "Testgroup 3";
+        int nGroupsBeforeDelte = 3;
+        initEmptyCourse();
+        Group g1 = new Group();
+        g1.setGroupName("Testgroup 1");
+        Group g2 = new Group();
+        g2.setGroupName("Testgroup 2");
+        Group g3 = new Group();
+        g3.setGroupName("Testgroup 3");
+        cachedState.setHomeworkGroups(Arrays.asList(g1, g2, g3));
+        
+        // Precondition: Group should contain three groups
+        Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getHomeworkGroups().size());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_GroupRemove");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("GroupRemove.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Group 3 should be removed
+        Assertions.assertEquals(nGroupsBeforeDelte - 1, changedCourse.getHomeworkGroups().size());
+        Group removedGroup = changedCourse.getHomeworkGroups().stream()
+            .filter(g -> g.getName().contains(expectedGroupName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNull(removedGroup, "Specified group not removed.");
+    }
+    
+    /**
+     * Tests insertion of a new Assignment.
+     */
+    @Disabled
+    @Test
+    public void testAssignmentInsert() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedAssignmentName = "Test Assignment 01 (Java)";
+        initEmptyCourse();
+        
+        // Precondition: Assignment should not be part
+        Assertions.assertTrue(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_AssignmentInsert");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentInsert.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be added
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        Assignment newAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
             + "or test data has changed.");
     }
     
