@@ -134,6 +134,36 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests update of an Assignment.
+     */
+    @Test
+    public void testAssignmentUpdate() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedAssignmentName = "Test_Assignment 01 (Java)";
+        
+        initEmptyCourse();
+        Assignment assignment = new Assignment();
+        assignment.setName("Test_Assignment");
+        cachedState.setAssignments(Arrays.asList(assignment));
+        
+        // Precondition: Assignment should not be part
+        Assertions.assertFalse(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_AssignmentUpdate");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentUpdate.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be added
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        Assignment updatedAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(updatedAssignment, "Specified assignment not updated");
+    }
+    
+    /**
      * Tests removing of an Assignment.
      */
     @Test
