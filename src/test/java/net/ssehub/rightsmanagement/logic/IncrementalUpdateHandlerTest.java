@@ -135,6 +135,47 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests removing of an Assignment.
+     */
+    @Test
+    public void testAssignmentRemove() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedAssignmentName = "Test_Assignment 06";
+        int nAssignmentsBeforeDelte = 6;
+        initEmptyCourse();
+        Assignment assignment1 = new Assignment();
+        assignment1.setName("Test_Assignment 01 (Java)");
+        Assignment assignment2 = new Assignment();
+        assignment2.setName("Test_Assignment 02 (Java)");
+        Assignment assignment3 = new Assignment();
+        assignment3.setName("Test_Assignment 03 (Java)");
+        Assignment assignment4 = new Assignment();
+        assignment4.setName("Test_Assignment 04 (Java)");
+        Assignment assignment5 = new Assignment();
+        assignment5.setName("Test_Assignment 05 (Java) Invisible");
+        Assignment assignment6 = new Assignment();
+        assignment6.setName("Test_Assignment 06");
+        cachedState.setAssignments(Arrays.asList(assignment1, assignment2, assignment3, assignment4, assignment5,
+                assignment6));
+        
+        // Precondition: Assignment should contain six assignments
+        Assertions.assertEquals(nAssignmentsBeforeDelte, cachedState.getAssignments().size());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_AssignmentRemove");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentRemove.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment six should be removed
+        Assertions.assertEquals(nAssignmentsBeforeDelte - 1, changedCourse.getAssignments().size());
+        Assignment removedAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(removedAssignment, "Specified assignment not removed");
+    }
+    
+    /**
      * Creates a basis {@link Course} object for the tests.
      * This can be accessed via {@link #cachedState}.
      */
