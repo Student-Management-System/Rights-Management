@@ -10,7 +10,6 @@ import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
 
 import io.swagger.client.JSON;
-import io.swagger.client.api.AssignmentsApi;
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
@@ -53,6 +52,11 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         init();
     }
     
+    /**
+     * Loads the cached file at the constructor.
+     * If the file does not exist, the information from the server is pulled to write the file with the current
+     * configuration of the course.
+     */
     private void init() {
         cacheFile = new File(Settings.getConfig().getCacheDir(), getCourseID() + ".json");
         if (!cacheFile.exists()) {
@@ -95,10 +99,13 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             course.setHomeworkGroups(groups);
             break;
         case ASSIGNMENT:
-            // TODO TK: Implement loadAssignments() Method in DataPullService
-            //List<Assignment> assignments = getDataPullService().loadAssignments();
-            //course.setAssignments(assignments);
-            System.out.println("Habs mir gedacht");
+            // TODO SE: Consider to load only the specified assignment. Currently, all assignment.
+            List<Assignment> assignments = getDataPullService().loadAssignments(course);
+            course.setAssignments(assignments);
+            break;
+        default:
+            LOGGER.warn("{}s of type {} are not supported by {}", UpdateMessage.class.getSimpleName(),
+                msg.getAffectedObject(), IncrementalUpdateHandler.class.getSimpleName());
             break;
         }
         

@@ -1,7 +1,10 @@
 package net.ssehub.rightsmanagement.logic;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -75,8 +78,32 @@ public class DataPullService {
         course.setSemester(semester);
         
         Group tutors = new Group();
+        Map<String, Member> studentsOfCourse = loadStudents(tutors);
         course.setTutors(tutors);
-        List<Member> studentsOfCourse = new ArrayList<Member>();
+        course.setStudents(studentsOfCourse);
+        
+        // Gather all homework groups
+        List<Group> homeworkGroups = loadGroups();
+        course.setHomeworkGroups(homeworkGroups);
+        
+        // Collect assignments
+        List<Assignment> assignments = loadAssignments(studentsOfCourse.values(), homeworkGroups);
+        course.setAssignments(assignments);
+        
+        return course;
+    }
+
+    /**
+     * Loads the list of known students from the course.
+     * This is <i>only</i> needed to reduce the traffic.
+     * This is useful as we need to iterate over all students while we iterate over all assignments.
+     * Without cached members, we would call the student management system n² times.
+     * @param tutors The group of tutors, will be changed as side effect, may be an empty group if this is not further
+     *     processed.
+     * @return The list of participating students in form of (ID as used in the management system, student)
+     */
+    private Map<String, Member> loadStudents(Group tutors) {
+        Map<String, Member> studentsOfCourse = new HashMap<String, Member>();
         try {
             List<UserDto> usersOfCourse = courseAPI.getUsersOfCourse(courseID);
             for (UserDto userDto : usersOfCourse) {
@@ -84,7 +111,7 @@ public class DataPullService {
                 case STUDENT:
                     Member student = new Member();
                     student.setMemberName(userDto.getRzName());
-                    studentsOfCourse.add(student);
+                    studentsOfCourse.put(userDto.getId(), student);
                     break;
                 case LECTURER:
                     // falls through
@@ -101,12 +128,17 @@ public class DataPullService {
             LOGGER.warn("Could not query student management system for Users via \""
                     + Settings.getConfig().getMgmtURL() + "\".", e);
         }
-        
-        // Gather all homework groups
-        List<Group> homeworkGroups = loadGroups();
-        course.setHomeworkGroups(homeworkGroups);
-        
-        // Collect assignments
+        return studentsOfCourse;
+    }
+
+    /**
+     * Pulls the information of configured {@link Assignment}s from the <b>student management system</b>.
+     * @param studentsOfCourse The list of known participants of the course.
+     * @param homeworkGroups The list of know home work groups of the course.
+     * @return The assignments of the course, containing the participants of the assignments (students in case of
+     *     single assignments, otherwise the groups).
+     */
+    private List<Assignment> loadAssignments(Collection<Member> studentsOfCourse, List<Group> homeworkGroups) {
         List<Assignment> assignments = new ArrayList<>();
         try {
             List<AssignmentDto> assignmentsOfServer = assignmentsAPI.getAssignmentsOfCourse(courseID);
@@ -132,14 +164,39 @@ public class DataPullService {
                     break;
                 }
             }
-            course.setAssignments(assignments);
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Assignments via \""
                 + Settings.getConfig().getMgmtURL() + "\".", e);
         }
-        return course;
+        
+        return assignments;
     }
     
+    /**
+     * Loads the information of configured assignments from the <b>student management system</b>.
+     * @param course Already known information of the course (will ignore all information regarding assignments). 
+     * @return The configured assignments of the <b>student management system</b>.
+     */
+    public List<Assignment> loadAssignments(Course course) {
+        // Try to use loaded students
+        Map<String, Member> studentsOfCourse = course.getStudents();
+        if (null == studentsOfCourse) {
+            // Load all students from server if list is locally not available.
+            studentsOfCourse = loadStudents(new Group());
+        }
+        
+        List<Group> homeworkGroups = course.getHomeworkGroups();
+        if (null == homeworkGroups) {
+            homeworkGroups = loadGroups();
+        }
+
+        return loadAssignments(studentsOfCourse.values(), homeworkGroups);
+    }
+    
+    /**
+     * Pulls the information of configured homework groups from the <b>student management system</b>.
+     * @return The configured homework groups of the <b>student management system</b>.
+     */
     public List<Group> loadGroups() {
         // Gather all homework groups
         List<Group> homeworkGroups = new ArrayList<>();
@@ -161,5 +218,5 @@ public class DataPullService {
         }
         
         return homeworkGroups;
-    }    
+    }
 }
