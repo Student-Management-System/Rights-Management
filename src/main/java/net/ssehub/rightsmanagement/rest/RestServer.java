@@ -23,6 +23,10 @@ public class RestServer implements Closeable {
     
     private Server server;
     
+    /**
+     * Creates a new {@link RestServer} instance.
+     * @param port The port at which it should listen for new messages.
+     */
     public RestServer(int port) {
         try {
             Log.setLog(new Slf4jLog());

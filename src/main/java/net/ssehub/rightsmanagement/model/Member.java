@@ -10,6 +10,10 @@ public class Member implements IParticipant {
     
     private String userName;
     
+    /**
+     * Sets the user name of the student.
+     * @param userName The RZ name.
+     */
     public void setMemberName(String userName) {
         this.userName = userName;
     }

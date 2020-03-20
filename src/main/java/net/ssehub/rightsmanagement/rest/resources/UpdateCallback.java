@@ -32,7 +32,6 @@ public class UpdateCallback {
     /**
      * Retrieves a JSON message which was specified as <tt>text/plain</tt> converts it and handles the message.
      * @param update A {@link UpdateMessage} in serialized as JSON.
-     * @return
      */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -41,6 +40,10 @@ public class UpdateCallback {
         processMessage(update);
     }
     
+    /**
+     * Retrieves a JSON message which was specified as <tt>application/json</tt> converts it and handles the message.
+     * @param json A {@link UpdateMessage} in serialized as JSON.
+     */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void helloUsingJson(String json) {

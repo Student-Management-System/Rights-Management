@@ -4,15 +4,19 @@ package net.ssehub.rightsmanagement.model;
  * Interface of participants.
  * 
  * @author kunold
+ * @author El-Sharkawy
  *
  */
 public interface IParticipant extends Comparable<IParticipant> {
     
     /**
-     * Sorts the participants with name.
+     * Sorts the participants by their name.<p>
+     * {@inheritDoc}
+     * @param otherParticipant Another participant to sort with
      */
-    public default int compareTo(IParticipant o) {
-        return this.getName().compareTo(o.getName());
+    @Override
+    public default int compareTo(IParticipant otherParticipant) {
+        return this.getName().compareTo(otherParticipant.getName());
     }
     
     /**
