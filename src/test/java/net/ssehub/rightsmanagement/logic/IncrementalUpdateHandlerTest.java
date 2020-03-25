@@ -92,7 +92,7 @@ public class IncrementalUpdateHandlerTest {
         UpdateMessage updateMsg = UpdateMessageLoader.load("GroupUpdate.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
-        // Post condition: Group should be updatet
+        // Post condition: Group should be updated
         Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
         Group updatedGroup = changedCourse.getHomeworkGroups().stream()
             .filter(g -> !g.getName().contains(notExpectedGroupName))
@@ -183,7 +183,7 @@ public class IncrementalUpdateHandlerTest {
         UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentUpdate.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
-        // Post condition: Assignment should be updatet
+        // Post condition: Assignment should be updated
         Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
         Assignment updatedAssignment = changedCourse.getAssignments().stream()
             .filter(a -> !a.getName().contains(notExpectedAssignmentName))
