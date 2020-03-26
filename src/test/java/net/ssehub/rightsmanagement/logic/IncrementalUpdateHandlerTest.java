@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -352,6 +354,39 @@ public class IncrementalUpdateHandlerTest {
 //            .orElse(null);
 //        Assertions.assertNotNull(newMember, "Specified user not added. Either algorithm is broken "
 //            + "or test data has changed.");
+    }
+    
+    /**
+     * Tests update an User.
+     */
+    @Test
+    public void testUserUpdate() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String notExpectedUserName = "Peter Pan";
+        
+        initEmptyCourse();
+        Map<String, Member> mb = new HashMap<String, Member>();
+        Member  member = new Member();
+        member.setMemberName("Peter Pan");
+        mb.put("0", member);
+        cachedState.setStudents(mb); //setStudents needs a map
+        
+        // Precondition: User should be part
+        Assertions.assertFalse(cachedState.getStudents().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserUpdate");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserUpdate.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be updated
+        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
+        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
+//        Member updatedUser = changedCourse.getStudents().stream()
+//            .filter(u -> !u.getName().contains(notExpectedUserName))
+//            .findAny()
+//            .orElse(null);
+//        Assertions.assertNotNull(updatedUser, "Specified user not updated");
     }
     
     /**
