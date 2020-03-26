@@ -293,7 +293,7 @@ public class IncrementalUpdateHandlerTest {
     @Test
     public void testAssignmentRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedAssignmentName = "Test_Assignment 06";
+        String expectedAssignmentName = "Test_Assignment 09";
         int nAssignmentsBeforeDelte = 6;
         initEmptyCourse();
         Assignment assignment1 = new Assignment();
@@ -307,7 +307,7 @@ public class IncrementalUpdateHandlerTest {
         Assignment assignment5 = new Assignment();
         assignment5.setName("Test_Assignment 05 (Java) Invisible");
         Assignment assignment6 = new Assignment();
-        assignment6.setName("Test_Assignment 06");
+        assignment6.setName("Test_Assignment 09");
         cachedState.setAssignments(Arrays.asList(assignment1, assignment2, assignment3, assignment4, assignment5,
                 assignment6));
         
@@ -325,7 +325,7 @@ public class IncrementalUpdateHandlerTest {
             .filter(a -> a.getName().contains(expectedAssignmentName))
             .findAny()
             .orElse(null);
-        Assertions.assertNotNull(removedAssignment, "Specified assignment not removed");
+        Assertions.assertNull(removedAssignment, "Specified assignment not removed");
     }
     
     /**
@@ -419,7 +419,7 @@ public class IncrementalUpdateHandlerTest {
 //            .filter(u -> u.getName().contains(expectedUserName))
 //            .findAny()
 //            .orElse(null);
-//        Assertions.assertNotNull(removedUser, "Specified user not removed");
+//        Assertions.assertNull(removedUser, "Specified user not removed");
     }
     
     /**
@@ -481,6 +481,39 @@ public class IncrementalUpdateHandlerTest {
 //            .findAny()
 //            .orElse(null);
 //        Assertions.assertNotNull(updatedCourseUserRelation, "Specified course user relation not updated");
+    }
+    
+    /**
+     * Tests removing of a Course-User-Relation.
+     */
+    @Test
+    public void testCourseUserRelationRemove() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedUserName = "Peter Pan";
+        
+        initEmptyCourse();
+        Map<String, Member> mb = new HashMap<String, Member>();
+        Member  member = new Member();
+        member.setMemberName("Peter Pan");
+        mb.put("0", member);
+        cachedState.setStudents(mb); //setStudents needs a map
+        
+        // Precondition: User be part of course
+        Assertions.assertFalse(cachedState.getStudents().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationRemove");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("CourseUserRelationRemove.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User Peter Pan should be removed from course
+        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
+        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
+//        Member removedCourseUserRelation = changedCourse.getStudents().stream()
+//            .filter(u -> u.getName().contains(expectedUserName))
+//            .findAny()
+//            .orElse(null);
+//        Assertions.asserNull(removedCourseUserRelation, "Specified course user relation not removed");
     }
     
     /**
