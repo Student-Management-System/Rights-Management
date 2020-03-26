@@ -199,7 +199,7 @@ public class IncrementalUpdateHandlerTest {
     public void testUserGroupRelationRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
         String notExpectedUserName = "Peter Pan";
-        int nGroupsBeforeDelte = 3;
+        int nGroups = 2;
         initEmptyCourse();
         Group g1 = new Group();
         g1.setGroupName("Testgroup 1");
@@ -208,8 +208,8 @@ public class IncrementalUpdateHandlerTest {
         g2.addMembers("Peter Pan");
         cachedState.setHomeworkGroups(Arrays.asList(g1, g2));
         
-        // Precondition: Group should contain three groups
-        Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getHomeworkGroups().size());
+        // Precondition: Group should contain two groups
+        Assertions.assertEquals(nGroups, cachedState.getHomeworkGroups().size());
         Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
         
         // Apply update
@@ -218,7 +218,7 @@ public class IncrementalUpdateHandlerTest {
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Group 3 should be removed
-        Assertions.assertEquals(nGroupsBeforeDelte - 1, changedCourse.getHomeworkGroups().size());
+        Assertions.assertEquals(nGroups, changedCourse.getHomeworkGroups().size());
         Group removedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
             .filter(g -> g.getName().contains(notExpectedUserName))
             .findAny()
