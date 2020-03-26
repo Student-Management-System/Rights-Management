@@ -108,9 +108,11 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             List<Group> userGroupRelation = getDataPullService().loadGroups();
             course.setHomeworkGroups(userGroupRelation);
             break;
+        case COURSE_USER_RELATION:
+            // falls through
         case USER:
-            Course c = getDataPullService().computeFullConfiguration();
-            course.setStudents(c.getStudents());
+            Course courseUser = getDataPullService().computeFullConfiguration();
+            course.setStudents(courseUser.getStudents());
             break;
         default:
             LOGGER.warn("{}s of type {} are not supported by {}", UpdateMessage.class.getSimpleName(),
