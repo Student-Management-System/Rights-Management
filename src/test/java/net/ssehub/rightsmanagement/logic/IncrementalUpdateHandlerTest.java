@@ -193,6 +193,40 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests removing a Group.
+     */
+    @Test
+    public void testUserGroupRelationRemove() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String notExpectedUserName = "Peter Pan";
+        int nGroupsBeforeDelte = 3;
+        initEmptyCourse();
+        Group g1 = new Group();
+        g1.setGroupName("Testgroup 1");
+        Group g2 = new Group();
+        g2.setGroupName("Testgroup 2");
+        g2.addMembers("Peter Pan");
+        cachedState.setHomeworkGroups(Arrays.asList(g1, g2));
+        
+        // Precondition: Group should contain three groups
+        Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getHomeworkGroups().size());
+        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationRemove");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationRemove.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Group 3 should be removed
+        Assertions.assertEquals(nGroupsBeforeDelte - 1, changedCourse.getHomeworkGroups().size());
+        Group removedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
+            .filter(g -> g.getName().contains(notExpectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNull(removedUserGroupRelation, "Specified user group relation not removed.");
+    }
+    
+    /**
      * Tests insertion of a new Assignment.
      */
     @Test
