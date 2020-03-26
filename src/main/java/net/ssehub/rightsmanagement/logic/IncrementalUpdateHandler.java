@@ -21,6 +21,7 @@ import net.ssehub.rightsmanagement.model.Group;
  * {@link AbstractUpdateHandler} that stores the full configuration of a course locally and updates that configuration
  * based on incoming {@link UpdateMessage}s.
  * @author El-Sharkawy
+ * @author Kunold
  *
  */
 public class IncrementalUpdateHandler extends AbstractUpdateHandler {
@@ -102,6 +103,10 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             // TODO SE: Consider to load only the specified assignment. Currently, all assignment.
             List<Assignment> assignments = getDataPullService().loadAssignments(course);
             course.setAssignments(assignments);
+            break;
+        case USER_GROUP_RELATION:
+            List<Group> userGroupRelation = getDataPullService().loadGroups();
+            course.setHomeworkGroups(userGroupRelation);
             break;
         default:
             LOGGER.warn("{}s of type {} are not supported by {}", UpdateMessage.class.getSimpleName(),
