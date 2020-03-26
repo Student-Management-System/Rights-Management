@@ -423,6 +423,67 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests insertion of a new Course-User-Relation.
+     */
+    @Test
+    public void testCourseUserRelationInsert() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedUserName = "mmustermann";
+        initEmptyCourse();
+        
+        // Precondition: User should not be part of course
+        Assertions.assertSame(null, cachedState.getStudents());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationInsert");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("CourseUserRelationInsert.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be added to course
+        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
+        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member> 
+//        Member newCourseUserRelation = changedCourse.getStudents().stream()
+//            .filter(m -> m.getName().contains(expectedUserName))
+//            .findAny()
+//            .orElse(null);
+//        Assertions.assertNotNull(newCourseUserRelation, "Specified course user relation not added. Either algorithm is"
+//                + "broken or test data has changed.");
+    }
+    
+    /**
+     * Tests update an Course-User-Relation.
+     */
+    @Test
+    public void testCourseUserRelationUpdate() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String notExpectedUserName = "Peter Pan";
+        
+        initEmptyCourse();
+        Map<String, Member> mb = new HashMap<String, Member>();
+        Member  member = new Member();
+        member.setMemberName("Peter Pan");
+        mb.put("0", member);
+        cachedState.setStudents(mb); //setStudents needs a map
+        
+        // Precondition: User should be part of course
+        Assertions.assertFalse(cachedState.getStudents().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationUpdate");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("CourseUserRelationUpdate.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User-Course-Relation should be updated
+        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
+        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
+//        Member updatedCourseUserRelation = changedCourse.getStudents().stream()
+//            .filter(u -> !u.getName().contains(notExpectedUserName))
+//            .findAny()
+//            .orElse(null);
+//        Assertions.assertNotNull(updatedCourseUserRelation, "Specified course user relation not updated");
+    }
+    
+    /**
      * Creates a basis {@link Course} object for the tests.
      * This can be accessed via {@link #cachedState}.
      */
