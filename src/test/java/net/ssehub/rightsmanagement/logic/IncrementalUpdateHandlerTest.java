@@ -136,6 +136,33 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests insertion of a new User-Group-Relation.
+     */
+    @Test
+    public void testUserGroupRelationInsert() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedUserName = "mmustermann";
+        initEmptyCourse();
+        
+        // Precondition: Group should not be part
+        Assertions.assertTrue(cachedState.getHomeworkGroups().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationInsert");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationInsert.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Group should be added
+        Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
+        Group newUserGroupRelation = changedCourse.getHomeworkGroups().stream()
+            .filter(g -> g.getMembers().contains(expectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(newUserGroupRelation, "Specified user-group-relation not added. Either algorithm is broken "
+            + "or test data has changed.");
+    }
+    
+    /**
      * Tests insertion of a new Assignment.
      */
     @Test
