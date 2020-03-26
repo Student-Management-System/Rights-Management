@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -18,6 +19,7 @@ import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
+import net.ssehub.rightsmanagement.model.Member;
 
 /**
  * Tests the {@link IncrementalUpdateHandler}.
@@ -217,7 +219,7 @@ public class IncrementalUpdateHandlerTest {
         UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationRemove.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
-        // Post condition: Group 3 should be removed
+        // Post condition: User of Group 2 should be removed
         Assertions.assertEquals(nGroups, changedCourse.getHomeworkGroups().size());
         Group removedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
             .filter(g -> g.getName().contains(notExpectedUserName))
@@ -322,6 +324,34 @@ public class IncrementalUpdateHandlerTest {
             .findAny()
             .orElse(null);
         Assertions.assertNotNull(removedAssignment, "Specified assignment not removed");
+    }
+    
+    /**
+     * Tests insertion of a new User.
+     */
+    @Test
+    public void testUserInsert() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedUserName = "mmustermann";
+        initEmptyCourse();
+        
+        // Precondition: User should not be part
+        Assertions.assertSame(null, cachedState.getStudents());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserInsert");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserInsert.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be added
+        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
+        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member> 
+//        Member newMember = changedCourse.getStudents().stream()
+//            .filter(m -> m.getName().contains(expectedUserName))
+//            .findAny()
+//            .orElse(null);
+//        Assertions.assertNotNull(newMember, "Specified user not added. Either algorithm is broken "
+//            + "or test data has changed.");
     }
     
     /**
