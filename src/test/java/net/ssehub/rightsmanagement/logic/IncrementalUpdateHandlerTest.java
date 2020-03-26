@@ -202,7 +202,7 @@ public class IncrementalUpdateHandlerTest {
     @Test
     public void testUserGroupRelationRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedUserName = "Peter Pan";
+        String expectedUserName = "Peter Pan";
         int nGroups = 2;
         initEmptyCourse();
         Group g1 = new Group();
@@ -224,7 +224,7 @@ public class IncrementalUpdateHandlerTest {
         // Post condition: User of Group 2 should be removed
         Assertions.assertEquals(nGroups, changedCourse.getHomeworkGroups().size());
         Group removedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
-            .filter(g -> g.getName().contains(notExpectedUserName))
+            .filter(g -> g.getName().contains(expectedUserName))
             .findAny()
             .orElse(null);
         Assertions.assertNull(removedUserGroupRelation, "Specified user group relation not removed.");
@@ -387,6 +387,39 @@ public class IncrementalUpdateHandlerTest {
 //            .findAny()
 //            .orElse(null);
 //        Assertions.assertNotNull(updatedUser, "Specified user not updated");
+    }
+    
+    /**
+     * Tests removing of a User.
+     */
+    @Test
+    public void testUserRemove() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedUserName = "Peter Pan";
+        
+        initEmptyCourse();
+        Map<String, Member> mb = new HashMap<String, Member>();
+        Member  member = new Member();
+        member.setMemberName("Peter Pan");
+        mb.put("0", member);
+        cachedState.setStudents(mb); //setStudents needs a map
+        
+        // Precondition: User be part
+        Assertions.assertFalse(cachedState.getStudents().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserRemove");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserRemove.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User Peter Pan should be removed
+        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
+        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
+//        Member removedUser = changedCourse.getStudents().stream()
+//            .filter(u -> u.getName().contains(expectedUserName))
+//            .findAny()
+//            .orElse(null);
+//        Assertions.assertNotNull(removedUser, "Specified user not removed");
     }
     
     /**
