@@ -158,8 +158,38 @@ public class IncrementalUpdateHandlerTest {
             .filter(g -> g.getMembers().contains(expectedUserName))
             .findAny()
             .orElse(null);
-        Assertions.assertNotNull(newUserGroupRelation, "Specified user-group-relation not added. Either algorithm is broken "
-            + "or test data has changed.");
+        Assertions.assertNotNull(newUserGroupRelation, "Specified user-group-relation not added. Either algorithm is "
+                + "broken or test data has changed.");
+    }
+    
+    /**
+     * Tests update a User-Group-Relation.
+     */
+    @Test
+    public void testUserGroupRelationUpdate() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String notExpectedUserName = "Peter Pan";
+        initEmptyCourse();
+        Group group = new Group();
+        group.setGroupName("Testgroup 1");
+        group.addMembers("Peter Pan");
+        cachedState.setHomeworkGroups(Arrays.asList(group));
+        
+        // Precondition: Group should be part
+        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationUpdate");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationUpdate.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Group should be updated
+        Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
+        Group updatedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
+            .filter(g -> !g.getMembers().contains(notExpectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(updatedUserGroupRelation, "Specified user group relation not updated");
     }
     
     /**
