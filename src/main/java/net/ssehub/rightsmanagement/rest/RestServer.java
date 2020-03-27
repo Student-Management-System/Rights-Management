@@ -30,10 +30,13 @@ public class RestServer implements Closeable {
     public RestServer(int port) {
         try {
             Log.setLog(new Slf4jLog());
+            // checkstyle: stop exception type check (used interface of library throws exception)
         } catch (Exception e) {
-            // TODO Auto-generated catch block
+            // checkstyle: resume exception type check
+            // No logging possible -> Print on console what happend
             e.printStackTrace();
         }
+        
         LOGGER.info("Starting server on port: {}", port);
         Server server = new Server(port);
         
@@ -52,7 +55,9 @@ public class RestServer implements Closeable {
         try {
             server.start();
             server.join();
+            // checkstyle: stop exception type check (used interface of library throws exception)
         } catch (Exception ex) {
+            // checkstyle: resume exception type check
             server.destroy();
             System.exit(1);
         }
