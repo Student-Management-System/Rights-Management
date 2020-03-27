@@ -4,14 +4,12 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.model.UpdateMessage;
@@ -81,12 +79,12 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testGroupUpdate() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedGroupName = "Testgruppe 5";
+        // Must be a valid name w.r.t the ID of the UpdateMessage
+        String nameOfUpdatedGroup = "Testgroup 1";
         initEmptyCourse();
-        Group group = new Group();
-        group.setGroupName("Testgruppe 5");
-        cachedState.setHomeworkGroups(Arrays.asList(group));
+        Group groupPreUpdate = new Group();
+        groupPreUpdate.setGroupName(nameOfUpdatedGroup);
+        cachedState.setHomeworkGroups(Arrays.asList(groupPreUpdate));
         
         // Precondition: Group should be part
         Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
@@ -99,10 +97,11 @@ public class IncrementalUpdateHandlerTest {
         // Post condition: Group should be updated
         Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
         Group updatedGroup = changedCourse.getHomeworkGroups().stream()
-            .filter(g -> !g.getName().contains(notExpectedGroupName))
+            .filter(g -> g.getName().contains(nameOfUpdatedGroup))
             .findAny()
             .orElse(null);
         Assertions.assertNotNull(updatedGroup, "Specified group not updated");
+        Assertions.assertNotSame(groupPreUpdate, updatedGroup, "Group not updated.");
     }
     
     /**
@@ -171,11 +170,12 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testUserGroupRelationUpdate() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
+        // Must be a valid name w.r.t the ID of the UpdateMessage
+        String changedGroupName = "Testgroup 1";
         String notExpectedUserName = "Peter Pan";
         initEmptyCourse();
         Group group = new Group();
-        group.setGroupName("Testgroup 1");
+        group.setGroupName(changedGroupName);
         group.addMembers("Peter Pan");
         cachedState.setHomeworkGroups(Arrays.asList(group));
         
@@ -190,10 +190,12 @@ public class IncrementalUpdateHandlerTest {
         // Post condition: Group should be updated
         Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
         Group updatedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
-            .filter(g -> !g.getMembers().contains(notExpectedUserName))
+            .filter(g -> g.getName().equals(changedGroupName))
             .findAny()
             .orElse(null);
-        Assertions.assertNotNull(updatedUserGroupRelation, "Specified user group relation not updated");
+        Assertions.assertNotNull(updatedUserGroupRelation, "Group was deleted instead of updated.");
+        Assertions.assertFalse(updatedUserGroupRelation.getMembers().contains(notExpectedUserName), "User not deleted "
+            + "as expected during update.");
     }
     
     /**
@@ -209,7 +211,7 @@ public class IncrementalUpdateHandlerTest {
         g1.setGroupName("Testgroup 1");
         Group g2 = new Group();
         g2.setGroupName("Testgroup 2");
-        g2.addMembers("Peter Pan");
+        g2.addMembers(expectedUserName);
         cachedState.setHomeworkGroups(Arrays.asList(g1, g2));
         
         // Precondition: Group should contain two groups
@@ -262,13 +264,13 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testAssignmentUpdate() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedAssignmentName = "Test Assignment";
+        // Must be a valid name w.r.t the ID of the UpdateMessage
+        String updatedAssignmentName = "Test_Assignment 01 (Java)";
         
         initEmptyCourse();
-        Assignment assignment = new Assignment();
-        assignment.setName("Test Assignment");
-        cachedState.setAssignments(Arrays.asList(assignment));
+        Assignment assignmentPreUpdate = new Assignment();
+        assignmentPreUpdate.setName(updatedAssignmentName);
+        cachedState.setAssignments(Arrays.asList(assignmentPreUpdate));
         
         // Precondition: Assignment should be part
         Assertions.assertFalse(cachedState.getAssignments().isEmpty());
@@ -281,10 +283,11 @@ public class IncrementalUpdateHandlerTest {
         // Post condition: Assignment should be updated
         Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
         Assignment updatedAssignment = changedCourse.getAssignments().stream()
-            .filter(a -> !a.getName().contains(notExpectedAssignmentName))
+            .filter(a -> a.getName().contains(updatedAssignmentName))
             .findAny()
             .orElse(null);
         Assertions.assertNotNull(updatedAssignment, "Specified assignment not updated");
+        Assertions.assertNotSame(assignmentPreUpdate, updatedAssignment, "Assignment not updated.");
     }
     
     /**
@@ -347,13 +350,12 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User should be added
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member> 
-//        Member newMember = changedCourse.getStudents().stream()
-//            .filter(m -> m.getName().contains(expectedUserName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(newMember, "Specified user not added. Either algorithm is broken "
-//            + "or test data has changed.");
+        Member insertedUser = changedCourse.getStudents().values().stream()
+            .filter(u -> u.getName().contains(expectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(insertedUser,
+            "Expected student \"" + expectedUserName + "\" not created during update.");
     }
     
     /**
@@ -373,6 +375,11 @@ public class IncrementalUpdateHandlerTest {
         
         // Precondition: User should be part
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
+        Member user = cachedState.getStudents().values().stream()
+            .filter(u -> u.getName().contains(notExpectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(user, "User \"" + notExpectedUserName + "\" not part of test set at precondition.");
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_UserUpdate");
@@ -381,12 +388,11 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User should be updated
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
-//        Member updatedUser = changedCourse.getStudents().stream()
-//            .filter(u -> !u.getName().contains(notExpectedUserName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(updatedUser, "Specified user not updated");
+        Member deletedUser = changedCourse.getStudents().values().stream()
+            .filter(u -> u.getName().contains(notExpectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNull(deletedUser, "User \"" + notExpectedUserName + "\" not deleted during update.");
     }
     
     /**
@@ -446,7 +452,7 @@ public class IncrementalUpdateHandlerTest {
 //            .filter(m -> m.getName().contains(expectedUserName))
 //            .findAny()
 //            .orElse(null);
-//        Assertions.assertNotNull(newCourseUserRelation, "Specified course user relation not added. Either algorithm is"
+//       Assertions.assertNotNull(newCourseUserRelation, "Specified course user relation not added. Either algorithm is"
 //                + "broken or test data has changed.");
     }
     
