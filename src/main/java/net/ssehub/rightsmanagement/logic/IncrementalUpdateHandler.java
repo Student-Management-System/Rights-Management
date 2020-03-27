@@ -5,6 +5,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -16,6 +17,7 @@ import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
+import net.ssehub.rightsmanagement.model.Member;
 
 /**
  * {@link AbstractUpdateHandler} that stores the full configuration of a course locally and updates that configuration
@@ -89,7 +91,6 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         Course course = getCachedState();
         
         // Second: Apply delta of the UpdateMessage
-        // TODO SE: missing
         switch (msg.getAffectedObject()) {
         case GROUP:
             /*
@@ -111,8 +112,10 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case COURSE_USER_RELATION:
             // falls through
         case USER:
-            Course courseUser = getDataPullService().computeFullConfiguration();
-            course.setStudents(courseUser.getStudents());
+            Group tutors = new Group();
+            Map<String, Member> homeworkGroups = getDataPullService().loadStudents(tutors);
+            course.setStudents(homeworkGroups);
+            course.setTutors(tutors);
             break;
         default:
             LOGGER.warn("{}s of type {} are not supported by {}", UpdateMessage.class.getSimpleName(),

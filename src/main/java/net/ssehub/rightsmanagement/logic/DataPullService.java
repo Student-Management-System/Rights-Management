@@ -102,7 +102,7 @@ public class DataPullService {
      *     processed.
      * @return The list of participating students in form of (ID as used in the management system, student)
      */
-    private Map<String, Member> loadStudents(Group tutors) {
+    public Map<String, Member> loadStudents(Group tutors) {
         Map<String, Member> studentsOfCourse = new HashMap<String, Member>();
         try {
             List<UserDto> usersOfCourse = courseAPI.getUsersOfCourse(courseID);

@@ -360,27 +360,31 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests update an User.
+     * Tests update an User: Simulates that a user becomes promoted from student to tutor.
      */
     @Test
     public void testUserUpdate() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedUserName = "Peter Pan";
+        // Must be a valid name w.r.t the ID of the UpdateMessage
+        String changedUserName = "jdoe";
+        String changedUserID = "8330300e-9be7-4a70-ba7d-8a0139311343";
         
         initEmptyCourse();
         Map<String, Member> mb = new HashMap<String, Member>();
-        Member  member = new Member();
-        member.setMemberName("Peter Pan");
-        mb.put("0", member);
-        cachedState.setStudents(mb); //setStudents needs a map
+        Member member = new Member();
+        member.setMemberName(changedUserName);
+        mb.put(changedUserID, member);
+        cachedState.setStudents(mb);
         
-        // Precondition: User should be part
+        // Precondition: User should be part of participants and no tutor
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
         Member user = cachedState.getStudents().values().stream()
-            .filter(u -> u.getName().contains(notExpectedUserName))
+            .filter(u -> u.getName().equals(changedUserName))
             .findAny()
             .orElse(null);
-        Assertions.assertNotNull(user, "User \"" + notExpectedUserName + "\" not part of test set at precondition.");
+        Assertions.assertNotNull(user, "User \"" + changedUserName + "\" not a student at precondition.");
+        boolean partOfTutors = cachedState.getTutors() == null ? false
+            : cachedState.getTutors().getMembers().contains(changedUserName);
+        Assertions.assertFalse(partOfTutors, "User \"" + changedUserName + "\" is already a tutor at precondition.");
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_UserUpdate");
@@ -389,11 +393,13 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User should be updated
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member deletedUser = changedCourse.getStudents().values().stream()
-            .filter(u -> u.getName().contains(notExpectedUserName))
+        Member changedUser = changedCourse.getStudents().values().stream()
+            .filter(u -> u.getName().contains(changedUserName))
             .findAny()
             .orElse(null);
-        Assertions.assertNull(deletedUser, "User \"" + notExpectedUserName + "\" not deleted during update.");
+        Assertions.assertNull(changedUser, "User \"" + changedUserName + "\" still a student after update.");
+        Assertions.assertTrue(changedCourse.getTutors().getMembers().contains(changedUserName), "User \""
+            + changedUserName + "\" not promoted to a tutor during update.");
     }
     
     /**
@@ -406,10 +412,10 @@ public class IncrementalUpdateHandlerTest {
         
         initEmptyCourse();
         Map<String, Member> mb = new HashMap<String, Member>();
-        Member  member = new Member();
-        member.setMemberName("Peter Pan");
+        Member member = new Member();
+        member.setMemberName(expectedUserName);
         mb.put("0", member);
-        cachedState.setStudents(mb); //setStudents needs a map
+        cachedState.setStudents(mb);
         
         // Precondition: User be part
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
@@ -421,12 +427,11 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User Peter Pan should be removed
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
-//        Member removedUser = changedCourse.getStudents().stream()
-//            .filter(u -> u.getName().contains(expectedUserName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNull(removedUser, "Specified user not removed");
+        Member deletedUser = changedCourse.getStudents().values().stream()
+                .filter(u -> u.getName().contains(expectedUserName))
+                .findAny()
+                .orElse(null);
+        Assertions.assertNull(deletedUser, "User \"" + expectedUserName + "\" not deleted during update.");
     }
     
     /**
