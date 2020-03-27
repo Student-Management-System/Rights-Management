@@ -91,4 +91,13 @@ public class Assignment implements Iterable<IParticipant> {
         }
         return participants;
     }
+    
+    /**
+     * Only intended for the Debugger: Returns a meaningful name during debugging.
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

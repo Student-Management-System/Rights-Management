@@ -57,5 +57,13 @@ public class Group implements Iterable<String>, IParticipant {
     public Iterator<String> iterator() {
         return members.iterator();
     }
-
+    
+    /**
+     * Only intended for the Debugger: Returns a meaningful name during debugging.
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

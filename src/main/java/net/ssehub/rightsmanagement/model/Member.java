@@ -23,4 +23,12 @@ public class Member implements IParticipant {
         return userName;
     }
 
+    /**
+     * Only intended for the Debugger: Returns a meaningful name during debugging.
+     * {@inheritDoc}
+     */
+    @Override
+    public String toString() {
+        return getName();
+    }
 }
