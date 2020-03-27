@@ -199,7 +199,7 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests removing a Group.
+     * Tests removing a user from a Group.
      */
     @Test
     public void testUserGroupRelationRemove() {
@@ -225,11 +225,12 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User of Group 2 should be removed
         Assertions.assertEquals(nGroups, changedCourse.getHomeworkGroups().size());
-        Group removedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
-            .filter(g -> g.getName().contains(expectedUserName))
+        Group changedGroup = changedCourse.getHomeworkGroups().stream()
+            .filter(g -> g.getName().equals(g2.getName()))
             .findAny()
             .orElse(null);
-        Assertions.assertNull(removedUserGroupRelation, "Specified user group relation not removed.");
+        Assertions.assertNotNull(changedGroup, "Group wasn't updated, but removed (not desired).");
+        Assertions.assertFalse(changedGroup.getMembers().contains(expectedUserName), "Expected user not deleted");
     }
     
     /**
@@ -310,7 +311,7 @@ public class IncrementalUpdateHandlerTest {
         Assignment assignment5 = new Assignment();
         assignment5.setName("Test_Assignment 05 (Java) Invisible");
         Assignment assignment6 = new Assignment();
-        assignment6.setName("Test_Assignment 09");
+        assignment6.setName(expectedAssignmentName);
         cachedState.setAssignments(Arrays.asList(assignment1, assignment2, assignment3, assignment4, assignment5,
                 assignment6));
         
