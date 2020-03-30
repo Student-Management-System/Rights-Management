@@ -1,7 +1,7 @@
 package net.ssehub.rightsmanagement.model;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Stores the complete information of a course to configure a repository for the course. 
@@ -14,10 +14,10 @@ public class Course {
     private String semester;
     
     private Group tutors;
-    private List<Group> homeworkGroups;
-    private Map<String, Member> students;
+    private List<Group> homeworkGroups = new ArrayList<>();
+    private List<Member> students = new ArrayList<>();
     
-    private List<Assignment> assignments;
+    private List<Assignment> assignments = new ArrayList<>();
 
     /**
      * The name of the course.
@@ -53,9 +53,9 @@ public class Course {
 
     /**
      * The students participating at the curse.
-     * @return the students (ID as used in the management system, student), maybe <tt>null</tt>.
+     * @return the students, shouldn't be <tt>null</tt>.
      */
-    public Map<String, Member> getStudents() {
+    public List<Member> getStudents() {
         return students;
     }
     
@@ -101,9 +101,9 @@ public class Course {
     
     /**
      * The students participating at the curse.
-     * @param students the students (ID as used in the management system, student)
+     * @param students the students (must not be <tt>null</tt>).
      */
-    public void setStudents(Map<String, Member> students) {
+    public void setStudents(List<Member> students) {
         this.students = students;
     }
 

@@ -2,10 +2,7 @@ package net.ssehub.rightsmanagement.logic;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -342,7 +339,7 @@ public class IncrementalUpdateHandlerTest {
         initEmptyCourse();
         
         // Precondition: User should not be part
-        Assertions.assertSame(null, cachedState.getStudents());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_UserInsert");
@@ -351,7 +348,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User should be added
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member insertedUser = changedCourse.getStudents().values().stream()
+        Member insertedUser = changedCourse.getStudents().stream()
             .filter(u -> u.getName().contains(expectedUserName))
             .findAny()
             .orElse(null);
@@ -366,18 +363,15 @@ public class IncrementalUpdateHandlerTest {
     public void testUserUpdate() {
         // Must be a valid name w.r.t the ID of the UpdateMessage
         String changedUserName = "jdoe";
-        String changedUserID = "8330300e-9be7-4a70-ba7d-8a0139311343";
         
         initEmptyCourse();
-        Map<String, Member> mb = new HashMap<String, Member>();
         Member member = new Member();
         member.setMemberName(changedUserName);
-        mb.put(changedUserID, member);
-        cachedState.setStudents(mb);
+        cachedState.setStudents(Arrays.asList(member));
         
         // Precondition: User should be part of participants and no tutor
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
-        Member user = cachedState.getStudents().values().stream()
+        Member user = cachedState.getStudents().stream()
             .filter(u -> u.getName().equals(changedUserName))
             .findAny()
             .orElse(null);
@@ -393,7 +387,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User should be updated
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member changedUser = changedCourse.getStudents().values().stream()
+        Member changedUser = changedCourse.getStudents().stream()
             .filter(u -> u.getName().contains(changedUserName))
             .findAny()
             .orElse(null);
@@ -411,11 +405,9 @@ public class IncrementalUpdateHandlerTest {
         String expectedUserName = "Peter Pan";
         
         initEmptyCourse();
-        Map<String, Member> mb = new HashMap<String, Member>();
         Member member = new Member();
         member.setMemberName(expectedUserName);
-        mb.put("0", member);
-        cachedState.setStudents(mb);
+        cachedState.setStudents(Arrays.asList(member));
         
         // Precondition: User be part
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
@@ -427,7 +419,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User Peter Pan should be removed
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member deletedUser = changedCourse.getStudents().values().stream()
+        Member deletedUser = changedCourse.getStudents().stream()
                 .filter(u -> u.getName().contains(expectedUserName))
                 .findAny()
                 .orElse(null);
@@ -444,7 +436,7 @@ public class IncrementalUpdateHandlerTest {
         initEmptyCourse();
         
         // Precondition: User should not be part of course
-        Assertions.assertSame(null, cachedState.getStudents());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationInsert");
@@ -471,11 +463,9 @@ public class IncrementalUpdateHandlerTest {
         String notExpectedUserName = "Peter Pan";
         
         initEmptyCourse();
-        Map<String, Member> mb = new HashMap<String, Member>();
-        Member  member = new Member();
-        member.setMemberName("Peter Pan");
-        mb.put("0", member);
-        cachedState.setStudents(mb); //setStudents needs a map
+        Member member = new Member();
+        member.setMemberName(notExpectedUserName);
+        cachedState.setStudents(Arrays.asList(member));
         
         // Precondition: User should be part of course
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
@@ -504,11 +494,9 @@ public class IncrementalUpdateHandlerTest {
         String expectedUserName = "Peter Pan";
         
         initEmptyCourse();
-        Map<String, Member> mb = new HashMap<String, Member>();
-        Member  member = new Member();
-        member.setMemberName("Peter Pan");
-        mb.put("0", member);
-        cachedState.setStudents(mb); //setStudents needs a map
+        Member member = new Member();
+        member.setMemberName(expectedUserName);
+        cachedState.setStudents(Arrays.asList(member));
         
         // Precondition: User be part of course
         Assertions.assertFalse(cachedState.getStudents().isEmpty());
@@ -536,8 +524,6 @@ public class IncrementalUpdateHandlerTest {
         cachedState = new Course();
         cachedState.setCourseName(COURSE_NAME_FOR_TESTING);
         cachedState.setCourseName(SEMESTER_FOR_TESTING);
-        cachedState.setHomeworkGroups(new ArrayList<Group>());
-        cachedState.setAssignments(new ArrayList<Assignment>());
     }
     
     /**

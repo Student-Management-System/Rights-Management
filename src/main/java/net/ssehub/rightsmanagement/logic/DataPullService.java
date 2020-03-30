@@ -2,9 +2,7 @@ package net.ssehub.rightsmanagement.logic;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -78,7 +76,7 @@ public class DataPullService {
         course.setSemester(semester);
         
         Group tutors = new Group();
-        Map<String, Member> studentsOfCourse = loadStudents(tutors);
+        List<Member> studentsOfCourse = loadStudents(tutors);
         course.setTutors(tutors);
         course.setStudents(studentsOfCourse);
         
@@ -87,7 +85,7 @@ public class DataPullService {
         course.setHomeworkGroups(homeworkGroups);
         
         // Collect assignments
-        List<Assignment> assignments = loadAssignments(studentsOfCourse.values(), homeworkGroups);
+        List<Assignment> assignments = loadAssignments(studentsOfCourse, homeworkGroups);
         course.setAssignments(assignments);
         
         return course;
@@ -98,12 +96,12 @@ public class DataPullService {
      * This is <i>only</i> needed to reduce the traffic.
      * This is useful as we need to iterate over all students while we iterate over all assignments.
      * Without cached members, we would call the student management system n² times.
-     * @param tutors The group of tutors, will be changed as side effect, may be an empty group if this is not further
-     *     processed.
-     * @return The list of participating students in form of (ID as used in the management system, student)
+     * @param tutors The group of tutors, will be changed as <b>side effect</b>, may be an empty group if this is not
+     *     further processed.
+     * @return The list of participating students
      */
-    public Map<String, Member> loadStudents(Group tutors) {
-        Map<String, Member> studentsOfCourse = new HashMap<String, Member>();
+    public List<Member> loadStudents(Group tutors) {
+        List<Member> studentsOfCourse = new ArrayList<Member>();
         try {
             List<UserDto> usersOfCourse = courseAPI.getUsersOfCourse(courseID);
             for (UserDto userDto : usersOfCourse) {
@@ -111,7 +109,7 @@ public class DataPullService {
                 case STUDENT:
                     Member student = new Member();
                     student.setMemberName(userDto.getRzName());
-                    studentsOfCourse.put(userDto.getId(), student);
+                    studentsOfCourse.add(student);
                     break;
                 case LECTURER:
                     // falls through
@@ -179,7 +177,7 @@ public class DataPullService {
      */
     public List<Assignment> loadAssignments(Course course) {
         // Try to use loaded students
-        Map<String, Member> studentsOfCourse = course.getStudents();
+        List<Member> studentsOfCourse = course.getStudents();
         if (null == studentsOfCourse) {
             // Load all students from server if list is locally not available.
             studentsOfCourse = loadStudents(new Group());
@@ -190,7 +188,7 @@ public class DataPullService {
             homeworkGroups = loadGroups();
         }
 
-        return loadAssignments(studentsOfCourse.values(), homeworkGroups);
+        return loadAssignments(studentsOfCourse, homeworkGroups);
     }
     
     /**

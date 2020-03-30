@@ -5,7 +5,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
@@ -113,8 +112,8 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             // falls through
         case USER:
             Group tutors = new Group();
-            Map<String, Member> homeworkGroups = getDataPullService().loadStudents(tutors);
-            course.setStudents(homeworkGroups);
+            List<Member> studentsOfCourse = getDataPullService().loadStudents(tutors);
+            course.setStudents(studentsOfCourse);
             course.setTutors(tutors);
             break;
         default:
