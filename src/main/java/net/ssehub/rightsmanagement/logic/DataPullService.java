@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.swagger.client.ApiClient;
 import io.swagger.client.ApiException;
@@ -29,7 +29,7 @@ import net.ssehub.rightsmanagement.model.Member;
  */
 public class DataPullService {
     
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = LogManager.getLogger(DataPullService.class);
 
     private String courseName;
     private String semester;

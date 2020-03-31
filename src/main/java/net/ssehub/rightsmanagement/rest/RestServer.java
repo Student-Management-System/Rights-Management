@@ -6,7 +6,6 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.log.Log;
 import org.eclipse.jetty.util.log.Logger;
-import org.eclipse.jetty.util.log.Slf4jLog;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
@@ -19,7 +18,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 public class RestServer implements Closeable {
     private static final String REST_PATH = "/rest/*";
 
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = Log.getLogger(RestServer.class);
     
     private Server server;
     
@@ -28,15 +27,6 @@ public class RestServer implements Closeable {
      * @param port The port at which it should listen for new messages.
      */
     public RestServer(int port) {
-        try {
-            Log.setLog(new Slf4jLog());
-            // checkstyle: stop exception type check (used interface of library throws exception)
-        } catch (Exception e) {
-            // checkstyle: resume exception type check
-            // No logging possible -> Print on console what happend
-            e.printStackTrace();
-        }
-        
         LOGGER.info("Starting server on port: {}", port);
         Server server = new Server(port);
         

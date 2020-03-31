@@ -4,8 +4,8 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNURL;
@@ -16,6 +16,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.IParticipant;
+import net.ssehub.rightsmanagement.rest.resources.UpdateCallback;
 
 
 /**
@@ -29,7 +30,7 @@ public class Repository {
     
     private static final int LATEST_REVISION = -1;
     
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = LogManager.getLogger(UpdateCallback.class);
     
     private File file;
     

@@ -7,13 +7,14 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.Gson;
 
 import io.gsonfire.GsonFireBuilder;
 import io.swagger.client.JSON;
+import net.ssehub.rightsmanagement.Service;
 
 /**
  * Singleton that reads and stores the configuration of the whole application (except for logging).
@@ -25,7 +26,7 @@ public class Settings {
     public static final Settings INSTANCE = new Settings();
     
     private static final String SETTINGS_FILE = "settings.json";
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = LogManager.getLogger(Service.class);
     
     private Configuration config;
     private JSON jsonParser;

@@ -1,7 +1,7 @@
 package net.ssehub.rightsmanagement.logic;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
@@ -15,7 +15,7 @@ import net.ssehub.rightsmanagement.model.Course;
  */
 public class DelayedRestUpdateHandler extends RestUpdateHandler {
     
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = LogManager.getLogger(DelayedRestUpdateHandler.class);
 
     /**
      * Wait 10 seconds before checking if service should pull the whole configuration from the student management system

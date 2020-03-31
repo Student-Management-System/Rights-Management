@@ -6,8 +6,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import io.swagger.client.JSON;
 import io.swagger.client.model.UpdateMessage;
@@ -27,7 +27,7 @@ import net.ssehub.rightsmanagement.model.Member;
  */
 public class IncrementalUpdateHandler extends AbstractUpdateHandler {
     
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = LogManager.getLogger(IncrementalUpdateHandler.class);
     
     private JSON parser = new JSON();
     private File cacheFile;

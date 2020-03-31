@@ -9,8 +9,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
 
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonParseException;
 
@@ -27,7 +27,7 @@ import net.ssehub.rightsmanagement.logic.WrongFormatException;
 @Path("/update")
 public class UpdateCallback {
 
-    private static final Logger LOGGER = Log.getLog();
+    private static final Logger LOGGER = LogManager.getLogger(UpdateCallback.class);
     
     /**
      * Retrieves a JSON message which was specified as <tt>text/plain</tt> converts it and handles the message.

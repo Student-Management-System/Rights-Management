@@ -22,7 +22,7 @@ public class Service {
      * @param args Will be ignored
      * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {        
         try {
             Settings.INSTANCE.init();
         } catch (IOException e) {
