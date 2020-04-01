@@ -476,12 +476,11 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User-Course-Relation should be updated
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
-//        Member updatedCourseUserRelation = changedCourse.getStudents().stream()
-//            .filter(u -> !u.getName().contains(notExpectedUserName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(updatedCourseUserRelation, "Specified course user relation not updated");
+        Member updatedCourseUserRelation = changedCourse.getStudents().stream()
+            .filter(u -> u.getName().contains(notExpectedUserName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNull(updatedCourseUserRelation, "Specified course user relation not updated");
     }
     
     /**
