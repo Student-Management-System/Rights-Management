@@ -377,10 +377,8 @@ public class IncrementalUpdateHandlerTest {
         Assertions.assertNotNull(changedCourse.getTutors().getMembers().size());
         
         String insertedUser = null;
-        for(int i = 0; i < changedCourse.getTutors().getMembers().size();i++) {
-            if(changedCourse.getTutors().getMembers().contains(expectedUserName)) {
-                insertedUser = expectedUserName;
-            }
+        if(changedCourse.getTutors().getMembers().contains(expectedUserName)) {
+            insertedUser = expectedUserName;
         }
         Assertions.assertNotNull(insertedUser,
             "Expected tutor \"" + expectedUserName + "\" not created during update.");
@@ -481,10 +479,8 @@ public class IncrementalUpdateHandlerTest {
         Assertions.assertFalse(changedCourse.getTutors().getMembers().isEmpty());
         
         String deletedUser = null;
-        for(int i = 0; i < changedCourse.getTutors().getMembers().size();i++) {
-            if(changedCourse.getTutors().getMembers().contains(notExpectedUserName)) {
-                deletedUser = notExpectedUserName;
-            }
+        if(changedCourse.getTutors().getMembers().contains(notExpectedUserName)) {
+            deletedUser = notExpectedUserName;
         }
         Assertions.assertNull(deletedUser, "User \"" + notExpectedUserName + "\" not deleted during update.");
     }
