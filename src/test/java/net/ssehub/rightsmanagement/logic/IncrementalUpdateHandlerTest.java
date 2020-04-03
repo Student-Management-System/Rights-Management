@@ -432,11 +432,11 @@ public class IncrementalUpdateHandlerTest {
     @Test
     public void testUserStudentRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedUserName = "Peter Pan";
+        String notExpectedUserName = "Peter Pan";
         
         initEmptyCourse();
         Member member = new Member();
-        member.setMemberName(expectedUserName);
+        member.setMemberName(notExpectedUserName);
         cachedState.setStudents(Arrays.asList(member));
         
         // Precondition: User be part
@@ -450,10 +450,43 @@ public class IncrementalUpdateHandlerTest {
         // Post condition: User Peter Pan should be removed
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
         Member deletedUser = changedCourse.getStudents().stream()
-                .filter(u -> u.getName().contains(expectedUserName))
+                .filter(u -> u.getName().contains(notExpectedUserName))
                 .findAny()
                 .orElse(null);
-        Assertions.assertNull(deletedUser, "User \"" + expectedUserName + "\" not deleted during update.");
+        Assertions.assertNull(deletedUser, "User \"" + notExpectedUserName + "\" not deleted during update.");
+    }
+    
+    /**
+     * Tests removing of a User(tutor).
+     */
+    @Test
+    public void testUserTutorRemove() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String notExpectedUserName = "Peter Pan";
+        
+        initEmptyCourse();
+        Group tutor = new Group();
+        tutor.addMembers(notExpectedUserName);
+        cachedState.setTutors(tutor);
+        
+        // Precondition: User be part
+        Assertions.assertFalse(cachedState.getTutors().getMembers().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserRemove");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserRemove.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User Peter Pan should be removed
+        Assertions.assertFalse(changedCourse.getTutors().getMembers().isEmpty());
+        
+        String deletedUser = null;
+        for(int i = 0; i < changedCourse.getTutors().getMembers().size();i++) {
+            if(changedCourse.getTutors().getMembers().contains(notExpectedUserName)) {
+                deletedUser = notExpectedUserName;
+            }
+        }
+        Assertions.assertNull(deletedUser, "User \"" + notExpectedUserName + "\" not deleted during update.");
     }
     
     /**
