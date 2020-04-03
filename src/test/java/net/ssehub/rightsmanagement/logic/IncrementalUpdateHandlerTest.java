@@ -484,16 +484,16 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests removing of a Course-User-Relation.
+     * Tests removing a Course-User-Relation.
      */
     @Test
     public void testCourseUserRelationRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedUserName = "Peter Pan";
+        String notExpectedUserName = "Peter Pan";
         
         initEmptyCourse();
         Member member = new Member();
-        member.setMemberName(expectedUserName);
+        member.setMemberName(notExpectedUserName);
         cachedState.setStudents(Arrays.asList(member));
         
         // Precondition: User be part of course
@@ -506,12 +506,12 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User Peter Pan should be removed from course
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        // TODO TK: fix the problem: The method stream() is undefined for the type Map<String,Member>
+        //TODO TK: check why the User data is not loaded
 //        Member removedCourseUserRelation = changedCourse.getStudents().stream()
-//            .filter(u -> u.getName().contains(expectedUserName))
+//            .filter(u -> u.getName().contains(notExpectedUserName))
 //            .findAny()
 //            .orElse(null);
-//        Assertions.asserNull(removedCourseUserRelation, "Specified course user relation not removed");
+//        Assertions.assertNull(removedCourseUserRelation, "Specified course user relation not removed");
     }
     
     /**
