@@ -330,10 +330,10 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests insertion of a new User.
+     * Tests insertion of a new User(student).
      */
     @Test
-    public void testUserInsert() {
+    public void testUserStudentInsert() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
         String expectedUserName = "mmustermann";
         initEmptyCourse();
@@ -354,6 +354,36 @@ public class IncrementalUpdateHandlerTest {
             .orElse(null);
         Assertions.assertNotNull(insertedUser,
             "Expected student \"" + expectedUserName + "\" not created during update.");
+    }
+    
+    /**
+     * Tests insertion of a new User(tutor).
+     */
+    @Test
+    public void testUserTutorInsert() {
+       // Must be a valid name w.r.t the ID of the UpdateMessage
+        String expectedUserName = "jdoe";
+        initEmptyCourse();
+        
+        // Precondition: User should not be part
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_UserInsert");
+        UpdateMessage updateMsg = UpdateMessageLoader.load("UserInsert.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be added
+        Assertions.assertNotNull(changedCourse.getTutors().getMembers().size());
+        
+        String insertedUser = null;
+        for(int i = 0; i < changedCourse.getTutors().getMembers().size();i++) {
+            if(changedCourse.getTutors().getMembers().contains(expectedUserName)) {
+                insertedUser = expectedUserName;
+            }
+        }
+        Assertions.assertNotNull(insertedUser,
+            "Expected tutor \"" + expectedUserName + "\" not created during update.");
     }
     
     /**
@@ -397,10 +427,10 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests removing of a User.
+     * Tests removing of a User(student).
      */
     @Test
-    public void testUserRemove() {
+    public void testUserStudentRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
         String expectedUserName = "Peter Pan";
         
