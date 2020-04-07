@@ -121,6 +121,6 @@ public class Course {
      */
     @Override
     public String toString() {
-        return getCourseName() + "-" + getSemester();
+        return "Course: " + getCourseName() + "-" + getSemester();
     }
 }

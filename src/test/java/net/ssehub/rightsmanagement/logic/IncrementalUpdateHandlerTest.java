@@ -7,7 +7,6 @@ import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import io.swagger.client.model.UpdateMessage;
@@ -539,10 +538,9 @@ public class IncrementalUpdateHandlerTest {
     /**
      * Tests removing a Course-User-Relation.
      */
-    @Disabled
     @Test
     public void testCourseUserRelationRemove() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
+        // Must be a valid name w.r.t the ID of the UpdateMessage
         String notExpectedUserName = "Peter Pan";
         
         initEmptyCourse();
@@ -575,7 +573,7 @@ public class IncrementalUpdateHandlerTest {
     private void initEmptyCourse() {
         cachedState = new Course();
         cachedState.setCourseName(COURSE_NAME_FOR_TESTING);
-        cachedState.setCourseName(SEMESTER_FOR_TESTING);
+        cachedState.setSemester(SEMESTER_FOR_TESTING);
     }
     
     /**

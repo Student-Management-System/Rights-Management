@@ -1,6 +1,6 @@
 {
     "type": "REMOVE",
-    "affectedObject": "USER_GROUP_RELATION",
+    "affectedObject": "COURSE_USER_RELATION",
     "courseId": "java-wise1920",
     "entityId": "not-an-existing-id",
     "entityId_relation": "not-an-existing-id",
