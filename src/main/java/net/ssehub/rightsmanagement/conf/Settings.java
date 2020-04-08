@@ -1,10 +1,12 @@
 package net.ssehub.rightsmanagement.conf;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.apache.logging.log4j.LogManager;
@@ -25,7 +27,7 @@ public class Settings {
     
     public static final Settings INSTANCE = new Settings();
     
-    private static final String SETTINGS_FILE = "/settings.json";
+    private static final String SETTINGS_FILE = "settings.json";
     private static final Logger LOGGER = LogManager.getLogger(Service.class);
     
     private Configuration config;
@@ -51,11 +53,20 @@ public class Settings {
     public void init() throws IOException {
         // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
         try {
-            URL url = Settings.class.getResource(SETTINGS_FILE);
-            System.out.println("URL = " + url);
-            System.out.println("URI = " + url.toURI());
-            System.out.println("Path = " + Paths.get(url.toURI()));
-            String content = Files.readString(Paths.get(url.toURI()));
+            Path pathToSettings;
+            File inputFile = new File(SETTINGS_FILE);
+            System.out.println(inputFile.getAbsolutePath());
+            if (inputFile.exists()) {
+                // Load relative to JAR
+                LOGGER.debug("Loading application settings from {}.", inputFile.getAbsoluteFile());
+                pathToSettings = inputFile.toPath();
+            } else {
+                // Load from resource folder while developing
+                URL url = Settings.class.getResource("/" + SETTINGS_FILE);
+                LOGGER.debug("Loading application settings from {}.", url);
+                pathToSettings = Paths.get(url.toURI());
+            }
+            String content = Files.readString(pathToSettings);
             loadConfig(content);
         } catch (IOException e) {
             LOGGER.warn("Could not read configuration from {}, cause {}", SETTINGS_FILE, e);
