@@ -52,6 +52,9 @@ public class Settings {
         // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
         try {
             URL url = Settings.class.getResource(SETTINGS_FILE);
+            System.out.println("URL = " + url);
+            System.out.println("URI = " + url.toURI());
+            System.out.println("Path = " + Paths.get(url.toURI()));
             String content = Files.readString(Paths.get(url.toURI()));
             loadConfig(content);
         } catch (IOException e) {
