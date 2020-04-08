@@ -25,7 +25,7 @@ public class Settings {
     
     public static final Settings INSTANCE = new Settings();
     
-    private static final String SETTINGS_FILE = "settings.json";
+    private static final String SETTINGS_FILE = "/settings.json";
     private static final Logger LOGGER = LogManager.getLogger(Service.class);
     
     private Configuration config;
