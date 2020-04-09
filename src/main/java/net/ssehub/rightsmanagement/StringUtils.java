@@ -28,6 +28,45 @@ public class StringUtils {
             case ' ':
                 normalizedPath.append("%20");                
                 break;
+            case '&':
+                normalizedPath.append("%26");
+                break;
+            case '@':
+                normalizedPath.append("%40");
+                break;
+            case '~':
+                normalizedPath.append("%7e");
+                break;
+            case '*':
+                normalizedPath.append("%2a");
+                break;
+            case '#':
+                normalizedPath.append("%23");
+                break;
+            case '<':
+                normalizedPath.append("%3c");
+                break;
+            case '>':
+                normalizedPath.append("%3e");
+                break;
+            case '%':
+                normalizedPath.append("%25");
+                break;
+            case '|':
+                normalizedPath.append("%7c");
+                break;
+            case '{':
+                normalizedPath.append("%7b");
+                break;
+            case '}':
+                normalizedPath.append("%7d");
+                break;
+            case '^':
+                normalizedPath.append("%5e");
+                break;
+            case '`':
+                normalizedPath.append("%60");
+                break;
             default:
                 // Add char, if it is not problematic.
                 normalizedPath.append(c);
@@ -45,6 +84,21 @@ public class StringUtils {
      */
     public static String normalizeName(String name) {
         StringBuffer normalizedName = new StringBuffer();
+        for (int i = 0; i < name.length(); i++) {
+            char c = name.charAt(i);
+            
+            switch (c) {
+            case '\t':
+                //falls through
+            case ' ':
+                normalizedName.append('_');
+                break;
+            default:
+                // Add char, if it is not problematic.
+                normalizedName.append(c);
+                break;
+            }
+        }
         
         return normalizedName.toString();
     }
