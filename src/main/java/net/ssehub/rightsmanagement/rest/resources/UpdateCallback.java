@@ -66,12 +66,13 @@ public class UpdateCallback {
         }
         
         try {
-            LOGGER.debug("Processing update message = {}", json);
             UpdateChangeListener.INSTANCE.onChange(msg);
         } catch (WrongFormatException e) {
+            LOGGER.warn("Could not process {}", json, e);
             // Malformed input -> client side error
             throw new NotAcceptableException(e);
         } catch (IOException e) {
+            LOGGER.warn("Could not process {}", json, e);
             // internal error -> server side error
             throw new InternalServerErrorException(e);
         }

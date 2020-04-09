@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 
@@ -27,6 +30,7 @@ public class UpdateChangeListener {
     }
     
     public static final UpdateChangeListener INSTANCE = new UpdateChangeListener();
+    private static final Logger LOGGER = LogManager.getLogger(UpdateChangeListener.class);
     
     private Map<String, AbstractUpdateHandler> observedCourses = new HashMap<>();
     
@@ -60,6 +64,8 @@ public class UpdateChangeListener {
         if (null == handler) {
             throw new WrongFormatException(update.getCourseId() + " not managed by this service.");
         }
+        
+        LOGGER.debug("Processing update message \"{}\" with \"{}\"", update, handler);
         
         handler.update(update);
     }
