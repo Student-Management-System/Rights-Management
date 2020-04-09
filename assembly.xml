@@ -13,6 +13,13 @@
 			<useProjectArtifact>true</useProjectArtifact>
 			<unpack>true</unpack>
 			<scope>runtime</scope>
+			<!-- Exclude configurations from JAR file: https://stackoverflow.com/a/33155865 -->
+			<unpackOptions>
+        <excludes>
+          <exclude>**/log4j*</exclude>
+          <exclude>**/settings.json</exclude>
+        </excludes> 
+      </unpackOptions>
 		</dependencySet>
 		<dependencySet>
 			<outputDirectory>/</outputDirectory>
