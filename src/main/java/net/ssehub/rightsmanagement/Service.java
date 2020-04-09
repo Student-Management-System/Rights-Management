@@ -3,6 +3,9 @@ package net.ssehub.rightsmanagement;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.logic.AbstractUpdateHandler;
@@ -16,6 +19,7 @@ import net.ssehub.rightsmanagement.rest.RestServer;
  *
  */
 public class Service {
+    private static final Logger LOGGER = LogManager.getLogger(Service.class);
 
     /**
      * Starting point of this service.
@@ -27,14 +31,17 @@ public class Service {
             Settings.INSTANCE.init();
         } catch (IOException e) {
             // Abort application
-            
+            LOGGER.fatal("Could not load configuration", e);
             System.exit(1);
         }
         
         List<CourseConfiguration> courses = Settings.getConfig().getCourses();
         for (CourseConfiguration courseConfiguration : courses) {
-            AbstractUpdateHandler handler = 
-                UpdateChangeListener.INSTANCE.createHandler(courseConfiguration, UpdateStrategy.IMMEDIATELY);
+            UpdateStrategy strategy = courseConfiguration.getUpdateStrategy();
+            if (null != strategy) {
+                strategy = UpdateStrategy.IMMEDIATELY;
+            }
+            AbstractUpdateHandler handler = UpdateChangeListener.INSTANCE.createHandler(courseConfiguration, strategy);
             UpdateChangeListener.INSTANCE.register(handler); 
         }
         

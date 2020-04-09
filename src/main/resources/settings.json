@@ -8,14 +8,16 @@
       "semester": "wise1920",
       "repositoryPath": "/repository/java/",
       "accessPath": "/repository/java.access",
-      "svnName": "java-abgaben"
+      "svnName": "java-abgaben",
+      "updateStrategy": "IMMEDIATELY"
     },
     {
       "courseName": "Info",
       "semester": "WiSe1920",
       "repositoryPath": "/repository/info/",
       "accessPath": "/repository/info.access",
-      "svnName": "info-abgaben"
+      "svnName": "info-abgaben",
+      "updateStrategy": "INCREMENTAL"
     }
   ]
 }

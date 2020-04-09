@@ -2,6 +2,8 @@ package net.ssehub.rightsmanagement.conf;
 
 import java.util.List;
 
+import net.ssehub.rightsmanagement.logic.UpdateChangeListener.UpdateStrategy;
+
 /**
  * Serves as data class for storing the configuration as a JSON object.
  * @author El-Sharkawy
@@ -21,6 +23,7 @@ public class Configuration {
         private String repositoryPath;
         private String accessPath;
         private String svnName;
+        private UpdateStrategy updateStrategy;
 
         /**
          * The name of the course as used by the management system.
@@ -61,6 +64,14 @@ public class Configuration {
         public String getSvnName() {
             return svnName;
         }
+        
+        /**
+         * Specifies the {@link UpdateStrategy} to use for the course.
+         * @return the updateStrategy
+         */
+        public UpdateStrategy getUpdateStrategy() {
+            return updateStrategy;
+        }
 
         /**
          * The absolute path to the access file.
@@ -100,6 +111,14 @@ public class Configuration {
          */
         public void setSvnName(String svnName) {
             this.svnName = svnName;
+        }
+
+        /**
+         * Specifies the {@link UpdateStrategy} to use for the course.
+         * @param updateStrategy the updateStrategy to set
+         */
+        public void setUpdateStrategy(UpdateStrategy updateStrategy) {
+            this.updateStrategy = updateStrategy;
         }
     }
     
