@@ -7,14 +7,33 @@ package net.ssehub.rightsmanagement;
  *
  */
 public class StringUtils {
+    /**
+     * Avoids instantiation of utility class.
+     */
+    private StringUtils() {}
 
     /**
-     * Normalizes the path.
+     * Normalizes the path when used for uploading / downloading files.
      * @param path that needs to be normalized.
      * @return the normalized path.
      */
     public static String normalizePath(String path) {
         StringBuffer normalizedPath = new StringBuffer();
+        for (int i = 0; i < path.length(); i++) {
+            char c = path.charAt(i);
+            
+            switch (c) {
+            case '\t':
+                // falls through
+            case ' ':
+                normalizedPath.append("%20");                
+                break;
+            default:
+                // Add char, if it is not problematic.
+                normalizedPath.append(c);
+                break;
+            }
+        }
         
         return normalizedPath.toString();
     }
