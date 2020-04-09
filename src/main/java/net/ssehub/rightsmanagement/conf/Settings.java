@@ -55,7 +55,6 @@ public class Settings {
         try {
             Path pathToSettings;
             File inputFile = new File(SETTINGS_FILE);
-            System.out.println(inputFile.getAbsolutePath());
             if (inputFile.exists()) {
                 // Load relative to JAR
                 LOGGER.debug("Loading application settings from {}.", inputFile.getAbsoluteFile());
