@@ -3,6 +3,10 @@ package net.ssehub.rightsmanagement;
 import java.io.IOException;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.AbstractConfiguration;
+
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.logic.AbstractUpdateHandler;
@@ -30,6 +34,10 @@ public class Service {
             
             System.exit(1);
         }
+        LoggerContext context = (LoggerContext) LogManager.getContext();
+        System.out.println("Log settings = " + context.getConfiguration());
+        AbstractConfiguration config = (AbstractConfiguration) context.getConfiguration();
+        System.out.println("Log appenders = " + config.getAppenders());
         
         List<CourseConfiguration> courses = Settings.getConfig().getCourses();
         for (CourseConfiguration courseConfiguration : courses) {
