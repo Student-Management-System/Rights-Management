@@ -4,6 +4,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.tmatesoft.svn.core.SVNException;
 
 import io.swagger.client.model.UpdateMessage;
@@ -20,6 +22,8 @@ import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
  *
  */
 public abstract class AbstractUpdateHandler {
+    
+    private static final Logger LOGGER = LogManager.getLogger(AbstractUpdateHandler.class);
     
     private CourseConfiguration courseConfig;
     private DataPullService connector;
@@ -57,6 +61,9 @@ public abstract class AbstractUpdateHandler {
      * @throws IOException If the local repository couldn't be updated.
      */
     public synchronized void update(UpdateMessage msg) throws IOException {
+        LOGGER.debug("Received update message \"{}\" for course \"{}\" processed by \"{}\"", msg, getCourseID(),
+            getClass().getSimpleName());
+        
         /*
          * First: Compute whole set-up for the course out of the delta.
          * This is required, since the access file can only be written for the complete course at once.
