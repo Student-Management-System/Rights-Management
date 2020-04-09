@@ -36,7 +36,7 @@ public class UpdateCallback {
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
     public void helloUsingTxt(String update) {
-        LOGGER.debug("Received plain text message", update);
+        LOGGER.debug("Received plain text message = {}", update);
         processMessage(update);
     }
     
@@ -47,7 +47,7 @@ public class UpdateCallback {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     public void helloUsingJson(String json) {
-        LOGGER.debug("Received JSON message", json);
+        LOGGER.debug("Received JSON message = {}", json);
         processMessage(json);
     }
 
@@ -66,6 +66,7 @@ public class UpdateCallback {
         }
         
         try {
+            LOGGER.debug("Processing update message = {}", json);
             UpdateChangeListener.INSTANCE.onChange(msg);
         } catch (WrongFormatException e) {
             // Malformed input -> client side error
