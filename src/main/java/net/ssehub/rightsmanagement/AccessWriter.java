@@ -104,11 +104,18 @@ public class AccessWriter implements Closeable {
         out.append(REPOSITORY_SEPARATOR);
         out.append(PATH_SEPARATOR);
         
-        if (null != path) {
-            for (String segment : path) {
-                out.append(segment);
-                out.append(PATH_SEPARATOR);
+        if (null != path && path.length > 0) {
+            for (int i = 0; i < path.length - 1; i++) {
+                out.append(path[i]);
+                out.append(PATH_SEPARATOR);                
             }
+            
+            /* 
+             * Apache web server will deny all paths, if they end with an /
+             * Also example doesn't show ending slashes:
+             * https://svn.apache.org/repos/asf/subversion/trunk/subversion/mod_authz_svn/INSTALL
+             */        
+            out.append(path[path.length - 1]);
         }
         out.append(SECTION_END);
         out.append(LINE_BREAK);

@@ -3,6 +3,6 @@
 [submissionSystem:/]
 * = r
 
-[submissionSystem:/Exam/musterma/]
+[submissionSystem:/Exam/musterma]
 * = 
 musterma = rw
