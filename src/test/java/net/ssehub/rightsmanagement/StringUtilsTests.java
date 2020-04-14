@@ -72,7 +72,11 @@ class StringUtilsTests {
     static Stream<Arguments> nameNormalizationTestdata() {
         return Stream.of(
             arguments("Unproblematic name w/o normalization", "Group_1", "Group_1"),
-            arguments("Whitespace", "Group 1", "Group_1")
+            arguments("Whitespace", "Group 1", "Group_1"),
+            arguments("AT", "Group@1", "Group_1"),
+            arguments("And", "Group&1", "Group_1"),
+            arguments("Tilde", "Group~1", "Group_1"),
+            arguments("Asterisk", "Group*1", "Group_1")
         );
     }
     
