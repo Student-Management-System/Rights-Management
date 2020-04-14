@@ -65,7 +65,8 @@ public class UpdateChangeListener {
             throw new WrongFormatException(update.getCourseId() + " not managed by this service.");
         }
         
-        LOGGER.debug("Processing update message \"{}\" with \"{}\"", update, handler);
+        LOGGER.debug("Processing update message \"{}\" with \"{}\"", update.getClass().getSimpleName(),
+            handler.getClass().getSimpleName());
         
         handler.update(update);
     }
