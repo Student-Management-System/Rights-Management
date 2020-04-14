@@ -77,10 +77,12 @@ public abstract class AbstractUpdateHandler {
         AccessWriter writer = createWriter();
         try {
             writer.write(course, courseConfig.getSvnName());
+        } catch (IOException e) {
+            // Use logging with concatenation here: As is is almost always printed when reached and to print stack trace
+            LOGGER.error("Could not write access file for course \"" + getCourseID() + "\".", e);
         } finally {
             writer.close();
         }
-        
         
         /*
          * Third: Update repository.
