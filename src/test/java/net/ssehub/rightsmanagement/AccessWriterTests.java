@@ -37,6 +37,7 @@ public class AccessWriterTests {
         File path = new File(TEST_FOLDER, fileName);
         try {
             content = Files.readString(path.toPath()).trim();
+            content = content.replace("\n", System.lineSeparator());
         } catch (IOException e) {
             Assertions.fail("Could not read configuration from " + path.getAbsolutePath(), e);
         }

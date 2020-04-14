@@ -23,7 +23,7 @@ public class AccessWriter implements Closeable {
     private static final String SECTION_END = "]";
     private static final String GROUP_SECTION = SECTION_START + "groups" + SECTION_END;
     private static final String RIGHTS_ASSIGNMENT = " = ";
-    private static final String LINE_BREAK = "\n";
+    private static final String LINE_BREAK = System.lineSeparator();
     private static final String GROUP_PREFIX = "@";
     private static final String REPOSITORY_SEPARATOR = ":";
     private static final String PATH_SEPARATOR = "/";

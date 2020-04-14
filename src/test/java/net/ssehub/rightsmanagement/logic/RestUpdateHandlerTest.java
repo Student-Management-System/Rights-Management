@@ -43,7 +43,7 @@ public class RestUpdateHandlerTest {
         File path = new File(TEST_FOLDER, fileName);
         try {
             content = Files.readString(path.toPath());
-            content.trim();
+            content = content.trim().replace("\n", System.lineSeparator());
         } catch (IOException e) {
             Assertions.fail("Could not read configuration from " + path.getAbsolutePath(), e);
         }
