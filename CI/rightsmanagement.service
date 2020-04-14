@@ -1,0 +1,12 @@
+[Unit]
+Description=Rightsmanagement
+
+[Service]
+WorkingDirectory=/home/elscha/Rightsmanagement
+ExecStart=/usr/bin/java -Dlog4j.configurationFile=log4j2.yaml -jar RightsManagement.jar
+Type=simple
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
