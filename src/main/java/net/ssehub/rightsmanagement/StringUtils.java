@@ -90,6 +90,14 @@ public class StringUtils {
             switch (c) {
             case '\t':
                 //falls through
+            case '@':
+                //falls through
+            case '&':
+                //falls through
+            case '~':
+                //falls through
+            case '*':
+                //falls through
             case ' ':
                 normalizedName.append('_');
                 break;
