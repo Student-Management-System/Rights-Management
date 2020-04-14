@@ -49,6 +49,9 @@ public class DataPullServiceTest {
         // Test the tutors
         Group tutors = course.getTutors();
         Assertions.assertNotNull(tutors);
+        String expectedTutorsGroupName = "Tutors_of_Course_"
+            + courseName.substring(0, 1).toUpperCase() + courseName.substring(1);
+        Assertions.assertEquals(expectedTutorsGroupName, tutors.getName());
         Assertions.assertEquals(exptectedNoOfTutors, tutors.getMembers().size());
         Assertions.assertTrue(tutors.getMembers().contains(tutorNameForTesting), "Expected tutor " + tutorNameForTesting
             + " not part of tutors");

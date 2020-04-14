@@ -34,6 +34,7 @@ public class DataPullService {
     private String courseName;
     private String semester;
     private String courseID;
+    private String tutorsGroupName;
     
     private CoursesApi courseAPI;
     private GroupsApi groupsAPI;
@@ -75,7 +76,7 @@ public class DataPullService {
         course.setCourseName(courseName);
         course.setSemester(semester);
         
-        Group tutors = new Group();
+        Group tutors = createTutorsGroup();
         List<Member> studentsOfCourse = loadStudents(tutors);
         course.setTutors(tutors);
         course.setStudents(studentsOfCourse);
@@ -89,6 +90,20 @@ public class DataPullService {
         course.setAssignments(assignments);
         
         return course;
+    }
+    
+    /**
+     * Creates an empty group to store the tutors of the course.
+     * This method ensures that the Tutors get a unique / protected group name, that should not be used from
+     * any homework group.
+     * @return A new, empty group that is intended to store tutors.
+     */
+    public Group createTutorsGroup() {
+        Group tutors = new Group();
+        tutorsGroupName = "Tutors_of_Course_" + courseName.substring(0, 1).toUpperCase() + courseName.substring(1);
+        tutors.setGroupName(tutorsGroupName);
+        
+        return tutors;
     }
 
     /**
@@ -179,7 +194,10 @@ public class DataPullService {
         // Try to use loaded students
         List<Member> studentsOfCourse = course.getStudents();
         if (null == studentsOfCourse) {
-            // Load all students from server if list is locally not available.
+            /* 
+             * Load all students from server if list is locally not available.
+             * Tutors won't be touched /changed -> can be an empty group
+             */
             studentsOfCourse = loadStudents(new Group());
         }
         

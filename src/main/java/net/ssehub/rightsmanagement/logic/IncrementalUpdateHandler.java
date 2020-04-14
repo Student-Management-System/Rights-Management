@@ -111,7 +111,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case COURSE_USER_RELATION:
             // falls through
         case USER:
-            Group tutors = new Group();
+            Group tutors = getDataPullService().createTutorsGroup();
             List<Member> studentsOfCourse = getDataPullService().loadStudents(tutors);
             course.setStudents(studentsOfCourse);
             course.setTutors(tutors);
