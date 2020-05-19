@@ -6,8 +6,8 @@ import java.nio.file.Files;
 
 import org.junit.jupiter.api.Assertions;
 
-import io.swagger.client.JSON;
-import io.swagger.client.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.JSON;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * Loads an {@link UpdateMessage} for testing, which was saved locally as JSON. 

@@ -9,14 +9,14 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.swagger.client.JSON;
-import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.studentmgmt.backend_api.JSON;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * {@link AbstractUpdateHandler} that stores the full configuration of a course locally and updates that configuration

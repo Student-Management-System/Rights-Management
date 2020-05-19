@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import io.swagger.client.model.AssignmentDto.StateEnum;
+import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
 
 /**
  * Manages the Assignments.

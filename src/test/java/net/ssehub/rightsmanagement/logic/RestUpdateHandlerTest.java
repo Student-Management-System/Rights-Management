@@ -8,11 +8,11 @@ import java.nio.file.Files;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * Tests the {@link RestUpdateHandler}.

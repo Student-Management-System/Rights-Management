@@ -1,8 +1,8 @@
 package net.ssehub.rightsmanagement.logic;
 
-import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * Pulls with each update message the whole configuration from the student management system.

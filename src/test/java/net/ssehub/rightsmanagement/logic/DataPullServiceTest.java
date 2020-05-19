@@ -5,11 +5,11 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.swagger.client.model.AssignmentDto.StateEnum;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.IParticipant;
+import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
 
 /**
  * Tests the {@link DataPullService}.<p>

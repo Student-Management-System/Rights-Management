@@ -15,12 +15,12 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 
 import io.gsonfire.GsonFireBuilder;
-import io.swagger.client.JSON;
 import net.ssehub.exercisesubmitter.protocol.backend.LoginComponent;
 import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
 import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
 import net.ssehub.rightsmanagement.Service;
 import net.ssehub.rightsmanagement.logic.DataPullService;
+import net.ssehub.studentmgmt.backend_api.JSON;
 
 /**
  * Singleton that reads and stores the configuration of the whole application (except for logging).

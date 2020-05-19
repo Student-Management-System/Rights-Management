@@ -14,10 +14,10 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.JsonParseException;
 
-import io.swagger.client.JSON;
-import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
 import net.ssehub.rightsmanagement.logic.WrongFormatException;
+import net.ssehub.studentmgmt.backend_api.JSON;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * Listens at <tt>server/rest/update/</tt> for changes at the student management system.

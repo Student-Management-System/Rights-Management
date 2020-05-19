@@ -9,7 +9,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.UpdateMessageLoader;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
@@ -17,6 +16,7 @@ import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * Tests the {@link IncrementalUpdateHandler}.

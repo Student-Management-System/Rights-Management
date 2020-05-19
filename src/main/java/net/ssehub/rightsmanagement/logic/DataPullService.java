@@ -7,20 +7,20 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.swagger.client.ApiClient;
-import io.swagger.client.ApiException;
-import io.swagger.client.api.AssignmentsApi;
-import io.swagger.client.api.CoursesApi;
-import io.swagger.client.api.GroupsApi;
-import io.swagger.client.model.AssignmentDto;
-import io.swagger.client.model.GroupDto;
-import io.swagger.client.model.UserDto;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.studentmgmt.backend_api.ApiClient;
+import net.ssehub.studentmgmt.backend_api.ApiException;
+import net.ssehub.studentmgmt.backend_api.api.AssignmentsApi;
+import net.ssehub.studentmgmt.backend_api.api.CoursesApi;
+import net.ssehub.studentmgmt.backend_api.api.GroupsApi;
+import net.ssehub.studentmgmt.backend_api.model.AssignmentDto;
+import net.ssehub.studentmgmt.backend_api.model.GroupDto;
+import net.ssehub.studentmgmt.backend_api.model.UserDto;
 
 /**
  * Pulls information from the <b>student management system</b>.
@@ -163,7 +163,7 @@ public class DataPullService {
                 Assignment assignment = new Assignment();
                 assignment.setName(assignmentDto.getName());
                 assignment.setStatus(assignmentDto.getState());
-                switch (assignmentDto.getCollaborationType()) {
+                switch (assignmentDto.getCollaboration()) {
                 case GROUP:
                     assignment.addAllParticipants(homeworkGroups);
                     assignments.add(assignment);
@@ -176,7 +176,7 @@ public class DataPullService {
                     // Falls through
                 default:
                     LOGGER.warn("Assignment \"" + assignment.getName() + "\" is set to \""
-                        + assignmentDto.getCollaborationType() + "\" which is not supported.");
+                        + assignmentDto.getCollaboration() + "\" which is not supported.");
                     // Skip broken assignments -> Do not add them to list
                     break;
                 }

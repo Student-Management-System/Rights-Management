@@ -7,8 +7,8 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import io.swagger.client.model.UpdateMessage;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
+import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
 
 /**
  * Observer that specifies how to react on changes at the student management system.
