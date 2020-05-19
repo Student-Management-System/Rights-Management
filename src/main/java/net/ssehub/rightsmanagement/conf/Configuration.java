@@ -123,9 +123,12 @@ public class Configuration {
     }
     
     private int restServerPort;
-    private String mgmtURL;
+    private String authServerURL;
+    private String mgmtServerURL;
     private List<CourseConfiguration> courses;
     private String cacheDir;
+    private String authUser;
+    private String authPassword;
     
     /**
      * Configurations of courses managed by this service.
@@ -153,10 +156,34 @@ public class Configuration {
     
     /**
      * The URL to query the student management system.
-     * @return the mgmtURL
+     * @return The mgmtServerURL
      */
-    public String getMgmtURL() {
-        return mgmtURL;
+    public String getMgmtServerURL() {
+        return mgmtServerURL;
+    }
+    
+    /**
+     * The URL to query the authentication system.
+     * @return The authServerURL
+     */
+    public String getAuthServerURL() {
+        return authServerURL;
+    }
+    
+    /**
+     * Optional user name to authenticate at the <b>student management system</b>.
+     * @return the authUser
+     */
+    public String getAuthUser() {
+        return authUser;
+    }
+    
+    /**
+     * Optional password to authenticate at the <b>student management system</b>.
+     * @return the authPassword
+     */
+    public String getAuthPassword() {
+        return authPassword;
     }
     
     /**
@@ -185,9 +212,33 @@ public class Configuration {
 
     /**
      * The URL to query the student management system.
-     * @param mgmtURL the mgmtURL to set
+     * @param mgmtServerURL The mgmtURL to set
      */
-    public void setMgmtURL(String mgmtURL) {
-        this.mgmtURL = mgmtURL;
+    public void setMgmtURL(String mgmtServerURL) {
+        this.mgmtServerURL = mgmtServerURL;
+    }
+
+    /**
+     * The URL to query the authentication system.
+     * @param authServerURL The authServerURL to set
+     */
+    public void setAuthServerURL(String authServerURL) {
+        this.authServerURL = authServerURL;
+    }
+
+    /**
+     * Optional user name to authenticate at the <b>student management system</b>.
+     * @param authUser the authUser to set
+     */
+    public void setAuthUser(String authUser) {
+        this.authUser = authUser;
+    }
+
+    /**
+     * Optional password to authenticate at the <b>student management system</b>.
+     * @param authPassword the authPassword to set
+     */
+    public void setAuthPassword(String authPassword) {
+        this.authPassword = authPassword;
     }
 }
