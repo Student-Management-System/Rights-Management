@@ -16,7 +16,11 @@ import com.google.gson.Gson;
 
 import io.gsonfire.GsonFireBuilder;
 import io.swagger.client.JSON;
+import net.ssehub.exercisesubmitter.protocol.backend.LoginComponent;
+import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
+import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
 import net.ssehub.rightsmanagement.Service;
+import net.ssehub.rightsmanagement.logic.DataPullService;
 
 /**
  * Singleton that reads and stores the configuration of the whole application (except for logging).
@@ -32,6 +36,7 @@ public class Settings {
     
     private Configuration config;
     private JSON jsonParser;
+    private LoginComponent loginComponent;
     
     /**
      * Singleton constructor.
@@ -74,6 +79,34 @@ public class Settings {
             LOGGER.warn("Could not read configuration from {}, cause {}", SETTINGS_FILE, e);
             throw new IOException(e);
         }
+        
+        // Login into Management server if auth server is provided
+        String authServer = getConfig().getAuthServerURL();
+        String mgmtServer = getConfig().getMgmtServerURL();
+        if (authServer != null) {
+            LOGGER.debug("Provided authentication server, trying to log in via {}", authServer);
+            
+            LoginComponent login = new LoginComponent(authServer, mgmtServer);
+            try {
+                boolean success = login.login(getConfig().getAuthUser(), getConfig().getAuthPassword());
+                if (success) {
+                    loginComponent = login;
+                    LOGGER.debug("Sucessfully logged in via {}", getConfig().getAuthServerURL());
+                } else {
+                    LOGGER.error("Could not reach one of the provided servers {} and {} to login into system for "
+                        + "an unknown reason.", mgmtServer, authServer);
+                }
+            } catch (UnknownCredentialsException e) {
+                String password = getConfig().getAuthPassword();
+                boolean usesPassword = null != password && !password.isEmpty();
+                
+                LOGGER.error("Tried to login into {} via {} with user name {} and a password {}, but an error "
+                    + "occured: {}", mgmtServer, authServer, getConfig().getAuthUser(), usesPassword, e.getMessage());
+            } catch (ServerNotFoundException e) {
+                LOGGER.error("Could not reach one of the provided servers {} and {} to login into system. Reason: {}",
+                    mgmtServer, authServer, e.getMessage());
+            }
+        }
     }
     
     /**
@@ -106,5 +139,15 @@ public class Settings {
      */
     public static Configuration getConfig() {
         return INSTANCE.config;
+    }
+    
+    /**
+     * Returns the login component. Maybe <tt>null</tt> if no auth server was specified or invalid credentials are
+     * provided. Please check the logs in this case.
+     * 
+     * @return The login component, which provides the access tokens to be used for the {@link DataPullService}.
+     */
+    public LoginComponent getLogin() {
+        return loginComponent;
     }
 }

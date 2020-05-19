@@ -46,7 +46,7 @@ public class DataPullService {
      * @param config A configuration specifying which course information shall be pulled by this instance.
      */
     public DataPullService(CourseConfiguration config) {
-        this(Settings.getConfig().getMgmtURL(), config.getCourseName(), config.getSemester());
+        this(Settings.getConfig().getMgmtServerURL(), config.getCourseName(), config.getSemester());
     }
     
     /**
@@ -58,6 +58,10 @@ public class DataPullService {
      */
     public DataPullService(String serverURL, String courseName, String semester) {
         ApiClient client = new ApiClient().setBasePath(serverURL);
+        if (null != Settings.INSTANCE.getLogin()) {
+            client.setAccessToken(Settings.INSTANCE.getLogin().getManagementToken());
+        }
+        
         groupsAPI = new GroupsApi(client);
         assignmentsAPI = new AssignmentsApi(client);
         courseAPI = new CoursesApi(client);
@@ -139,7 +143,7 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Users via \""
-                    + Settings.getConfig().getMgmtURL() + "\".", e);
+                    + Settings.getConfig().getMgmtServerURL() + "\".", e);
         }
         return studentsOfCourse;
     }
@@ -179,7 +183,7 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Assignments via \""
-                + Settings.getConfig().getMgmtURL() + "\".", e);
+                + Settings.getConfig().getMgmtServerURL() + "\".", e);
         }
         
         return assignments;
@@ -230,7 +234,7 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Groups via \""
-                + Settings.getConfig().getMgmtURL() + "\".", e);
+                + Settings.getConfig().getMgmtServerURL() + "\".", e);
         }
         
         return homeworkGroups;
