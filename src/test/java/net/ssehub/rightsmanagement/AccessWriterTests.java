@@ -67,6 +67,38 @@ public class AccessWriterTests {
     }
     
     /**
+     * Tests that an empty group will be written correctly.
+     * Incomplete group assignments or usage of undefined groups lead to broken repositories, which cannot accessed by
+     * any user.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    @Test
+    public void testEmptyTutorsGroup() throws IOException { 
+        // Create test data for writing
+        Course course = new Course();
+        Group tutorGroup = new Group();
+        tutorGroup.setGroupName("JavaTutoren");
+        course.setTutors(tutorGroup);
+        Group group = getMemberGroup("JP0001");
+        Assignment hw = new Assignment();
+        hw.setName("In_Bearbeitung_Abgabe");
+        hw.setStatus(StateEnum.IN_PROGRESS);
+        hw.addParticipant(group);
+        course.setAssignments(Arrays.asList(hw));
+        course.setHomeworkGroups(Arrays.asList(group));
+        
+        // Simulate writing data to access file
+        StringWriter sWriter = new StringWriter();
+        AccessWriter aWriter = new AccessWriter(sWriter);
+        aWriter.write(course, "abgabe");
+        aWriter.close();
+        
+        // Compare expected and actual output of aWriter
+        String expected = readAccessFile("groups_emptyTutorsGroup");
+        Assertions.assertEquals(expected, sWriter.toString().trim());
+    }
+    
+    /**
      * Tests if two groups with two members is correctly written to the {@link AccessWriter}.
      * @throws IOException If an I/O error occurs during writing.
      */

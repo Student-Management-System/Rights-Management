@@ -152,7 +152,8 @@ public class AccessWriter implements Closeable {
                     writePath(svnName, assignment.getName(), participant.getName());
                     out.append(ALL_USER);
                     out.append(LINE_BREAK);
-                    if (null != tutorGroup) {
+                    // Avoid writing an undefined group this will yield in an illegal access file
+                    if (null != tutorGroup && !tutorGroup.getMembers().isEmpty()) {
                         out.append(GROUP_PREFIX);                        
                         out.append(tutorGroup.getName());                        
                         out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
