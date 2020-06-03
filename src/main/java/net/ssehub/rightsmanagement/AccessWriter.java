@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.IParticipant;
-import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
 
 /**
  * Writes the access file (containing access right set-up) for the svn.
@@ -139,9 +139,9 @@ public class AccessWriter implements Closeable {
             for (Assignment assignment : assignments) {
                 
                 String rights = "";
-                if (assignment.getStatus() == StateEnum.IN_PROGRESS) {
+                if (assignment.getState() == State.SUBMISSION) {
                     rights = READ_WRITE;
-                } else if (assignment.getStatus() == StateEnum.EVALUATED) {
+                } else if (assignment.getState() == State.REVIEWED) {
                     rights = READ;
                 }
                 

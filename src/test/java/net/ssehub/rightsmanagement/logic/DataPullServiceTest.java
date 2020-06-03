@@ -5,11 +5,11 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.IParticipant;
-import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
 
 /**
  * Tests the {@link DataPullService}.<p>
@@ -32,7 +32,7 @@ public class DataPullServiceTest {
         String userNameForTesting = "mmustermann";
         String tutorNameForTesting = "jdoe";
         String assignmentNameForTesting = "Test_Assignment 01 (Java)";
-        StateEnum expectedAssignmentState = StateEnum.IN_PROGRESS;
+        State expectedAssignmentState = State.SUBMISSION;
         int exptectedNoOfGroups = 2;
         int exptectedNoOfMembers = 2;
         int exptectedNoOfTutors = 2;
@@ -87,7 +87,7 @@ public class DataPullServiceTest {
         for (IParticipant participant : assignmentForTest) {
             Assertions.assertSame(Group.class, participant.getClass(), "Group assignment containts individuals.");
         }
-        Assertions.assertSame(expectedAssignmentState, assignmentForTest.getStatus());
+        Assertions.assertSame(expectedAssignmentState, assignmentForTest.getState());
     }
 
 }

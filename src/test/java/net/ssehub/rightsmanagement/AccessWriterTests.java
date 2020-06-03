@@ -9,11 +9,11 @@ import java.util.Arrays;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
-import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
 
 /**
  * This class contains the test cases that belongs to {@link AccessWriter}.
@@ -80,9 +80,7 @@ public class AccessWriterTests {
         tutorGroup.setGroupName("JavaTutoren");
         course.setTutors(tutorGroup);
         Group group = getMemberGroup("JP0001");
-        Assignment hw = new Assignment();
-        hw.setName("In_Bearbeitung_Abgabe");
-        hw.setStatus(StateEnum.IN_PROGRESS);
+        Assignment hw = new Assignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true);
         hw.addParticipant(group);
         course.setAssignments(Arrays.asList(hw));
         course.setHomeworkGroups(Arrays.asList(group));
@@ -173,9 +171,7 @@ public class AccessWriterTests {
         course.setTutors(getTutorGroup());
         Group group = getMemberGroup("JP001");
         course.setHomeworkGroups(Arrays.asList(group));
-        Assignment hw = new Assignment();
-        hw.setName("Unsichtbare_Abgabe");
-        hw.setStatus(StateEnum.INVISIBLE);
+        Assignment hw = new Assignment("Unsichtbare_Abgabe", null, State.INVISIBLE, true);
         hw.addParticipant(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -201,9 +197,7 @@ public class AccessWriterTests {
         course.setTutors(getTutorGroup());
         Group group = getMemberGroup("JP001");
         course.setHomeworkGroups(Arrays.asList(group));
-        Assignment hw = new Assignment();
-        hw.setName("In_Bearbeitung_Abgabe");
-        hw.setStatus(StateEnum.IN_PROGRESS);
+        Assignment hw = new Assignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true);
         hw.addParticipant(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -229,10 +223,7 @@ public class AccessWriterTests {
         course.setTutors(getTutorGroup());
         Group group = getMemberGroup("JP001");
         course.setHomeworkGroups(Arrays.asList(group));
-        Assignment hw = new Assignment();
-        // reuse Unsichtbare_Abgabe because the rights should remain the same
-        hw.setName("Unsichtbare_Abgabe");
-        hw.setStatus(StateEnum.IN_REVIEW);
+        Assignment hw = new Assignment("Unsichtbare_Abgabe", null, State.IN_REVIEW, true);
         hw.addParticipant(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -259,10 +250,7 @@ public class AccessWriterTests {
         course.setTutors(getTutorGroup());
         Group group = getMemberGroup("JP001");
         course.setHomeworkGroups(Arrays.asList(group));
-        Assignment hw = new Assignment();
-        // reuse Unsichtbare_Abgabe because the rights should remain the same
-        hw.setName("Bewertet_Abgabe");
-        hw.setStatus(StateEnum.EVALUATED);
+        Assignment hw = new Assignment("Bewertet_Abgabe", null, State.REVIEWED, true);
         hw.addParticipant(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -286,9 +274,7 @@ public class AccessWriterTests {
     public void testPermissionsForSingleAssignmentWoTutors() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        Assignment hw = new Assignment();
-        hw.setName("Exam");
-        hw.setStatus(StateEnum.IN_PROGRESS);
+        Assignment hw = new Assignment("Exam", null, State.SUBMISSION, false);
         Member aStudent = new Member();
         aStudent.setMemberName("musterma");
         hw.addParticipant(aStudent);
@@ -316,9 +302,7 @@ public class AccessWriterTests {
         Group tutors = getTutorGroup();
         tutors.setGroupName("Tutors");
         course.setTutors(tutors);
-        Assignment hw = new Assignment();
-        hw.setName("Exam");
-        hw.setStatus(StateEnum.EVALUATED);
+        Assignment hw = new Assignment("Exam", null, State.REVIEWED, false);
         Member aStudent = new Member();
         aStudent.setMemberName("musterma");
         hw.addParticipant(aStudent);

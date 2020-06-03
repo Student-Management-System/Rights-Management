@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.tmatesoft.svn.core.SVNException;
 
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.Unzipper;
 import net.ssehub.rightsmanagement.model.Assignment;
@@ -41,8 +42,7 @@ public class RepositoryTest {
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath());
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
-        Assignment assignment = new Assignment();
-        assignment.setName("Exam");
+        Assignment assignment = new Assignment("Exam", null, State.SUBMISSION, false);
         Member aStudent = new Member();
         aStudent.setMemberName("aStudent");
         assignment.addParticipant(aStudent);
@@ -74,8 +74,7 @@ public class RepositoryTest {
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath());
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
-        Assignment assignment = new Assignment();
-        assignment.setName("Homework");
+        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         Group group = new Group();
         group.setGroupName("group1");
         group.addMembers("student1", "student2");
@@ -109,8 +108,7 @@ public class RepositoryTest {
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath());
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
-        Assignment assignment = new Assignment();
-        assignment.setName("Homework");
+        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         Group group1 = new Group();
         group1.setGroupName("group1");
         group1.addMembers("student1", "student2");
@@ -149,8 +147,7 @@ public class RepositoryTest {
         long oldRevision = repoReader.lastRevision();
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath());
-        Assignment assignment = new Assignment();
-        assignment.setName("Homework");
+        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         
         // Write changes to repository
         try {

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.UpdateMessageLoader;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
@@ -266,8 +267,7 @@ public class IncrementalUpdateHandlerTest {
         String updatedAssignmentName = "Test_Assignment 01 (Java)";
         
         initEmptyCourse();
-        Assignment assignmentPreUpdate = new Assignment();
-        assignmentPreUpdate.setName(updatedAssignmentName);
+        Assignment assignmentPreUpdate = new Assignment(updatedAssignmentName, null, State.SUBMISSION, false);
         cachedState.setAssignments(Arrays.asList(assignmentPreUpdate));
         
         // Precondition: Assignment should be part
@@ -297,18 +297,12 @@ public class IncrementalUpdateHandlerTest {
         String expectedAssignmentName = "Test_Assignment 09";
         int nAssignmentsBeforeDelte = 6;
         initEmptyCourse();
-        Assignment assignment1 = new Assignment();
-        assignment1.setName("Test_Assignment 01 (Java)");
-        Assignment assignment2 = new Assignment();
-        assignment2.setName("Test_Assignment 02 (Java)");
-        Assignment assignment3 = new Assignment();
-        assignment3.setName("Test_Assignment 03 (Java)");
-        Assignment assignment4 = new Assignment();
-        assignment4.setName("Test_Assignment 04 (Java)");
-        Assignment assignment5 = new Assignment();
-        assignment5.setName("Test_Assignment 05 (Java) Invisible");
-        Assignment assignment6 = new Assignment();
-        assignment6.setName(expectedAssignmentName);
+        Assignment assignment1 = new Assignment("Test_Assignment 01 (Java)", null, State.SUBMISSION, false);
+        Assignment assignment2 = new Assignment("Test_Assignment 02 (Java)", null, State.SUBMISSION, false);
+        Assignment assignment3 = new Assignment("Test_Assignment 03 (Java)", null, State.SUBMISSION, false);
+        Assignment assignment4 = new Assignment("Test_Assignment 04 (Java)", null, State.SUBMISSION, false);
+        Assignment assignment5 = new Assignment("Test_Assignment 05 (Java) Invisible", null, State.INVISIBLE, false);
+        Assignment assignment6 = new Assignment(expectedAssignmentName, null, State.SUBMISSION, false);
         cachedState.setAssignments(Arrays.asList(assignment1, assignment2, assignment3, assignment4, assignment5,
                 assignment6));
         

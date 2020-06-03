@@ -160,25 +160,17 @@ public class DataPullService {
         try {
             List<AssignmentDto> assignmentsOfServer = assignmentsAPI.getAssignmentsOfCourse(courseID);
             for (AssignmentDto assignmentDto : assignmentsOfServer) {
-                Assignment assignment = new Assignment();
-                assignment.setName(assignmentDto.getName());
-                assignment.setStatus(assignmentDto.getState());
-                switch (assignmentDto.getCollaboration()) {
-                case GROUP:
-                    assignment.addAllParticipants(homeworkGroups);
+                try {
+                    Assignment assignment = new Assignment(assignmentDto);
+                    if (assignment.isGroupWork()) {
+                        assignment.addAllParticipants(homeworkGroups);                        
+                    } else {
+                        assignment.addAllParticipants(studentsOfCourse);                        
+                    }
                     assignments.add(assignment);
-                    break;
-                case SINGLE:
-                    assignment.addAllParticipants(studentsOfCourse);
-                    assignments.add(assignment);
-                    break;
-                case GROUP_OR_SINGLE:
-                    // Falls through
-                default:
-                    LOGGER.warn("Assignment \"" + assignment.getName() + "\" is set to \""
-                        + assignmentDto.getCollaboration() + "\" which is not supported.");
+                } catch (IllegalArgumentException e) {
+                    LOGGER.warn(e);
                     // Skip broken assignments -> Do not add them to list
-                    break;
                 }
             }
         } catch (ApiException e) {

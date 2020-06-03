@@ -5,7 +5,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
-import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
+import net.ssehub.studentmgmt.backend_api.model.AssignmentDto;
 
 /**
  * Manages the Assignments.
@@ -14,13 +14,31 @@ import net.ssehub.studentmgmt.backend_api.model.AssignmentDto.StateEnum;
  * @author El-Sharkawy
  *
  */
-public class Assignment implements Iterable<IParticipant> {
+public class Assignment extends net.ssehub.exercisesubmitter.protocol.frontend.Assignment
+    implements Iterable<IParticipant> {
 
-    private String name;
-    
-    private StateEnum status;
-    
     private Set<IParticipant> participants = new TreeSet<>();
+    
+    /**
+     * Creates a new Assignment instance for managing access rights.
+     * @param dto The data received from the server.
+     * @throws IllegalArgumentException If data was received which cannot be handled by the exercise
+     *     submitters / reviewer system
+     */
+    public Assignment(AssignmentDto dto) throws IllegalArgumentException {
+        super(dto);
+    }
+
+    /**
+     * Creates manually an Assignment.
+     * @param name The name of the assignment
+     * @param assignmentID The ID used by the REST system, may be <tt>null</tt> during unit tests
+     * @param state The state of the assignment. 
+     * @param isGroupwork <tt>true</tt> for groups, <tt>false</tt> for individuals.
+     */
+    public Assignment(String name, String assignmentID, State state, boolean isGroupwork) {
+        super(name, assignmentID, state, isGroupwork);
+    }
     
     /**
      * Adds one participant to the assignment.
@@ -40,40 +58,6 @@ public class Assignment implements Iterable<IParticipant> {
         }
     }
     
-    /**
-     * Sets the name of the assignment.
-     * @param name of the assignment.
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    /**
-     * Getter for name of the assignment.
-     * @return the name of the assignment.
-     */
-    public String getName() {
-        return name;
-    }
-    
-    /**
-     * Sets the status of a assignment.
-     * @param status of the assignment.
-     */
-    public void setStatus(StateEnum status) {
-        if (null != status) {
-            this.status = status;
-        }
-    }
-    
-    /**
-     * Getter for the status of the assignment.
-     * @return the status of the assignment.
-     */
-    public StateEnum getStatus() {
-        return status;
-    }
-
     @Override
     public Iterator<IParticipant> iterator() {
         return participants.iterator();
