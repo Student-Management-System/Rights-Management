@@ -8,4 +8,5 @@ JP001 = JP001_user1, JP001_user2
 [abgabe:/Bewertet_Abgabe/JP001]
 * = 
 @JavaTutoren = rw
-@JP001 = r
+@JP001_user1 = r
+@JP001_user2 = r
