@@ -132,8 +132,9 @@ public class AccessWriter implements Closeable {
         out.append(ALL_USER + READ);
 
         Group tutorGroup = course.getTutors();
-        
+        List<Group> groups = course.getHomeworkGroups();
         List<Assignment> assignments = course.getAssignments();
+        
         if (assignments != null) {
             // iterates over every homework
             for (Assignment assignment : assignments) {
@@ -144,7 +145,10 @@ public class AccessWriter implements Closeable {
                 } else if (assignment.getState() == State.REVIEWED) {
                     rights = READ;
                 }
-                
+                boolean isGroupWork = false;
+                if (assignment.isGroupWork()) {
+                    isGroupWork = true;
+                }
                 // iterates over every group
                 for (IParticipant participant : assignment) {
                     out.append(LINE_BREAK);
@@ -159,10 +163,25 @@ public class AccessWriter implements Closeable {
                         out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
                         out.append(LINE_BREAK);
                     }
-                    if (participant instanceof Group) {
-                        out.append(GROUP_PREFIX);
+                    if (participant instanceof Group && null != groups && isGroupWork) { 
+                        for (Group group : groups) {
+                            boolean isFirst = true;
+                            if (group.getName().equals(participant.getName())) {
+                                for (String member : group) {
+                                    out.append(GROUP_PREFIX);
+                                    out.append(member + RIGHTS_ASSIGNMENT + rights);
+                                    if (isFirst) {
+                                        out.append(LINE_BREAK);
+                                        isFirst = false;
+                                    } else {
+                                        //fallsthrough
+                                    }
+                                } 
+                            }
+                        }
+                    } else {
+                        out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
                     }
-                    out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
                 }
             }
             
