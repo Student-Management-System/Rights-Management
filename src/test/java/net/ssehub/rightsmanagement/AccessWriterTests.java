@@ -37,6 +37,8 @@ public class AccessWriterTests {
         File path = new File(TEST_FOLDER, fileName);
         try {
             content = Files.readString(path.toPath()).trim();
+            // next line need to be commented out under windows since lineSeperator has another behavior on windows, 
+            // than under linux
             content = content.replace("\n", System.lineSeparator());
         } catch (IOException e) {
             Assertions.fail("Could not read configuration from " + path.getAbsolutePath(), e);
