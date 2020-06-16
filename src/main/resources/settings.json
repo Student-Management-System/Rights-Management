@@ -9,7 +9,8 @@
       "repositoryPath": "/repository/java/",
       "accessPath": "/repository/java.access",
       "svnName": "java-abgaben",
-      "updateStrategy": "IMMEDIATELY"
+      "updateStrategy": "IMMEDIATELY",
+	  "author": "Studenten Management System"
     },
     {
       "courseName": "Info",
