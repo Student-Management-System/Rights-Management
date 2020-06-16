@@ -23,6 +23,7 @@ public class Configuration {
         private String repositoryPath;
         private String accessPath;
         private String svnName;
+        private String author;
         private UpdateStrategy updateStrategy;
 
         /**
@@ -63,6 +64,14 @@ public class Configuration {
          */
         public String getSvnName() {
             return svnName;
+        }
+        
+        /**
+         * The name of the management system.
+         * @return the author.
+         */
+        public String getAuthor( ) {
+            return author;
         }
         
         /**
@@ -113,6 +122,13 @@ public class Configuration {
             this.svnName = svnName;
         }
 
+        /**
+         * The name of the management system.
+         * @param author the author to set.
+         */
+        public void setAuthor(String author) {
+            this.author = author;
+        }
         /**
          * Specifies the {@link UpdateStrategy} to use for the course.
          * @param updateStrategy the updateStrategy to set
