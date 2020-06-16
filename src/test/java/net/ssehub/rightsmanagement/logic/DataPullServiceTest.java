@@ -33,7 +33,7 @@ public class DataPullServiceTest {
         String tutorNameForTesting = "jdoe";
         String assignmentNameForTesting = "Test_Assignment 01 (Java)";
         State expectedAssignmentState = State.SUBMISSION;
-        int exptectedNoOfGroups = 2;
+        int exptectedNoOfGroups = 3;
         int exptectedNoOfMembers = 2;
         int exptectedNoOfTutors = 2;
         int exptectedNoOfAssignments = 5;

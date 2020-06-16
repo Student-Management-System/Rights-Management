@@ -108,8 +108,8 @@ public class IncrementalUpdateHandlerTest {
     @Test
     public void testGroupRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedGroupName = "Testgroup 3";
-        int nGroupsBeforeDelte = 3;
+        String expectedGroupName = "Testgroup 4";
+        int nGroupsBeforeDelte = 4;
         initEmptyCourse();
         Group g1 = new Group();
         g1.setGroupName("Testgroup 1");
@@ -117,7 +117,9 @@ public class IncrementalUpdateHandlerTest {
         g2.setGroupName("Testgroup 2");
         Group g3 = new Group();
         g3.setGroupName("Testgroup 3");
-        cachedState.setHomeworkGroups(Arrays.asList(g1, g2, g3));
+        Group g4 = new Group();
+        g4.setGroupName("Testgroup 4");
+        cachedState.setHomeworkGroups(Arrays.asList(g1, g2, g3, g4));
         
         // Precondition: Group should contain three groups
         Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getHomeworkGroups().size());
@@ -203,14 +205,16 @@ public class IncrementalUpdateHandlerTest {
     public void testUserGroupRelationRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
         String expectedUserName = "Peter Pan";
-        int nGroups = 2;
+        int nGroups = 3;
         initEmptyCourse();
         Group g1 = new Group();
         g1.setGroupName("Testgroup 1");
         Group g2 = new Group();
         g2.setGroupName("Testgroup 2");
         g2.addMembers(expectedUserName);
-        cachedState.setHomeworkGroups(Arrays.asList(g1, g2));
+        Group g3 = new Group();
+        g3.setGroupName("Testgroup 3");
+        cachedState.setHomeworkGroups(Arrays.asList(g1, g2, g3));
         
         // Precondition: Group should contain two groups
         Assertions.assertEquals(nGroups, cachedState.getHomeworkGroups().size());
