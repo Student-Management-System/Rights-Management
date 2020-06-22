@@ -132,7 +132,7 @@ public class AccessWriter implements Closeable {
         out.append(ALL_USER + READ);
 
         Group tutorGroup = course.getTutors();
-        List<Group> groups = course.getHomeworkGroups();
+        List<Group> groups = null;
         List<Assignment> assignments = course.getAssignments();
         
         if (assignments != null) {
@@ -142,8 +142,14 @@ public class AccessWriter implements Closeable {
                 String rights = "";
                 if (assignment.getState() == State.SUBMISSION) {
                     rights = READ_WRITE;
+                    groups = course.getHomeworkGroups();
                 } else if (assignment.getState() == State.REVIEWED) {
                     rights = READ;
+                    // TODO TK: replace placeholder query with groups snapshot at submission end
+                    groups = course.getHomeworkGroups(); // Placeholder to make the tests work
+                } else {
+                    // TODO TK: replace placeholder query with groups snapshot at submission end
+                    groups = course.getHomeworkGroups(); // Placeholder to make the tests work
                 }
                 boolean isGroupWork = false;
                 if (assignment.isGroupWork()) {
@@ -166,18 +172,16 @@ public class AccessWriter implements Closeable {
                     if (participant instanceof Group && null != groups && isGroupWork) { 
                         for (Group group : groups) {
                             boolean isFirst = true;
-                            if (group.getName().equals(participant.getName())) {
-                                for (String member : group) {
-                                    out.append(GROUP_PREFIX);
-                                    out.append(member + RIGHTS_ASSIGNMENT + rights);
-                                    if (isFirst) {
-                                        out.append(LINE_BREAK);
-                                        isFirst = false;
-                                    } else {
-                                        //fallsthrough
-                                    }
-                                } 
-                            }
+                            for (String member : group) {
+                                out.append(GROUP_PREFIX);
+                                out.append(member + RIGHTS_ASSIGNMENT + rights);
+                                if (isFirst) {
+                                    out.append(LINE_BREAK);
+                                    isFirst = false;
+                                } else {
+                                    //fallsthrough
+                                }
+                            } 
                         }
                     } else {
                         out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
