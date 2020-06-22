@@ -231,4 +231,18 @@ public class DataPullService {
         
         return homeworkGroups;
     }
+    
+    /**
+     * Pulls the information of configured homework groups from the <b>student management system</b> at submission end.
+     * @param assignmentID The ID of the assignment.
+     * @return The configured homework groups of the <b>student management system</b>.
+     */
+    public List<Group> loadGroupsAtSubmissionEnd(String assignmentID) {
+        // Gather all homework groups at submission end
+        List<Group> homeworkGroups = new ArrayList<>();
+        
+        // TODO TK: update submitter protocol and implement the query.
+        
+        return homeworkGroups;
+    }
 }
