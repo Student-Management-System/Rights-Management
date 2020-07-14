@@ -40,6 +40,11 @@ public class Assignment extends net.ssehub.exercisesubmitter.protocol.frontend.A
         super(name, assignmentID, state, isGroupwork);
     }
     
+    @Override
+    public String getID() {
+        return super.getID();
+    }
+    
     /**
      * Adds one participant to the assignment.
      * @param participant to add to the set.
