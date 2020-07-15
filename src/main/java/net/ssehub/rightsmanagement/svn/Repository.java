@@ -8,6 +8,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
+import org.tmatesoft.svn.core.SVNProperties;
+import org.tmatesoft.svn.core.SVNRevisionProperty;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.internal.io.fs.FSRepositoryFactory;
 import org.tmatesoft.svn.core.io.ISVNEditor;
@@ -34,13 +36,18 @@ public class Repository {
     
     private File file;
     
+    private String author;
+    
     /**
      * Constructor of Repository.
      * @param path to the repository.
+     * @param author Optional an author name to set when changes are applied to the repository.
+     *     Will be ignored if <tt>null</tt> or an empty string.
      * @throws RepositoryNotFoundException if the repository is not found.
      */
-    public Repository(String path) throws RepositoryNotFoundException {
+    public Repository(String path, String author) throws RepositoryNotFoundException {
         file = new File(path);
+        this.author = author;
         if (!file.exists()) {
             throw new RepositoryNotFoundException(file.getAbsolutePath() + " does not point to a repository location.");
         }
@@ -122,7 +129,11 @@ public class Repository {
         SVNRepository con = loadRepository();
         try {
             String msg = updateAssignment ? "Update " + assignment : "Initialize " + assignment;
-            ISVNEditor svnEditor = con.getCommitEditor(msg, null, false, null);
+            SVNProperties commitProperties = new SVNProperties();
+            if (null != author && !author.isEmpty()) {
+                commitProperties.put(SVNRevisionProperty.AUTHOR, author);
+            }
+            ISVNEditor svnEditor = con.getCommitEditor(msg, null, false, commitProperties, null);
             
             LOGGER.debug("Open root");
             svnEditor.openRoot(LATEST_REVISION);
