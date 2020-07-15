@@ -46,6 +46,16 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
+     * Tests if the author is set.
+     */
+    @Test
+    public void testGetAuthor() {
+        String expected = "Studenten Management System";
+        
+        Assertions.assertEquals(expected, Settings.getConfig().getCourses().get(0).getAuthor());
+    }
+    
+    /**
      * Tests insertion of a new Group.
      */
     @Test
