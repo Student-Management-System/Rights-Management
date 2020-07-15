@@ -35,7 +35,7 @@ public class DataPullServiceTest {
         State expectedAssignmentState = State.SUBMISSION;
         int exptectedNoOfGroups = 3;
         int exptectedNoOfMembers = 2;
-        int exptectedNoOfTutors = 2;
+        int exptectedNoOfTutors = 3;
         int exptectedNoOfAssignments = 5;
         
         // Init and execute
