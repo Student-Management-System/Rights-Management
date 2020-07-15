@@ -241,7 +241,22 @@ public class DataPullService {
         // Gather all homework groups at submission end
         List<Group> homeworkGroups = new ArrayList<>();
         
-        // TODO TK: update submitter protocol and implement the query.
+        try {
+            List<GroupDto> groupsOfServer = groupsAPI.getGroupsFromAssignment(courseID, assignmentID);
+            for (GroupDto groupDto : groupsOfServer) {
+                Group group = new Group();
+                group.setGroupName(groupDto.getName());
+                
+                List<UserDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
+                for (UserDto userDto : userofGroup) {
+                    group.addMembers(userDto.getRzName());
+                }
+                homeworkGroups.add(group);
+            }
+        } catch (ApiException e) {
+            LOGGER.warn("Could not query student management system for Groups via \""
+                    + Settings.getConfig().getMgmtServerURL() + "\".", e);
+        }
         
         return homeworkGroups;
     }
