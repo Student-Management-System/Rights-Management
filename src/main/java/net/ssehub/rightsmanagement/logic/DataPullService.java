@@ -233,12 +233,12 @@ public class DataPullService {
     }
     
     /**
-     * Pulls the information of configured homework groups from the <b>student management system</b> at submission end.
+     * Pulls the information of configured homework groups from the <b>student management system</b> for an assignment.
      * @param assignmentID The ID of the assignment.
      * @return The configured homework groups of the <b>student management system</b>.
      */
     public List<Group> loadGroupsAtSubmissionEnd(String assignmentID) {
-        // Gather all homework groups at submission end
+        // Gather all homework groups for an assignment
         List<Group> homeworkGroups = new ArrayList<>();
         
         try {
