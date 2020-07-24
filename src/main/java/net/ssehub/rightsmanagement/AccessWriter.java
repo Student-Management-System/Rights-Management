@@ -6,6 +6,8 @@ import java.io.Writer;
 import java.util.List;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
+//import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
+//import net.ssehub.rightsmanagement.logic.DataPullService;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
@@ -32,6 +34,7 @@ public class AccessWriter implements Closeable {
     private static final String READ_WRITE = "rw";
     
     private Writer out;
+   // private CourseConfiguration courseConfig;
 
     /**
      * Constructor of the AccessWriter class.
@@ -134,23 +137,24 @@ public class AccessWriter implements Closeable {
         Group tutorGroup = course.getTutors();
         List<Group> groups = null;
         List<Assignment> assignments = course.getAssignments();
+        //String courseID = course.getCourseName() + "-" + course.getSemester();
+        
+        //DataPullService dps = new DataPullService(courseConfig);
         
         if (assignments != null) {
             // iterates over every homework
             for (Assignment assignment : assignments) {
+                // TODO TK: replace placeholder query with groups snapshot at submission end
+                groups = course.getHomeworkGroups(); // Placeholder to make the tests work
+                //groups = dps.loadGroupsPerAssignment(courseID, assignment.getID());
                 
                 String rights = "";
                 if (assignment.getState() == State.SUBMISSION) {
                     rights = READ_WRITE;
-                    groups = course.getHomeworkGroups();
                 } else if (assignment.getState() == State.REVIEWED) {
                     rights = READ;
-                    // TODO TK: replace placeholder query with groups snapshot at submission end
-                    groups = course.getHomeworkGroups(); // Placeholder to make the tests work
-                } else {
-                    // TODO TK: replace placeholder query with groups snapshot at submission end
-                    groups = course.getHomeworkGroups(); // Placeholder to make the tests work
                 }
+                
                 boolean isGroupWork = false;
                 if (assignment.isGroupWork()) {
                     isGroupWork = true;
