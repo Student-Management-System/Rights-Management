@@ -2,11 +2,14 @@ package net.ssehub.rightsmanagement.logic;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
@@ -141,6 +144,7 @@ public class IncrementalUpdateHandlerTest {
     /**
      * Tests insertion of a new User-Group-Relation.
      */
+    @Disabled("Homework groups do not longer contain users")
     @Test
     public void testUserGroupRelationInsert() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
@@ -299,19 +303,20 @@ public class IncrementalUpdateHandlerTest {
     public void testAssignmentRemove() {
        // Must be a valid name w.r.t the ID of the UpdateMessage
         String expectedAssignmentName = "Test_Assignment 09";
-        int nAssignmentsBeforeDelte = 6;
         initEmptyCourse();
-        Assignment assignment1 = new Assignment("Test_Assignment 01 (Java)", null, State.SUBMISSION, false);
-        Assignment assignment2 = new Assignment("Test_Assignment 02 (Java)", null, State.SUBMISSION, false);
-        Assignment assignment3 = new Assignment("Test_Assignment 03 (Java)", null, State.SUBMISSION, false);
-        Assignment assignment4 = new Assignment("Test_Assignment 04 (Java)", null, State.SUBMISSION, false);
-        Assignment assignment5 = new Assignment("Test_Assignment 05 (Java) Invisible", null, State.INVISIBLE, false);
-        Assignment assignment6 = new Assignment(expectedAssignmentName, null, State.SUBMISSION, false);
-        cachedState.setAssignments(Arrays.asList(assignment1, assignment2, assignment3, assignment4, assignment5,
-                assignment6));
+        List<Assignment> assignments = new ArrayList<>();
+        assignments.add(new Assignment("Test_Assignment 01 (Java)", null, State.SUBMISSION, false));
+        assignments.add(new Assignment("Test_Assignment 02 (Java)", null, State.SUBMISSION, false));
+        assignments.add(new Assignment("Test_Assignment 03 (Java)", null, State.SUBMISSION, false));
+        assignments.add(new Assignment("Test_Assignment 04 (Java)", null, State.SUBMISSION, false));
+        assignments.add(new Assignment("Test_Assignment 05 (Java) Invisible", null, State.INVISIBLE, false));
+        assignments.add(new Assignment("Test_Assignment 06 (Java) Testat In Progress", null, State.INVISIBLE, false));
+        assignments.add(new Assignment(expectedAssignmentName, null, State.INVISIBLE, false));
+        int nAssignmentsBeforeDelete = assignments.size();
+        cachedState.setAssignments(assignments);
         
         // Precondition: Assignment should contain six assignments
-        Assertions.assertEquals(nAssignmentsBeforeDelte, cachedState.getAssignments().size());
+        Assertions.assertEquals(nAssignmentsBeforeDelete, cachedState.getAssignments().size());
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_AssignmentRemove");
@@ -319,7 +324,7 @@ public class IncrementalUpdateHandlerTest {
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Assignment six should be removed
-        Assertions.assertEquals(nAssignmentsBeforeDelte - 1, changedCourse.getAssignments().size());
+        Assertions.assertEquals(nAssignmentsBeforeDelete - 1, changedCourse.getAssignments().size());
         Assignment removedAssignment = changedCourse.getAssignments().stream()
             .filter(a -> a.getName().contains(expectedAssignmentName))
             .findAny()

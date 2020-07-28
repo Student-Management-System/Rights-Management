@@ -3,6 +3,7 @@ package net.ssehub.rightsmanagement.logic;
 import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
@@ -23,6 +24,7 @@ public class DataPullServiceTest {
     /**
      * Tests that the complete and correct information of a course is pulled from the student management system. 
      */
+    @Disabled("Homework groups do not longer contain users")
     @Test
     public void testComputeFullConfiguration() {
         // Values of the student management system used for the test
