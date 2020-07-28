@@ -141,13 +141,11 @@ public class AccessWriter implements Closeable {
                     }
                     if (participant instanceof Group && assignment.isGroupWork()) { 
                         Group group = (Group) participant;
-                        boolean isFirst = true;
                         for (String member : group) {
-                            out.append(member + RIGHTS_ASSIGNMENT + rights);
-                            if (isFirst) {
-                                out.append(LINE_BREAK);
-                                isFirst = false;
-                            }
+                            out.append(member);
+                            out.append(RIGHTS_ASSIGNMENT);
+                            out.append(rights);
+                            out.append(LINE_BREAK);
                         } 
                     } else {
                         out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
