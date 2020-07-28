@@ -1,10 +1,9 @@
 [groups]
-JP0001 = JP0001_user1, JP0001_user2
 
 [abgabe:/]
 * = r
 
 [abgabe:/In_Bearbeitung_Abgabe/JP0001]
 * = 
-@JP0001_user1 = rw
-@JP0001_user2 = rw
+JP0001_user1 = rw
+JP0001_user2 = rw

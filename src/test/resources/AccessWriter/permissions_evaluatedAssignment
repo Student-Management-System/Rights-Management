@@ -1,6 +1,5 @@
 [groups]
 JavaTutoren = tutor1, tutor2
-JP001 = JP001_user1, JP001_user2
 
 [abgabe:/]
 * = r
@@ -8,5 +7,5 @@ JP001 = JP001_user1, JP001_user2
 [abgabe:/Bewertet_Abgabe/JP001]
 * = 
 @JavaTutoren = rw
-@JP001_user1 = r
-@JP001_user2 = r
+JP001_user1 = r
+JP001_user2 = r
