@@ -7,7 +7,6 @@ import java.util.Arrays;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
@@ -44,17 +43,6 @@ public class IncrementalUpdateHandlerTest {
                 Assertions.fail("Could not initialize the configuration", e);
             }            
         }
-    }
-    
-    /**
-     * Tests if the author is set.
-     */
-    @Disabled
-    @Test
-    public void testGetAuthor() {
-        String expected = "Studenten Management System";
-        
-        Assertions.assertEquals(expected, Settings.getConfig().getCourses().get(0).getAuthor());
     }
     
     /**
