@@ -6,8 +6,6 @@ import java.io.Writer;
 import java.util.List;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
-//import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
-//import net.ssehub.rightsmanagement.logic.DataPullService;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
@@ -34,7 +32,6 @@ public class AccessWriter implements Closeable {
     private static final String READ_WRITE = "rw";
     
     private Writer out;
-   // private CourseConfiguration courseConfig;
 
     /**
      * Constructor of the AccessWriter class.
@@ -72,25 +69,6 @@ public class AccessWriter implements Closeable {
             out.append(LINE_BREAK);
         }
         
-        // Write course member groups
-        List<Group> groups = course.getHomeworkGroups();
-        if (null != groups) {
-            for (Group group : groups) {
-                out.append(group.getName());
-                out.append(RIGHTS_ASSIGNMENT);
-                boolean isFirst = true;
-                for (String member : group) {
-                    if (isFirst) {
-                        isFirst = false;
-                    } else {
-                        out.append(", ");
-                    }
-                    out.append(member);
-                }  
-    
-                out.append(LINE_BREAK);
-            }
-        }
     }
     
     /**
@@ -135,19 +113,11 @@ public class AccessWriter implements Closeable {
         out.append(ALL_USER + READ);
 
         Group tutorGroup = course.getTutors();
-        List<Group> groups = null;
         List<Assignment> assignments = course.getAssignments();
-        //String courseID = course.getCourseName() + "-" + course.getSemester();
-        
-        //DataPullService dps = new DataPullService(courseConfig);
         
         if (assignments != null) {
             // iterates over every homework
-            for (Assignment assignment : assignments) {
-                // TODO TK: replace placeholder query with groups snapshot at submission end
-                groups = course.getHomeworkGroups(); // Placeholder to make the tests work
-                //groups = dps.loadGroupsPerAssignment(courseID, assignment.getID());
-                
+            for (Assignment assignment : assignments) {                
                 String rights = "";
                 if (assignment.getState() == State.SUBMISSION) {
                     rights = READ_WRITE;
@@ -155,10 +125,6 @@ public class AccessWriter implements Closeable {
                     rights = READ;
                 }
                 
-                boolean isGroupWork = false;
-                if (assignment.isGroupWork()) {
-                    isGroupWork = true;
-                }
                 // iterates over every group
                 for (IParticipant participant : assignment) {
                     out.append(LINE_BREAK);
@@ -173,20 +139,16 @@ public class AccessWriter implements Closeable {
                         out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
                         out.append(LINE_BREAK);
                     }
-                    if (participant instanceof Group && null != groups && isGroupWork) { 
-                        for (Group group : groups) {
-                            boolean isFirst = true;
-                            for (String member : group) {
-                                out.append(GROUP_PREFIX);
-                                out.append(member + RIGHTS_ASSIGNMENT + rights);
-                                if (isFirst) {
-                                    out.append(LINE_BREAK);
-                                    isFirst = false;
-                                } else {
-                                    //fallsthrough
-                                }
-                            } 
-                        }
+                    if (participant instanceof Group && assignment.isGroupWork()) { 
+                        Group group = (Group) participant;
+                        boolean isFirst = true;
+                        for (String member : group) {
+                            out.append(member + RIGHTS_ASSIGNMENT + rights);
+                            if (isFirst) {
+                                out.append(LINE_BREAK);
+                                isFirst = false;
+                            }
+                        } 
                     } else {
                         out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
                     }
