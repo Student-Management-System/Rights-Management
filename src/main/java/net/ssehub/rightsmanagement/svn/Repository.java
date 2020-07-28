@@ -30,6 +30,11 @@ import net.ssehub.rightsmanagement.rest.resources.UpdateCallback;
  */
 public class Repository {
     
+    static {
+        // Init driver for file system access
+        FSRepositoryFactory.setup();
+    }
+    
     private static final int LATEST_REVISION = -1;
     
     private static final Logger LOGGER = LogManager.getLogger(UpdateCallback.class);
@@ -37,6 +42,7 @@ public class Repository {
     private File file;
     
     private String author;
+    
     
     /**
      * Constructor of Repository.
@@ -55,18 +61,20 @@ public class Repository {
             throw new RepositoryNotFoundException(file.getAbsolutePath()
                 + " does not point to a repository directory.");
         }
-        
     }
     
     /**
-     * Loads the repository.
+     * Loads the (file system) access to the repository.
+     * According to <a href="https://svnkit.com/javadoc/org/tmatesoft/svn/core/io/SVNRepository.html">
+     * https://svnkit.com/javadoc/org/tmatesoft/svn/core/io/SVNRepository.html</a> this is <b>not</b>
+     * thread safe! For this reason all public method are synchronized. Further each thread of the rights management
+     * should use at most one repository.
      * @return the loaded repository.
      * @throws SVNException If there's no implementation for the specified protocol (the user may have forgotten to
      *     register a specific factory that creates <b>SVNRepository</b> instances for that protocol or the SVNKit
      *     library does not support that protocol at all)
      */
     private SVNRepository loadRepository() throws SVNException {   
-        FSRepositoryFactory.setup();
         return SVNRepositoryFactory.create(SVNURL.fromFile(file));
     }
     
@@ -99,9 +107,13 @@ public class Repository {
      */
     boolean pathExists(String path) throws SVNException {
         SVNRepository readOnlyConnection = loadRepository();
-        boolean result = pathExists(readOnlyConnection, path);
-        readOnlyConnection.closeSession();
-        return result;
+        boolean exists = false;
+        try {
+            exists = pathExists(readOnlyConnection, path);
+        } finally {
+            readOnlyConnection.closeSession();
+        }
+        return exists;
     }
     
     /**
@@ -113,8 +125,12 @@ public class Repository {
      */
     long lastRevision() throws SVNException {
         SVNRepository readOnlyConnection = loadRepository();
-        long lastRevision = readOnlyConnection.getLatestRevision();
-        readOnlyConnection.closeSession();
+        long lastRevision = 0;
+        try {
+            lastRevision = readOnlyConnection.getLatestRevision();
+        } finally {
+            readOnlyConnection.closeSession();
+        }
         return lastRevision;
     }
     
@@ -177,7 +193,7 @@ public class Repository {
      * folders need to be created.
      * @throws SVNException If a failure occurred while connecting to a repository
      */
-    public void createOrModifyAssignment(Assignment assignment) throws SVNException {
+    public synchronized void createOrModifyAssignment(Assignment assignment) throws SVNException {
         SVNRepository repos = loadRepository();
         try {
             List<String> newSubmisionFolders = new ArrayList<>();
