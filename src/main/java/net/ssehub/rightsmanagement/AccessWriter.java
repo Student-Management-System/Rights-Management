@@ -148,14 +148,15 @@ public class AccessWriter implements Closeable {
                             out.append(LINE_BREAK);
                         } 
                     } else {
-                        out.append(participant.getName() + RIGHTS_ASSIGNMENT + rights);
+                        out.append(participant.getName());
+                        out.append(RIGHTS_ASSIGNMENT);
+                        out.append(rights);
+                        out.append(LINE_BREAK);
                     }
                 }
             }
             
         }
-        
-        out.append(LINE_BREAK);
     }
     
     /**
