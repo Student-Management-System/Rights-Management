@@ -24,6 +24,7 @@ public class Configuration {
         private String accessPath;
         private String svnName;
         private String author;
+        private boolean initRepositoryIfNotExists;
         private UpdateStrategy updateStrategy;
 
         /**
@@ -83,6 +84,15 @@ public class Configuration {
         }
 
         /**
+         * Specifies if a new, local SVN repository shall be created if it does not exist on the server, yet.
+         * @return <tt>true</tt> creates a new SVN repository, <tt>false</tt> assumes that repositories
+         *     are created always before the application starts.
+         */
+        public boolean isInitRepositoryIfNotExists() {
+            return initRepositoryIfNotExists;
+        }
+
+        /**
          * The absolute path to the access file.
          * @param accessPath the accessPath to set
          */
@@ -135,6 +145,15 @@ public class Configuration {
          */
         public void setUpdateStrategy(UpdateStrategy updateStrategy) {
             this.updateStrategy = updateStrategy;
+        }
+        
+        /**
+         * Specifies if a new, local SVN repository shall be created if it does not exist on the server, yet.
+         * @param initRepositoryIfNotExists <tt>true</tt> creates a new SVN repository, <tt>false</tt> assumes
+         *     that repositories are created always before the application starts.
+         */
+        public void setInitRepositoryIfNotExists(boolean initRepositoryIfNotExists) {
+            this.initRepositoryIfNotExists = initRepositoryIfNotExists;
         }
     }
     

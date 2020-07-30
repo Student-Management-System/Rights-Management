@@ -49,9 +49,10 @@ public class Repository {
      * @param path to the repository.
      * @param author Optional an author name to set when changes are applied to the repository.
      *     Will be ignored if <tt>null</tt> or an empty string.
+     * @param initRepository <tt>true</tt> initializes a new Repository if path points to an empty folder.
      * @throws RepositoryNotFoundException if the repository is not found.
      */
-    public Repository(String path, String author) throws RepositoryNotFoundException {
+    public Repository(String path, String author, boolean initRepository) throws RepositoryNotFoundException {
         file = new File(path);
         this.author = author;
         if (!file.exists()) {
@@ -61,6 +62,28 @@ public class Repository {
             throw new RepositoryNotFoundException(file.getAbsolutePath()
                 + " does not point to a repository directory.");
         }
+        String[] children = file.list();
+        if (null == children || children.length == 0) {
+            // Empty folder init repository if desired
+            if (initRepository) {
+                try {
+                    initRepository();
+                } catch (SVNException e) {
+                    throw new RepositoryNotFoundException("Could not initialize a new repository at "
+                        + file.getAbsolutePath() + " due to " + e.getMessage());
+                }
+            }
+        }
+    }
+    
+    /**
+     * Creates / initializes a new SVN repository if the specified location does not contain an SVN repository.
+     * @return Should return a {@code file:///} url pointing to {@link #file}.
+     * @throws SVNException If an repository exist at the specified location already
+     */
+    private SVNURL initRepository() throws SVNException {
+        // Based on: https://wiki.svnkit.com/Setting_Up_A_Subversion_Repository
+        return SVNRepositoryFactory.createLocalRepository(file, true, false);
     }
     
     /**
@@ -89,7 +112,7 @@ public class Repository {
      */
     private boolean pathExists(SVNRepository readOnlyConnection, String path) throws SVNException {
         boolean exists = true;
-        SVNNodeKind nodeKind = readOnlyConnection.checkPath(path , LATEST_REVISION);
+        SVNNodeKind nodeKind = readOnlyConnection.checkPath(path, LATEST_REVISION);
         if (nodeKind == SVNNodeKind.NONE) {
             exists = false;
         }

@@ -39,9 +39,9 @@ public class RepositoryTest {
     @Test
     public void testCreationOfSingleAssignment() throws RepositoryNotFoundException, SVNException {
         repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "EmptyRepository.tar.gz"));
-        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
-        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Exam", null, State.SUBMISSION, false);
         Member aStudent = new Member();
         aStudent.setMemberName("aStudent");
@@ -71,9 +71,9 @@ public class RepositoryTest {
     @Test
     public void testCreationOfGroupAssignment() throws RepositoryNotFoundException, SVNException {
         repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "EmptyRepository.tar.gz"));
-        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
-        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         Group group = new Group();
         group.setGroupName("group1");
@@ -105,9 +105,9 @@ public class RepositoryTest {
     @Test
     public void testModificationOfGroupAssignment() throws RepositoryNotFoundException, SVNException {
         repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz"));
-        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
-        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         Group group1 = new Group();
         group1.setGroupName("group1");
@@ -143,10 +143,10 @@ public class RepositoryTest {
     @Test
     public void testCreationOfAssignmentWithEmptyGroup() throws RepositoryNotFoundException, SVNException {
         repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz"));
-        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         long oldRevision = repoReader.lastRevision();
         
-        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test");
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         
         // Write changes to repository
@@ -172,7 +172,7 @@ public class RepositoryTest {
         
         // Test that exception is thrown
         Exception exception = Assertions.assertThrows(RepositoryNotFoundException.class, 
-            () -> new Repository(notExisting.getAbsolutePath(), "test"));
+            () -> new Repository(notExisting.getAbsolutePath(), "test", false));
         Assertions.assertTrue(exception.getMessage().contains("repository location"));
     }
     
@@ -189,7 +189,7 @@ public class RepositoryTest {
         
         // Test that exception is thrown
         Exception exception = Assertions.assertThrows(RepositoryNotFoundException.class, 
-            () -> new Repository(testFile.getAbsolutePath(), "test"));
+            () -> new Repository(testFile.getAbsolutePath(), "test", false));
         Assertions.assertTrue(exception.getMessage().contains("repository directory"));
     }
     

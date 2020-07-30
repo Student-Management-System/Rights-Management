@@ -126,7 +126,8 @@ public abstract class AbstractUpdateHandler {
      */
     protected void updateRepository(Course course) throws IOException {
         try {
-            Repository repository = new Repository(courseConfig.getRepositoryPath(), courseConfig.getAuthor());
+            Repository repository = new Repository(courseConfig.getRepositoryPath(), courseConfig.getAuthor(),
+                courseConfig.isInitRepositoryIfNotExists());
             for (Assignment assignment : course.getAssignments()) {
                 repository.createOrModifyAssignment(assignment);
             }
