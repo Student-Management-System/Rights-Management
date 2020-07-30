@@ -107,6 +107,9 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case USER_GROUP_RELATION:
             List<Group> userGroupRelation = getDataPullService().loadGroups();
             course.setHomeworkGroups(userGroupRelation);
+            // updates the assignments after a user change groups
+            assignments = getDataPullService().loadAssignments(course);
+            course.setAssignments(assignments);
             break;
         case COURSE_USER_RELATION:
             // falls through
