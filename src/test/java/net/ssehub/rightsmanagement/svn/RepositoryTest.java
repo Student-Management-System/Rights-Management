@@ -3,6 +3,8 @@ package net.ssehub.rightsmanagement.svn;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +27,60 @@ import net.ssehub.rightsmanagement.model.Member;
 public class RepositoryTest {
     private static final File TEST_FOLDER = new File(AllTests.TEST_FOLDER, "Repository");
     private File repositoryTestFolder;
+    
+    /**
+     * Tests that a new repository can be created on demand.
+     * @throws RepositoryNotFoundException In case that the repo
+     */
+    @Test
+    public void testInitRepository() {
+        // Create empty target folder
+        repositoryTestFolder = new File(TEST_FOLDER, "repo");
+        Assertions.assertFalse(repositoryTestFolder.exists());
+        Assertions.assertTrue(repositoryTestFolder.mkdirs());
+        repositoryTestFolder.deleteOnExit();
+        
+        // Init repository
+        try {
+            new Repository(repositoryTestFolder.getAbsolutePath(), "a_user", true);
+        } catch (RepositoryNotFoundException e) {
+            Assertions.fail("Could not create repository at: " + repositoryTestFolder.getAbsolutePath(), e);
+        }
+        
+        // Check if a repository is created at the specified location. This should contain some elements according to
+        // http://svnbook.red-bean.com/en/1.7/svn.reposadmin.basics.html
+        String[] children = repositoryTestFolder.list();
+        Assertions.assertNotNull(children);
+        Set<String> files = new HashSet<>(Arrays.asList(children));
+        Assertions.assertTrue(files.contains("conf"));
+        Assertions.assertTrue(files.contains("db"));
+        Assertions.assertTrue(files.contains("format"));
+        Assertions.assertTrue(files.contains("hooks"));
+        Assertions.assertTrue(files.contains("locks"));
+        Assertions.assertTrue(files.contains("README.txt"));
+    }
+    
+    /**
+     * Tests that a new repository won't be created, if not requested.
+     * @throws RepositoryNotFoundException 
+     */
+    @Test
+    public void testNoInitRepository() throws RepositoryNotFoundException {
+        // Create empty target folder
+        repositoryTestFolder = new File(TEST_FOLDER, "repo");
+        Assertions.assertFalse(repositoryTestFolder.exists());
+        Assertions.assertTrue(repositoryTestFolder.mkdirs());
+        repositoryTestFolder.deleteOnExit();
+        
+        // Init repository
+        new Repository(repositoryTestFolder.getAbsolutePath(), "a_user", false);
+        
+        // Check if a repository is created at the specified location. This should contain some elements according to
+        // http://svnbook.red-bean.com/en/1.7/svn.reposadmin.basics.html
+        String[] children = repositoryTestFolder.list();
+        Assertions.assertTrue(children.length == 0, "Error: There was something unexpected created at "
+            + repositoryTestFolder.getAbsolutePath());
+    }
     
     /**
      * Tests.

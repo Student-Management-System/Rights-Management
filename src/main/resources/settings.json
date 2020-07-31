@@ -10,7 +10,8 @@
       "accessPath": "/repository/java.access",
       "svnName": "java-abgaben",
       "updateStrategy": "IMMEDIATELY",
-	  "author": "Studenten Management System"
+	    "author": "Studenten Management System",
+	    "initRepositoryIfNotExists" : true
     },
     {
       "courseName": "Info",
@@ -18,7 +19,8 @@
       "repositoryPath": "/repository/info/",
       "accessPath": "/repository/info.access",
       "svnName": "info-abgaben",
-      "updateStrategy": "INCREMENTAL"
+      "updateStrategy": "INCREMENTAL",
+      "initRepositoryIfNotExists" : false
     }
   ]
 }
