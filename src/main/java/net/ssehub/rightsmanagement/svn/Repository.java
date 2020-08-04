@@ -55,23 +55,25 @@ public class Repository {
     public Repository(String path, String author, boolean initRepository) throws RepositoryNotFoundException {
         file = new File(path);
         this.author = author;
-        if (!file.exists()) {
+        if (!file.exists() && !initRepository) {
             throw new RepositoryNotFoundException(file.getAbsolutePath() + " does not point to a repository location.");
         }
-        if (!file.isDirectory()) {
+        if (!file.isDirectory() && !initRepository) {
             throw new RepositoryNotFoundException(file.getAbsolutePath()
                 + " does not point to a repository directory.");
         }
         String[] children = file.list();
-        if (null == children || children.length == 0) {
-            // Empty folder init repository if desired
-            if (initRepository) {
-                try {
-                    initRepository();
-                } catch (SVNException e) {
-                    throw new RepositoryNotFoundException("Could not initialize a new repository at "
+        if (initRepository && (null == children || children.length == 0)) {
+            if (!file.exists() && file.getParentFile().exists()) {
+                // Folder does not exist, but parent folder: Init folder and repository
+                file.mkdir();
+            }
+            // Empty folder: init repository if desired
+            try {
+                initRepository();
+            } catch (SVNException e) {
+                throw new RepositoryNotFoundException("Could not initialize a new repository at "
                         + file.getAbsolutePath() + " due to " + e.getMessage());
-                }
             }
         }
     }
