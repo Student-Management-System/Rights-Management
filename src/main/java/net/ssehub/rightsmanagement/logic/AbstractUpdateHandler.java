@@ -34,6 +34,16 @@ public abstract class AbstractUpdateHandler {
      */
     public AbstractUpdateHandler(CourseConfiguration courseConfig) {
         this(courseConfig, new DataPullService(courseConfig));
+        
+        if (courseConfig.isInitRepositoryIfNotExists()) {
+            try {
+                LOGGER.debug("Initialize repository if it does not exist at {}.", courseConfig.getRepositoryPath());
+                new Repository(courseConfig.getRepositoryPath(), courseConfig.getAuthor(), true);
+                LOGGER.debug("Initialized repository if it does not existed at {}.", courseConfig.getRepositoryPath());
+            } catch (RepositoryNotFoundException e) {
+                LOGGER.fatal("Could not initlaize repository at " + courseConfig.getRepositoryPath(), e);
+            }
+        }
     }
     
     /**
@@ -126,8 +136,7 @@ public abstract class AbstractUpdateHandler {
      */
     protected void updateRepository(Course course) throws IOException {
         try {
-            Repository repository = new Repository(courseConfig.getRepositoryPath(), courseConfig.getAuthor(),
-                courseConfig.isInitRepositoryIfNotExists());
+            Repository repository = new Repository(courseConfig.getRepositoryPath(), courseConfig.getAuthor(), false);
             for (Assignment assignment : course.getAssignments()) {
                 repository.createOrModifyAssignment(assignment);
             }
