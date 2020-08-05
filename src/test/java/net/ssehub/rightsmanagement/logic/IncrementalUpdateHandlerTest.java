@@ -564,7 +564,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Post condition: User Peter Pan should be removed from course
         Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        //TODO TK: check why the User data is not loaded
+        
         Member removedCourseUserRelation = changedCourse.getStudents().stream()
             .filter(u -> u.getName().contains(notExpectedUserName))
             .findAny()
