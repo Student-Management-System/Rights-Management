@@ -260,11 +260,13 @@ public class RepositoryTest {
     @Disabled
     @Test
     public void testWriteAuthor() throws RepositoryNotFoundException, SVNException {
+        String author = "testAuthor";
+        
         File file = new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz");
         repositoryTestFolder = Unzipper.unTarGz(file);
-        //Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
+        //Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), author, false);
         
-        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), author, false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
         
         // Write changes to repository
@@ -274,18 +276,18 @@ public class RepositoryTest {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
-        //Map fileProperties = new HashMap();
         SVNProperties fileProperties = new SVNProperties();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            SVNRepository repo = SVNRepositoryFactory.create(SVNURL.fromFile(file));
+            SVNRepository repo = SVNRepositoryFactory.create(SVNURL
+                    .parseURIDecoded(repositoryTestFolder.getAbsolutePath()));
             repo.getFile(repositoryTestFolder.getAbsolutePath(), -1,  fileProperties, baos);
         } catch (SVNException e) {
             e.printStackTrace();
         }
         System.out.println(fileProperties);
         
-        //Assertions.assertEquals(expected, actual);
+        //Assertions.assertEquals(author, actual);
         
         
     }
