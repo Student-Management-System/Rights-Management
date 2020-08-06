@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -91,8 +92,9 @@ public class RestUpdateHandlerTest {
         }
         
         @Override
-        protected void updateRepository(Course course) throws IOException {
+        protected Set<String> updateRepository(Course course) throws IOException {
             // Avoid writing to disk during test -> Not needed
+            return null;
         }
         
         @Override

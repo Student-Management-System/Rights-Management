@@ -3,6 +3,7 @@ package net.ssehub.rightsmanagement;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collection;
 import java.util.List;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
@@ -163,14 +164,33 @@ public class AccessWriter implements Closeable {
      * Writes the groups and the svn path.
      * @param course The set-up of the course, which should be reflected in the repository
      * @param svnName The name of the repository as used inside the URL.
+     * @param blacklistedFolders Optional: If not <tt>null</tt> or empty this list of folders will be hidden to all
+     *     users except for the tutors. Should be used to hide deprecated folders.
      * @throws IOException If an I/O error occurs during writing.
      */
-    public void write(Course course, String svnName) throws IOException {
+    public void write(Course course, String svnName, Collection<String> blacklistedFolders) throws IOException {
         writeGroups(course);
         
         out.append(LINE_BREAK);
-        
         writePermissions(course, svnName);
+        
+        if (null != blacklistedFolders && !blacklistedFolders.isEmpty()) {
+            Group tutorGroup = course.getTutors();
+            out.append(LINE_BREAK);
+            
+            for (String folder : blacklistedFolders) {
+                writePath(svnName, folder);
+                out.append(ALL_USER);
+                out.append(LINE_BREAK);
+                if (null != tutorGroup && !tutorGroup.getMembers().isEmpty()) {
+                    out.append(GROUP_PREFIX);                        
+                    out.append(tutorGroup.getName());                        
+                    out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
+                    out.append(LINE_BREAK);
+                }
+                out.append(LINE_BREAK);
+            }
+        }
     }
 
     @Override

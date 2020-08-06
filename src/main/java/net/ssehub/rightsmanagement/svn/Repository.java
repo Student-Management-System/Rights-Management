@@ -2,10 +2,15 @@ package net.ssehub.rightsmanagement.svn;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
 import org.tmatesoft.svn.core.SVNNodeKind;
 import org.tmatesoft.svn.core.SVNProperties;
@@ -17,6 +22,7 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.IParticipant;
 import net.ssehub.rightsmanagement.rest.resources.UpdateCallback;
 
@@ -142,6 +148,47 @@ public class Repository {
     }
     
     /**
+     * Creates a list of first-level (Assignments) and second-level (submission directories) folders.
+     * If there is currently no assignment or submission user / group configured, they should be disabled via the access
+     * file.
+     * @return The list of first-level (Assignments) and second-level (submission directories) folders, maybe empty
+     *     if there are not folders yet or in case of errors.
+     */
+    protected Set<String> listFolders() {
+        Set<String> folders = new HashSet<>();
+        
+        SVNRepository repository = null;
+        try {
+            repository = loadRepository();
+            Collection<SVNDirEntry> entries = repository.getDir("/", LATEST_REVISION, null, SVNDirEntry.DIRENT_ALL,
+                (Collection<?>) null);
+            for (SVNDirEntry svnDirEntry : entries) {
+                if (svnDirEntry.getKind() == SVNNodeKind.DIR) {
+                    String assignmentPath = svnDirEntry.getRelativePath();
+                    folders.add(assignmentPath);
+                    
+                    Collection<SVNDirEntry> nestedEntries = repository.getDir("/" + assignmentPath, LATEST_REVISION,
+                        null, SVNDirEntry.DIRENT_ALL, (Collection<?>) null);
+                    for (SVNDirEntry nested : nestedEntries) {
+                        if (nested.getKind() == SVNNodeKind.DIR) {
+                            folders.add(assignmentPath + "/" + nested.getRelativePath());
+                        }
+                    }
+                }
+            }
+        } catch (SVNException e) {
+            LOGGER.error("Could not load list of folders to check for unused folders", e);
+            // Folders will be empty -> nothing will be blocked
+        } finally {
+            if (null != repository) {
+                repository.closeSession();
+            }
+        }
+        
+        return folders;
+    }
+    
+    /**
      * Returns the Latest revision of the repository.
      * Only intended for testing purpose to check if repository has changed.
      * @return The latest revision number
@@ -218,7 +265,7 @@ public class Repository {
      * folders need to be created.
      * @throws SVNException If a failure occurred while connecting to a repository
      */
-    public synchronized void createOrModifyAssignment(Assignment assignment) throws SVNException {
+    protected synchronized void createOrModifyAssignment(Assignment assignment) throws SVNException {
         SVNRepository repos = loadRepository();
         try {
             List<String> newSubmisionFolders = new ArrayList<>();
@@ -243,5 +290,52 @@ public class Repository {
         } finally {
             repos.closeSession();
         }
+    }
+    
+    /**
+     * Adds all assignments of the course and returns unused folders.
+     * @param course An object that represent the course to be created.
+     * @return The list of first-level (Assignments) and second-level (submission directories) folders, maybe empty
+     *     if there are not folders yet or in case of errors.
+     * @throws SVNException If a failure occurred while connecting to a repository
+     */
+    public synchronized Set<String> updateRepository(Course course) throws SVNException {
+        /* 
+         * Collect unused folders (through createOrModify should only new folders be created 
+         * -> this may be called before
+         */
+        Set<String> folders = listFolders();
+        
+        for (Assignment assignment : course.getAssignments()) {
+            // Create new folders
+            createOrModifyAssignment(assignment);
+            
+            // Delete all created folders from blacklist
+            String assignmentName = assignment.getName();
+            folders.remove(assignmentName);
+            for (IParticipant submissionFolder : assignment) {
+                folders.remove(assignmentName + "/" + submissionFolder);
+            }
+            
+        }
+        // Shrink list: If list contains top level folders, remove all nested folders
+        Set<String> top = new HashSet<>();
+        folders.stream()
+            .filter(s -> !s.contains("/"))
+            .forEach(top::add);
+        if (!top.isEmpty()) {
+            Iterator<String> itr = folders.iterator();
+            while (itr.hasNext()) {
+                String folder = itr.next();
+                if (folder.contains("/")) {
+                    String parent = folder.split("/")[0];
+                    if (top.contains(parent)) {
+                        itr.remove();
+                    }
+                }
+            }
+        }
+        
+        return folders;
     }
 }

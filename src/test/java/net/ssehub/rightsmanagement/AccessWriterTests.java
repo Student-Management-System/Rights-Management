@@ -4,7 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.file.Files;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -60,7 +62,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -90,7 +92,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -111,7 +113,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -132,7 +134,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -154,7 +156,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -180,7 +182,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -206,7 +208,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -232,7 +234,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -259,7 +261,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe");
+        aWriter.write(course, "abgabe", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -285,7 +287,7 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "submissionSystem");
+        aWriter.write(course, "submissionSystem", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
@@ -313,11 +315,43 @@ public class AccessWriterTests {
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
         AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "submissionSystem");
+        aWriter.write(course, "submissionSystem", null);
         aWriter.close();
         
         // Compare expected and actual output of aWriter
         String expected = readAccessFile("SingleAssignmentWithTutors_access");
+        Assertions.assertEquals(expected, sWriter.toString().trim());
+    }
+    
+    /**
+     * Tests based on {@link #testPermissionsForSingleAssignmentWithTutors()} that blacklisted / deprecated folders
+     * are handled corrently.
+     * @throws IOException If an I/O error occurs during writing.
+     */
+    @Test
+    public void testPermissionsForDeprecatedFolderWithTutors() throws IOException {
+        // Create test data for writing
+        Course course = new Course();
+        Group tutors = getTutorGroup();
+        tutors.setGroupName("Tutors");
+        course.setTutors(tutors);
+        Assignment hw = new Assignment("Exam", null, State.REVIEWED, false);
+        Member aStudent = new Member();
+        aStudent.setMemberName("musterma");
+        hw.addParticipant(aStudent);
+        course.setAssignments(Arrays.asList(hw));
+        
+        // Simulate writing data to access file
+        List<String> blacklistedFolders = new ArrayList<>();
+        blacklistedFolders.add("DeprecatedAssignment");
+        blacklistedFolders.add("RunningAssignment/DeprecatedGroup");
+        StringWriter sWriter = new StringWriter();
+        AccessWriter aWriter = new AccessWriter(sWriter);
+        aWriter.write(course, "submissionSystem", blacklistedFolders);
+        aWriter.close();
+        
+        // Compare expected and actual output of aWriter
+        String expected = readAccessFile("AccessForDeprecatedFolderWithTutors_access");
         Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     

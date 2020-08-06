@@ -16,6 +16,7 @@ import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.Unzipper;
 import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
 
@@ -80,6 +81,37 @@ public class RepositoryTest {
         String[] children = repositoryTestFolder.list();
         Assertions.assertTrue(children.length == 0, "Error: There was something unexpected created at "
             + repositoryTestFolder.getAbsolutePath());
+    }
+    
+    /**
+     * Tests the retrieval of folders via {@link Repository#listFolders()}.
+     * @throws RepositoryNotFoundException If the unpacked test repository could not be found
+     */
+    @Test
+    public void testListFolders() throws RepositoryNotFoundException {
+        repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz"));
+        Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
+        
+        Set<String> folders = repoReader.listFolders();
+        Assertions.assertEquals(2, folders.size());
+        Assertions.assertTrue(folders.contains("Homework"));
+        Assertions.assertTrue(folders.contains("Homework/group1"));
+    }
+    
+    /**
+     * Tests the retrieval of folders via {@link Repository#updateRepository(net.ssehub.rightsmanagement.model.Course)}.
+     * @throws RepositoryNotFoundException If the unpacked test repository could not be found
+     * @throws SVNException 
+     */
+    @Test
+    public void testListFoldersOfUpdateRepository() throws RepositoryNotFoundException, SVNException {
+        repositoryTestFolder = Unzipper.unTarGz(new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz"));
+        Repository repo = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
+        
+        Set<String> folders = repo.updateRepository(new Course());
+        // Similar as in testListFolders(), but must not contain sub folder
+        Assertions.assertEquals(1, folders.size());
+        Assertions.assertTrue(folders.contains("Homework"));
     }
     
     /**

@@ -1,0 +1,18 @@
+[groups]
+Tutors = tutor1, tutor2
+
+[submissionSystem:/]
+* = r
+
+[submissionSystem:/Exam/musterma]
+* = 
+@Tutors = rw
+musterma = r
+
+[submissionSystem:/DeprecatedAssignment]
+* = 
+@Tutors = rw
+
+[submissionSystem:/RunningAssignment/DeprecatedGroup]
+* = 
+@Tutors = rw

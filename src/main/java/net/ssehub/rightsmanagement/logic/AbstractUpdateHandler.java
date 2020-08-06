@@ -3,6 +3,7 @@ package net.ssehub.rightsmanagement.logic;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +11,6 @@ import org.tmatesoft.svn.core.SVNException;
 
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
-import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.svn.Repository;
 import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
@@ -81,12 +81,16 @@ public abstract class AbstractUpdateHandler {
         Course course = computeFullConfiguration(msg);
         
         /*
-         * Second: Write access file.
-         * Should be done before updating the repository to avoid accidentally access to newly files and folders.
+         * Second: Update repository.
+         */
+        Set<String> deprecatedFolders = updateRepository(course);
+        
+        /*
+         * Third: Write access file.
          */
         AccessWriter writer = createWriter();
         try {
-            writer.write(course, courseConfig.getSvnName());
+            writer.write(course, courseConfig.getSvnName(), deprecatedFolders);
         } catch (IOException e) {
             // Use logging with concatenation here: As is is almost always printed when reached and to print stack trace
             LOGGER.error("Could not write access file for course \"" + getCourseID() + "\".", e);
@@ -94,10 +98,6 @@ public abstract class AbstractUpdateHandler {
             writer.close();
         }
         
-        /*
-         * Third: Update repository.
-         */
-        updateRepository(course);
     }
     
     /**
@@ -132,17 +132,21 @@ public abstract class AbstractUpdateHandler {
      * Updates the repository.
      * May be overwritten for testing purposes or to support alternative repositories.
      * @param course The data to be reflected in access file and SVN repository.
-     * @throws IOException
+     * @return A list of assignment and submission folders which exist but are no longer used and thus should be
+     *     hidden via the access file. May be <tt>null</tt> in case of errors, or empty if there are no problematic
+     *     folders to black list.
+     * @throws IOException If the repository cannot be read.
      */
-    protected void updateRepository(Course course) throws IOException {
+    protected Set<String> updateRepository(Course course) throws IOException {
+        Set<String> folders = null;
         try {
             Repository repository = new Repository(courseConfig.getRepositoryPath(), courseConfig.getAuthor(), false);
-            for (Assignment assignment : course.getAssignments()) {
-                repository.createOrModifyAssignment(assignment);
-            }
+            folders = repository.updateRepository(course);
         } catch (SVNException | RepositoryNotFoundException e) {
             throw new IOException(e);
         }
+        
+        return folders;
     }
 
     /**
