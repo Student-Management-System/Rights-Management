@@ -1,19 +1,18 @@
 package net.ssehub.rightsmanagement.svn;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.tmatesoft.svn.core.SVNDirEntry;
 import org.tmatesoft.svn.core.SVNException;
-import org.tmatesoft.svn.core.SVNProperties;
 import org.tmatesoft.svn.core.SVNURL;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
@@ -257,15 +256,20 @@ public class RepositoryTest {
     /**
      * Tests if the author is written to the repository.
      */
-    @Disabled
     @Test
     public void testWriteAuthor() throws RepositoryNotFoundException, SVNException {
-        File file = new File(TEST_FOLDER, "Repository_with_one_Assignment.tar.gz");
+        String expectedAuthor = "Test Author of testWriteAuthor()";
+        File file = new File(TEST_FOLDER, "EmptyRepository.tar.gz");
         repositoryTestFolder = Unzipper.unTarGz(file);
-        //Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
-        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
+        Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), expectedAuthor, false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
+        
+        // Check that repository is empty
+        SVNRepository repoReader = SVNRepositoryFactory.create(SVNURL.fromFile(repositoryTestFolder.getAbsoluteFile()));
+        Collection<SVNDirEntry> entries = repoReader.getDir("/", -1, null, SVNDirEntry.DIRENT_ALL,
+                (Collection<?>) null);
+        Assertions.assertTrue(entries.isEmpty());
         
         // Write changes to repository
         try {
@@ -274,20 +278,17 @@ public class RepositoryTest {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
-        //Map fileProperties = new HashMap();
-        SVNProperties fileProperties = new SVNProperties();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        try {
-            SVNRepository repo = SVNRepositoryFactory.create(SVNURL.fromFile(file));
-            repo.getFile(repositoryTestFolder.getAbsolutePath(), -1,  fileProperties, baos);
-        } catch (SVNException e) {
-            e.printStackTrace();
+        // Check that some entries exist and all of them are created by expected author
+        entries = repoReader.getDir("/", -1, null, SVNDirEntry.DIRENT_ALL, (Collection<?>) null);
+        int nEntries = 0;
+        for (SVNDirEntry svnDirEntry : entries) {
+            Assertions.assertEquals(expectedAuthor, svnDirEntry.getAuthor(),
+                    "Newly created items are created by wrong author");
+            nEntries++;
         }
-        System.out.println(fileProperties);
+        Assertions.assertTrue(nEntries > 0, "There was no entry (file/folder) created."); 
         
-        //Assertions.assertEquals(expected, actual);
-        
-        
+        repoReader.closeSession();
     }
     
     /**
