@@ -1,5 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ssehub.net.studentmgmt</groupId>
@@ -274,29 +273,27 @@
 
 		<!-- Manually added libraries -->
 		<dependency>
-      <groupId>ssehub.net.studentmgmt</groupId>
-      <artifactId>backend_api</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/include/StudentMgmt-Backend-API.jar
-      </systemPath>
-    </dependency>
-     <dependency>
-      <groupId>ssehub.net.studentmgmt</groupId>
-      <artifactId>sparkyservice_api</artifactId>
-      <version>1.0.0</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/include/Sparky-API.jar
-      </systemPath>
-    </dependency>
+			<groupId>ssehub.net.studentmgmt</groupId>
+			<artifactId>backend_api</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/include/StudentMgmt-Backend-API.jar</systemPath>
+		</dependency>
 		<dependency>
-      <groupId>ssehub.net.studentmgmt</groupId>
-      <artifactId>submitter-protocol</artifactId>
-      <version>0.0.1</version>
-      <scope>system</scope>
-      <systemPath>${project.basedir}/lib/include/submitter-protocol-0.0.1.jar
+			<groupId>ssehub.net.studentmgmt</groupId>
+			<artifactId>sparkyservice_api</artifactId>
+			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/include/Sparky-API.jar
       </systemPath>
-    </dependency>
+		</dependency>
+		<dependency>
+			<groupId>ssehub.net.studentmgmt</groupId>
+			<artifactId>submitter-protocol</artifactId>
+			<version>0.0.1</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/lib/include/submitter-protocol-0.0.1.jar</systemPath>
+		</dependency>
 
 		<!-- Junit -->
 		<dependency>
