@@ -21,7 +21,7 @@ import net.ssehub.studentmgmt.backend_api.api.CourseParticipantsApi;
 import net.ssehub.studentmgmt.backend_api.api.GroupsApi;
 import net.ssehub.studentmgmt.backend_api.model.AssignmentDto;
 import net.ssehub.studentmgmt.backend_api.model.GroupDto;
-import net.ssehub.studentmgmt.backend_api.model.UserDto;
+import net.ssehub.studentmgmt.backend_api.model.ParticipantDto;
 
 /**
  * Pulls information from the <b>student management system</b>.
@@ -125,9 +125,10 @@ public class DataPullService {
     public List<Member> loadStudents(Group tutors) {
         List<Member> studentsOfCourse = new ArrayList<Member>();
         try {
-            List<UserDto> usersOfCourse = courseParticipantsAPI.getUsersOfCourse(courseID, null, null, null, null);
-            for (UserDto userDto : usersOfCourse) {
-                switch (userDto.getCourseRole()) {
+            List<ParticipantDto> usersOfCourse =
+                    courseParticipantsAPI.getUsersOfCourse(courseID, null, null, null, null);
+            for (ParticipantDto userDto : usersOfCourse) {
+                switch (userDto.getRole()) {
                 case STUDENT:
                     Member student = new Member();
                     student.setMemberName(userDto.getRzName());
@@ -216,7 +217,7 @@ public class DataPullService {
         // Gather all homework groups
         List<Group> homeworkGroups = new ArrayList<>();
         try {
-            List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(courseID);
+            List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(courseID, null, null, null, null, null, null);
             for (GroupDto groupDto : groupsOfServer) {
                 Group group = new Group();
                 group.setGroupName(groupDto.getName());
@@ -246,8 +247,8 @@ public class DataPullService {
                 Group group = new Group();
                 group.setGroupName(groupDto.getName());
                 
-                List<UserDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
-                for (UserDto userDto : userofGroup) {
+                List<ParticipantDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
+                for (ParticipantDto userDto : userofGroup) {
                     group.addMembers(userDto.getRzName());
                 }
                 homeworkGroups.add(group);

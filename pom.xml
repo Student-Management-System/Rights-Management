@@ -271,28 +271,20 @@
 			<version>2.10.3</version>
 		</dependency>
 
-		<!-- Manually added libraries -->
 		<dependency>
-			<groupId>ssehub.net.studentmgmt</groupId>
+			<groupId>net.ssehub.studentmgmt</groupId>
 			<artifactId>backend_api</artifactId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/include/StudentMgmt-Backend-API.jar</systemPath>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>ssehub.net.studentmgmt</groupId>
+			<groupId>net.ssehub.studentmgmt</groupId>
 			<artifactId>sparkyservice_api</artifactId>
-			<version>1.0.0</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/include/Sparky-API.jar
-      </systemPath>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>ssehub.net.studentmgmt</groupId>
+			<groupId>net.ssehub.studentmgmt</groupId>
 			<artifactId>submitter-protocol</artifactId>
-			<version>0.0.1</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/include/submitter-protocol-0.0.1.jar</systemPath>
+			<version>0.0.2-SNAPSHOT</version>
 		</dependency>
 
 		<!-- Junit -->
