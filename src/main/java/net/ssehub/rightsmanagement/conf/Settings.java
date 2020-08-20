@@ -86,11 +86,10 @@ public class Settings {
         if (authServer != null) {
             LOGGER.debug("Provided authentication server, trying to log in via {}", authServer);
             
-            LoginComponent login = new LoginComponent(authServer, mgmtServer);
+            loginComponent = new LoginComponent(authServer, mgmtServer);
             try {
-                boolean success = login.login(getConfig().getAuthUser(), getConfig().getAuthPassword());
+                boolean success = loginComponent.login(getConfig().getAuthUser(), getConfig().getAuthPassword());
                 if (success) {
-                    loginComponent = login;
                     LOGGER.debug("Sucessfully logged in via {}", getConfig().getAuthServerURL());
                 } else {
                     LOGGER.error("Could not reach one of the provided servers {} and {} to login into system for "

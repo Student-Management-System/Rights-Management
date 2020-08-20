@@ -8,9 +8,11 @@ import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions; 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import net.ssehub.rightsmanagement.TestUtils;
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.UpdateMessageLoader;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
@@ -19,7 +21,7 @@ import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * Tests the {@link IncrementalUpdateHandler}.
@@ -61,7 +63,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_GroupInsert");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("GroupInsert.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("GroupInsert.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Group should be added
@@ -72,36 +74,6 @@ public class IncrementalUpdateHandlerTest {
             .orElse(null);
         Assertions.assertNotNull(newGroup, "Specified group not added. Either algorithm is broken "
             + "or test data has changed.");
-    }
-    
-    /**
-     * Tests update a Group.
-     */
-    @Test
-    public void testGroupUpdate() {
-        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String nameOfUpdatedGroup = "Testgroup 1";
-        initEmptyCourse();
-        Group groupPreUpdate = new Group();
-        groupPreUpdate.setGroupName(nameOfUpdatedGroup);
-        cachedState.setHomeworkGroups(Arrays.asList(groupPreUpdate));
-        
-        // Precondition: Group should be part
-        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_GroupUpdate");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("GroupUpdate.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: Group should be updated
-        Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
-        Group updatedGroup = changedCourse.getHomeworkGroups().stream()
-            .filter(g -> g.getName().contains(nameOfUpdatedGroup))
-            .findAny()
-            .orElse(null);
-        Assertions.assertNotNull(updatedGroup, "Specified group not updated");
-        Assertions.assertNotSame(groupPreUpdate, updatedGroup, "Group not updated.");
     }
     
     /**
@@ -128,7 +100,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_GroupRemove");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("GroupRemove.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("GroupRemove.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Group 3 should be removed
@@ -154,7 +126,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationInsert");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationInsert.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("UserGroupRelationInsert.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Temporary fix "Homework groups do not longer contain user"
@@ -170,39 +142,6 @@ public class IncrementalUpdateHandlerTest {
             .orElse(null);
         Assertions.assertNotNull(newUserGroupRelation, "Specified user-group-relation not added. Either algorithm is "
                 + "broken or test data has changed.");
-    }
-    
-    /**
-     * Tests update a User-Group-Relation.
-     */
-    @Test
-    public void testUserGroupRelationUpdate() {
-        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String changedGroupName = "Testgroup 1";
-        String notExpectedUserName = "Peter Pan";
-        initEmptyCourse();
-        Group group = new Group();
-        group.setGroupName(changedGroupName);
-        group.addMembers("Peter Pan");
-        cachedState.setHomeworkGroups(Arrays.asList(group));
-        
-        // Precondition: Group should be part
-        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationUpdate");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationUpdate.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: Group should be updated
-        Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
-        Group updatedUserGroupRelation = changedCourse.getHomeworkGroups().stream()
-            .filter(g -> g.getName().equals(changedGroupName))
-            .findAny()
-            .orElse(null);
-        Assertions.assertNotNull(updatedUserGroupRelation, "Group was deleted instead of updated.");
-        Assertions.assertFalse(updatedUserGroupRelation.getMembers().contains(notExpectedUserName), "User not deleted "
-            + "as expected during update.");
     }
     
     /**
@@ -229,7 +168,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationRemove");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserGroupRelationRemove.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("UserGroupRelationRemove.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: User of Group 2 should be removed
@@ -256,7 +195,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_AssignmentInsert");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentInsert.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("AssignmentInsert.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Assignment should be added
@@ -286,7 +225,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_AssignmentUpdate");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentUpdate.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("AssignmentUpdate.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Assignment should be updated
@@ -323,7 +262,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_AssignmentRemove");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("AssignmentRemove.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("AssignmentRemove.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: Assignment six should be removed
@@ -335,154 +274,6 @@ public class IncrementalUpdateHandlerTest {
         Assertions.assertNull(removedAssignment, "Specified assignment not removed");
     }
     
-    /**
-     * Tests insertion of a new User(student).
-     */
-    @Test
-    public void testUserStudentInsert() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedUserName = "mmustermann";
-        initEmptyCourse();
-        
-        // Precondition: User should not be part
-        Assertions.assertTrue(cachedState.getStudents().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_UserInsert");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserInsert.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: User should be added
-        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member insertedUser = changedCourse.getStudents().stream()
-            .filter(u -> u.getName().contains(expectedUserName))
-            .findAny()
-            .orElse(null);
-        Assertions.assertNotNull(insertedUser,
-            "Expected student \"" + expectedUserName + "\" not created during update.");
-    }
-    
-    /**
-     * Tests insertion of a new User(tutor).
-     */
-    @Test
-    public void testUserTutorInsert() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String expectedUserName = "jdoe";
-        initEmptyCourse();
-        
-        // Precondition: User should not be part
-        Assertions.assertTrue(cachedState.getStudents().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_UserInsert");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserInsert.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: User should be added
-        Assertions.assertNotNull(changedCourse.getTutors().getMembers(), "The course has no tutors");
-        Assertions.assertFalse(changedCourse.getTutors().getMembers().isEmpty(), "The course has no tutors");
-        boolean created = changedCourse.getTutors().getMembers().contains(expectedUserName);
-        Assertions.assertTrue(created, "Expected tutor \"" + expectedUserName + "\" not created during update.");
-    }
-    
-    /**
-     * Tests update an User: Simulates that a user becomes promoted from student to tutor.
-     */
-    @Test
-    public void testUserUpdate() {
-        // Must be a valid name w.r.t the ID of the UpdateMessage
-        String changedUserName = "jdoe";
-        
-        initEmptyCourse();
-        Member member = new Member();
-        member.setMemberName(changedUserName);
-        cachedState.setStudents(Arrays.asList(member));
-        
-        // Precondition: User should be part of participants and no tutor
-        Assertions.assertFalse(cachedState.getStudents().isEmpty());
-        Member user = cachedState.getStudents().stream()
-            .filter(u -> u.getName().equals(changedUserName))
-            .findAny()
-            .orElse(null);
-        Assertions.assertNotNull(user, "User \"" + changedUserName + "\" not a student at precondition.");
-        boolean partOfTutors = cachedState.getTutors() == null ? false
-            : cachedState.getTutors().getMembers().contains(changedUserName);
-        Assertions.assertFalse(partOfTutors, "User \"" + changedUserName + "\" is already a tutor at precondition.");
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_UserUpdate");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserUpdate.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: User should be updated
-        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member changedUser = changedCourse.getStudents().stream()
-            .filter(u -> u.getName().contains(changedUserName))
-            .findAny()
-            .orElse(null);
-        Assertions.assertNull(changedUser, "User \"" + changedUserName + "\" still a student after update.");
-        Assertions.assertTrue(changedCourse.getTutors().getMembers().contains(changedUserName), "User \""
-            + changedUserName + "\" not promoted to a tutor during update.");
-    }
-    
-    /**
-     * Tests removing of a User(student).
-     */
-    @Test
-    public void testUserStudentRemove() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedUserName = "Peter Pan";
-        
-        initEmptyCourse();
-        Member member = new Member();
-        member.setMemberName(notExpectedUserName);
-        cachedState.setStudents(Arrays.asList(member));
-        
-        // Precondition: User be part
-        Assertions.assertFalse(cachedState.getStudents().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_UserRemove");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserRemove.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: User Peter Pan should be removed
-        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member deletedUser = changedCourse.getStudents().stream()
-                .filter(u -> u.getName().contains(notExpectedUserName))
-                .findAny()
-                .orElse(null);
-        Assertions.assertNull(deletedUser, "User \"" + notExpectedUserName + "\" not deleted during update.");
-    }
-    
-    /**
-     * Tests removing of a User(tutor).
-     */
-    @Test
-    public void testUserTutorRemove() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedUserName = "Peter Pan";
-        
-        initEmptyCourse();
-        Group tutor = new Group();
-        tutor.addMembers(notExpectedUserName);
-        cachedState.setTutors(tutor);
-        
-        // Precondition: User be part
-        Assertions.assertFalse(cachedState.getTutors().getMembers().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_UserRemove");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("UserRemove.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: User Peter Pan should be removed
-        Assertions.assertFalse(changedCourse.getTutors().getMembers().isEmpty());
-        
-        boolean deleted = !changedCourse.getTutors().getMembers().contains(notExpectedUserName);
-        Assertions.assertTrue(deleted, "User \"" + notExpectedUserName + "\" not deleted during update.");
-    }
     
     /**
      * Tests insertion of a new Course-User-Relation.
@@ -498,7 +289,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationInsert");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("CourseUserRelationInsert.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("CourseUserRelationInsert.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: User should be added to course
@@ -509,36 +300,6 @@ public class IncrementalUpdateHandlerTest {
             .orElse(null);
         Assertions.assertNotNull(newCourseUserRelation, "Specified course user relation not added. Either algorithm is "
                 + "broken or test data has changed.");
-    }
-    
-    /**
-     * Tests update an Course-User-Relation.
-     */
-    @Test
-    public void testCourseUserRelationUpdate() {
-       // Must be a valid name w.r.t the ID of the UpdateMessage
-        String notExpectedUserName = "Peter Pan";
-        
-        initEmptyCourse();
-        Member member = new Member();
-        member.setMemberName(notExpectedUserName);
-        cachedState.setStudents(Arrays.asList(member));
-        
-        // Precondition: User should be part of course
-        Assertions.assertFalse(cachedState.getStudents().isEmpty());
-        
-        // Apply update
-        IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationUpdate");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("CourseUserRelationUpdate.json");
-        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-        
-        // Post condition: User-Course-Relation should be updated
-        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-        Member updatedCourseUserRelation = changedCourse.getStudents().stream()
-            .filter(u -> u.getName().contains(notExpectedUserName))
-            .findAny()
-            .orElse(null);
-        Assertions.assertNull(updatedCourseUserRelation, "Specified course user relation not updated");
     }
     
     /**
@@ -559,7 +320,7 @@ public class IncrementalUpdateHandlerTest {
         
         // Apply update
         IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationRemove");
-        UpdateMessage updateMsg = UpdateMessageLoader.load("CourseUserRelationRemove.json");
+        NotificationDto updateMsg = UpdateMessageLoader.load("CourseUserRelationRemove.json");
         Course changedCourse = handler.computeFullConfiguration(updateMsg);
         
         // Post condition: User Peter Pan should be removed from course
@@ -595,6 +356,14 @@ public class IncrementalUpdateHandlerTest {
         CourseConfiguration config = new CourseConfiguration();
         config.setCourseName(COURSE_NAME_FOR_TESTING);
         config.setSemester(SEMESTER_FOR_TESTING);
+        
+        // Login in through credentials provided via JVM args
+        String[] credentials = TestUtils.retreiveCredentialsFormVmArgs();
+        try {
+            Settings.INSTANCE.getLogin().login(credentials[0], credentials[1]);
+        } catch (NetworkException e1) {
+            Assertions.fail("Could not login system for testing due to: " + e1.getMessage());
+        }
         
         IncrementalUpdateHandler testHandler = null;
         try {

@@ -1,8 +1,5 @@
 {
-    "type": "REMOVE",
-    "affectedObject": "COURSE_USER_RELATION",
+    "event": "USER_UNREGISTERED",
     "courseId": "java-wise1920",
-    "entityId": "not-an-existing-id",
-    "entityId_relation": "not-an-existing-id",
-    "date": "2020-04-16T08:10:00.000Z"
-  }
+    "entityId": "not-an-existing-id"
+}

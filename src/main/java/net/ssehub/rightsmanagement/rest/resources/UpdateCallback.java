@@ -17,7 +17,7 @@ import com.google.gson.JsonParseException;
 import net.ssehub.rightsmanagement.logic.UpdateChangeListener;
 import net.ssehub.rightsmanagement.logic.WrongFormatException;
 import net.ssehub.studentmgmt.backend_api.JSON;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * Listens at <tt>server/rest/update/</tt> for changes at the student management system.
@@ -31,7 +31,7 @@ public class UpdateCallback {
     
     /**
      * Retrieves a JSON message which was specified as <tt>text/plain</tt> converts it and handles the message.
-     * @param update A {@link UpdateMessage} in serialized as JSON.
+     * @param update A {@link NotificationDto} in serialized as JSON.
      */
     @POST
     @Consumes(MediaType.TEXT_PLAIN)
@@ -42,7 +42,7 @@ public class UpdateCallback {
     
     /**
      * Retrieves a JSON message which was specified as <tt>application/json</tt> converts it and handles the message.
-     * @param json A {@link UpdateMessage} in serialized as JSON.
+     * @param json A {@link NotificationDto} in serialized as JSON.
      */
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
@@ -53,14 +53,14 @@ public class UpdateCallback {
 
     /**
      * Parsed the JSON message and processes the the update via {@link UpdateChangeListener}.
-     * @param json A JSON representation of {@link UpdateMessage}.
+     * @param json A JSON representation of {@link NotificationDto}.
      */
     private void processMessage(String json) {
-        UpdateMessage msg;
+        NotificationDto msg;
         try {
-            msg = new JSON().deserialize(json, UpdateMessage.class);
+            msg = new JSON().deserialize(json, NotificationDto.class);
         } catch (JsonParseException e) {
-            LOGGER.warn("Could not parse message {} to {}, cause {}", json, UpdateMessage.class.getSimpleName(), e);
+            LOGGER.warn("Could not parse message {} to {}, cause {}", json, NotificationDto.class.getSimpleName(), e);
             // Malformed input -> client side error
             throw new BadRequestException(e);
         }

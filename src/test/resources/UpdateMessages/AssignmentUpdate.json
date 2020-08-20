@@ -1,7 +1,5 @@
 {
-    "type": "UPDATE",
-    "affectedObject": "ASSIGNMENT",
+    "event": "ASSIGNMENT_STATE_CHANGED",
     "courseId": "java-wise1920",
-    "entityId": "not-an-existing-id",
-    "date": "2020-04-16T08:05:00.000Z"
-  }
+    "entityId": "not-an-existing-id"
+}

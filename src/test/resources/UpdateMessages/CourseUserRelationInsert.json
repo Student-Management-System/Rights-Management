@@ -1,8 +1,5 @@
 {
-    "type": "INSERT",
-    "affectedObject": "COURSE_USER_RELATION",
+    "event": "USER_REGISTERED",
     "courseId": "java-wise1920",
-    "entityId": "java-wise1920",
-    "entityId_relation": "not-an-existing-id",
-    "date": "2020-04-16T08:00:00.000Z"
-  }
+    "entityId": "not-an-existing-id"
+}

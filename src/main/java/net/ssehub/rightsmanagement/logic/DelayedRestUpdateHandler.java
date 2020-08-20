@@ -5,7 +5,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * A {@link RestUpdateHandler} that does not pull immediately new data. Instead it waits for a certain time for
@@ -38,7 +38,7 @@ public class DelayedRestUpdateHandler extends RestUpdateHandler {
     }
     
     @Override
-    protected Course computeFullConfiguration(UpdateMessage msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) {
         while (System.currentTimeMillis() - lastUpdate < delay) {
             try {
                 Thread.sleep(SLEEP_TIME);

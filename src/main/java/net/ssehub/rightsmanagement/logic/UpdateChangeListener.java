@@ -8,7 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * Observer that specifies how to react on changes at the student management system.
@@ -54,7 +54,7 @@ public class UpdateChangeListener {
      * @throws WrongFormatException If the update message points not to a managed course / repository.
      * @throws IOException If the update message couldn't be written to disk
      */
-    public void onChange(UpdateMessage update) throws WrongFormatException, IOException {
+    public void onChange(NotificationDto update) throws WrongFormatException, IOException {
         // Not ensured that mandatory fields are set, the JSON parser will accept also empty mandatory fields!
         if (null == update.getCourseId()) {
             throw new WrongFormatException("No course specified");

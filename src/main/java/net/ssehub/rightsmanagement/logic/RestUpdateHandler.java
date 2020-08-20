@@ -2,7 +2,7 @@ package net.ssehub.rightsmanagement.logic;
 
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * Pulls with each update message the whole configuration from the student management system.
@@ -31,7 +31,7 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
     }
 
     @Override
-    protected Course computeFullConfiguration(UpdateMessage msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) {
         return getDataPullService().computeFullConfiguration();
     }
 

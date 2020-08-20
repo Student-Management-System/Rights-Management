@@ -13,7 +13,7 @@ import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * Tests the {@link RestUpdateHandler}.
@@ -79,7 +79,7 @@ public class RestUpdateHandlerTest {
         
         /**
          * Returns the content which will be written by the {@link RestUpdateHandler} into the access file.
-         * Will be available after calling the {@link #update(UpdateMessage)} method.
+         * Will be available after calling the {@link #update(NotificationDto)} method.
          * @return The written content to the simulated access file.
          */
         public String getAccessContent() {
@@ -87,7 +87,7 @@ public class RestUpdateHandlerTest {
         }
         
         @Override
-        protected Course computeFullConfiguration(UpdateMessage msg) {
+        protected Course computeFullConfiguration(NotificationDto msg) {
             return courseForTesting;
         }
         

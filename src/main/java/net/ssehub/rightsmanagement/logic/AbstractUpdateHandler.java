@@ -14,7 +14,7 @@ import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.svn.Repository;
 import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * Handles the updates for <b>one</b> repository.
@@ -70,7 +70,7 @@ public abstract class AbstractUpdateHandler {
      * @param msg The update request produced by the student management service
      * @throws IOException If the local repository couldn't be updated.
      */
-    public synchronized void update(UpdateMessage msg) throws IOException {
+    public synchronized void update(NotificationDto msg) throws IOException {
         LOGGER.debug("Received update message \"{}\" for course \"{}\" processed by \"{}\"", msg, getCourseID(),
             getClass().getSimpleName());
         
@@ -114,7 +114,7 @@ public abstract class AbstractUpdateHandler {
      * @param msg The update request produced by the student management service
      * @return The complete set-up for the whole course.
      */
-    protected abstract Course computeFullConfiguration(UpdateMessage msg);
+    protected abstract Course computeFullConfiguration(NotificationDto msg);
     
     /**
      * Creates the {@link AccessWriter} to write the access file.

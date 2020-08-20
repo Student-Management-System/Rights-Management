@@ -1,7 +1,0 @@
-{
-    "type": "REMOVE",
-    "affectedObject": "USER",
-    "courseId": "java-wise1920",
-    "entityId": "not-an-existing-id",
-    "date": "2020-04-16T08:10:00.000Z"
-  }

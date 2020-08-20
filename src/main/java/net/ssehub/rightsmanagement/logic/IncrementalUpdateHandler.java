@@ -16,11 +16,11 @@ import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.model.Member;
 import net.ssehub.studentmgmt.backend_api.JSON;
-import net.ssehub.studentmgmt.backend_api.model.UpdateMessage;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
 /**
  * {@link AbstractUpdateHandler} that stores the full configuration of a course locally and updates that configuration
- * based on incoming {@link UpdateMessage}s.
+ * based on incoming {@link NotificationDto}s.
  * @author El-Sharkawy
  * @author Kunold
  *
@@ -85,13 +85,15 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
     }
 
     @Override
-    protected Course computeFullConfiguration(UpdateMessage msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) {
         // First: Load cached state:
         Course course = getCachedState();
         
-        // Second: Apply delta of the UpdateMessage
-        switch (msg.getAffectedObject()) {
-        case GROUP:
+        // Second: Apply delta of the NotificationDto
+        switch (msg.getEvent()) {
+        case GROUP_UNREGISTERED:
+            /* Falls through */
+        case GROUP_REGISTERED:
             /*
              * TODO SE: Consider to load only the specified group. Currently, all groups are loaded since there
              * is no other API available.
@@ -99,29 +101,35 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             List<Group> groups = getDataPullService().loadGroups();
             course.setHomeworkGroups(groups);
             break;
-        case ASSIGNMENT:
+        case ASSIGNMENT_CREATED:
+            /* Falls through */
+        case ASSIGNMENT_STATE_CHANGED:
+            /* Falls through */
+        case ASSIGNMENT_REMOVED:
             // TODO SE: Consider to load only the specified assignment. Currently, all assignment.
             List<Assignment> assignments = getDataPullService().loadAssignments(course);
             course.setAssignments(assignments);
             break;
-        case USER_GROUP_RELATION:
+        case USER_JOINED_GROUP:
+            // falls through
+        case USER_LEFT_GROUP:
             List<Group> userGroupRelation = getDataPullService().loadGroups();
             course.setHomeworkGroups(userGroupRelation);
             // updates the assignments after a user change groups
             assignments = getDataPullService().loadAssignments(course);
             course.setAssignments(assignments);
             break;
-        case COURSE_USER_RELATION:
+        case USER_REGISTERED:
             // falls through
-        case USER:
+        case USER_UNREGISTERED:
             Group tutors = getDataPullService().createTutorsGroup();
             List<Member> studentsOfCourse = getDataPullService().loadStudents(tutors);
             course.setStudents(studentsOfCourse);
             course.setTutors(tutors);
             break;
         default:
-            LOGGER.warn("{}s of type {} are not supported by {}", UpdateMessage.class.getSimpleName(),
-                msg.getAffectedObject(), IncrementalUpdateHandler.class.getSimpleName());
+            LOGGER.warn("{}s of type {} are not supported by {}", NotificationDto.class.getSimpleName(),
+                msg.getEvent(), IncrementalUpdateHandler.class.getSimpleName());
             break;
         }
         
