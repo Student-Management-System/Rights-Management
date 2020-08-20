@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
+import net.ssehub.rightsmanagement.TestUtils;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
@@ -35,10 +36,11 @@ public class DataPullServiceTest {
         State expectedAssignmentState = State.SUBMISSION;
         int exptectedNoOfGroups = 3;
 //        int exptectedNoOfMembers = 2;
-        int exptectedNoOfTutors = 3;
+        int exptectedNoOfTutors = 2;
         int exptectedNoOfAssignments = 6;
         
         // Init and execute
+        TestUtils.loginViaVmArgs();
         DataPullService connector = new DataPullService("http://147.172.178.30:3000", "java", "wise1920");
         Course course = connector.computeFullConfiguration();
         
@@ -73,8 +75,6 @@ public class DataPullServiceTest {
         Assertions.assertNotNull(groupForTest, "Expected group \""
             + groupNameForTesting + "\" not part of homework groups");
         Assertions.assertEquals(groupNameForTesting, groupForTest.getName());
-//        Assertions.assertEquals(exptectedNoOfMembers, groupForTest.getMembers().size());
-//        Assertions.assertTrue(groupForTest.getMembers().contains(userNameForTesting));
         
         // Test assignments
         List<Assignment> assignments = course.getAssignments();

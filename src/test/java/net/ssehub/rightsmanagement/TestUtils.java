@@ -1,11 +1,15 @@
 package net.ssehub.rightsmanagement;
 
+import java.io.IOException;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 
 import net.ssehub.exercisesubmitter.protocol.backend.LoginComponent;
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
 import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
+import net.ssehub.rightsmanagement.conf.Settings;
 
 /**
  * Provides constants and utility functions used by multiple tests.
@@ -78,5 +82,29 @@ public class TestUtils {
         }
         
         return loginComp.getManagementToken();
+    }
+    
+    /**
+     * Extracts credentials provided via VM arguments and logs in the user.
+     * Useful to test authorized API calls.
+     * @see #retreiveCredentialsFormVmArgs()
+     */
+    public static void loginViaVmArgs() {
+        if (null == Settings.getConfig()) {
+            try {
+                // Create a basis configuration to avoid NullPointers, which may be changed during tests
+                Settings.INSTANCE.init();
+            } catch (IOException e) {
+                Assertions.fail("Could not initialize the configuration", e);
+            }            
+        }
+        
+        // Login in through credentials provided via JVM args
+        String[] credentials = TestUtils.retreiveCredentialsFormVmArgs();
+        try {
+            Settings.INSTANCE.getLogin().login(credentials[0], credentials[1]);
+        } catch (NetworkException e) {
+            Assertions.fail("Could not login system for testing due to: " + e.getMessage());
+        }
     }
 }
