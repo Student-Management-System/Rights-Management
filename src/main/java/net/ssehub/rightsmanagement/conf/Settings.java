@@ -18,7 +18,6 @@ import io.gsonfire.GsonFireBuilder;
 import net.ssehub.exercisesubmitter.protocol.backend.LoginComponent;
 import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
 import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
-import net.ssehub.rightsmanagement.Service;
 import net.ssehub.rightsmanagement.logic.DataPullService;
 import net.ssehub.studentmgmt.backend_api.JSON;
 
@@ -29,14 +28,20 @@ import net.ssehub.studentmgmt.backend_api.JSON;
  */
 public class Settings {
     
+    static {
+        // Private field that needs to be initialized before public INSTANCE
+        LOGGER = LogManager.getLogger(Settings.class);
+    }
+    
     public static final Settings INSTANCE = new Settings();
     
     private static final String SETTINGS_FILE = "settings.json";
-    private static final Logger LOGGER = LogManager.getLogger(Service.class);
+    private static final Logger LOGGER;
     
     private Configuration config;
     private JSON jsonParser;
     private LoginComponent loginComponent;
+    private IOException initializationException;
     
     /**
      * Singleton constructor.
@@ -48,6 +53,22 @@ public class Settings {
             .create();
         jsonParser.setGson(gson);
       
+        try {
+            init();
+        } catch (IOException e) {
+            initializationException = e;
+            LOGGER.fatal("Could not initialize the configuration. ", e);
+        } 
+    }
+    
+    /** 
+     * Checks if in private constructor an exception was occurred and throws it.
+     * @throws IOException If the configuration file could not be parsed.
+     */
+    public void checkForInitializationError() throws IOException {
+        if (null != initializationException) {
+            throw initializationException;
+        }
     }
     
     /**
@@ -55,7 +76,7 @@ public class Settings {
      * Needs to be done <b>once</b> at startup.
      * @throws IOException If the default configuration could not be read.
      */
-    public void init() throws IOException {
+    private void init() throws IOException {
         // Based on https://www.geeksforgeeks.org/different-ways-reading-text-file-java/
         try {
             Path pathToSettings;
@@ -81,26 +102,26 @@ public class Settings {
         }
         
         // Login into Management server if auth server is provided
-        String authServer = getConfig().getAuthServerURL();
-        String mgmtServer = getConfig().getMgmtServerURL();
+        String authServer = config.getAuthServerURL();
+        String mgmtServer = config.getMgmtServerURL();
         if (authServer != null) {
             LOGGER.debug("Provided authentication server, trying to log in via {}", authServer);
             
             loginComponent = new LoginComponent(authServer, mgmtServer);
             try {
-                boolean success = loginComponent.login(getConfig().getAuthUser(), getConfig().getAuthPassword());
+                boolean success = loginComponent.login(config.getAuthUser(), config.getAuthPassword());
                 if (success) {
-                    LOGGER.debug("Sucessfully logged in via {}", getConfig().getAuthServerURL());
+                    LOGGER.debug("Sucessfully logged in via {}", config.getAuthServerURL());
                 } else {
                     LOGGER.error("Could not reach one of the provided servers {} and {} to login into system for "
                         + "an unknown reason.", mgmtServer, authServer);
                 }
             } catch (UnknownCredentialsException e) {
-                String password = getConfig().getAuthPassword();
+                String password = config.getAuthPassword();
                 boolean usesPassword = null != password && !password.isEmpty();
                 
                 LOGGER.error("Tried to login into {} via {} with user name {} and a password {}, but an error "
-                    + "occured: {}", mgmtServer, authServer, getConfig().getAuthUser(), usesPassword, e.getMessage());
+                    + "occured: {}", mgmtServer, authServer, config.getAuthUser(), usesPassword, e.getMessage());
             } catch (ServerNotFoundException e) {
                 LOGGER.error("Could not reach one of the provided servers {} and {} to login into system. Reason: {}",
                     mgmtServer, authServer, e.getMessage());

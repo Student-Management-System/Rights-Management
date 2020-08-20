@@ -16,10 +16,10 @@ public class SettingsTest {
      */
     @Test
     public void testReadRestServerConfiguration() {
-        // Test of valid precondition: No configuration loaded so far
-        Assertions.assertNull(Settings.getConfig());
-        
         int expectedPort = 314159;
+        // Test of valid precondition: A different port is used, which will be changed during test
+        Assertions.assertNotEquals(expectedPort, Settings.getConfig().getRestPort());
+        
         String json = "{\"restServerPort\": " + expectedPort + "}";
         Settings.INSTANCE.loadConfig(json);
         

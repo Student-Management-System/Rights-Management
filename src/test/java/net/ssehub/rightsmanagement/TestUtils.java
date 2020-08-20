@@ -1,7 +1,5 @@
 package net.ssehub.rightsmanagement;
 
-import java.io.IOException;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 
@@ -90,15 +88,6 @@ public class TestUtils {
      * @see #retreiveCredentialsFormVmArgs()
      */
     public static void loginViaVmArgs() {
-        if (null == Settings.getConfig()) {
-            try {
-                // Create a basis configuration to avoid NullPointers, which may be changed during tests
-                Settings.INSTANCE.init();
-            } catch (IOException e) {
-                Assertions.fail("Could not initialize the configuration", e);
-            }            
-        }
-        
         // Login in through credentials provided via JVM args
         String[] credentials = TestUtils.retreiveCredentialsFormVmArgs();
         try {

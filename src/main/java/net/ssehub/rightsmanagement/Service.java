@@ -28,7 +28,7 @@ public class Service {
      */
     public static void main(String[] args) throws IOException {        
         try {
-            Settings.INSTANCE.init();
+            Settings.INSTANCE.checkForInitializationError();
         } catch (IOException e) {
             // Abort application
             LOGGER.fatal("Could not load configuration", e);

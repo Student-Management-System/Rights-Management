@@ -38,16 +38,16 @@ public class IncrementalUpdateHandlerTest {
     private static File cacheFolder;
     private static Course cachedState;
     
-    static {
-        if (null == Settings.getConfig()) {
-            try {
-                // Create a basis configuration to avoid NullPointers, which may be changed during tests
-                Settings.INSTANCE.init();
-            } catch (IOException e) {
-                Assertions.fail("Could not initialize the configuration", e);
-            }            
-        }
-    }
+//    static {
+//        if (null == Settings.getConfig()) {
+//            try {
+//                // Create a basis configuration to avoid NullPointers, which may be changed during tests
+//                Settings.INSTANCE.init();
+//            } catch (IOException e) {
+//                Assertions.fail("Could not initialize the configuration", e);
+//            }            
+//        }
+//    }
     
     /**
      * Tests insertion of a new Group.
