@@ -132,17 +132,17 @@ public class DataPullService {
                 switch (userDto.getRole()) {
                 case STUDENT:
                     Member student = new Member();
-                    student.setMemberName(userDto.getRzName());
+                    student.setMemberName(userDto.getUsername());
                     studentsOfCourse.add(student);
                     break;
                 case LECTURER:
                     // falls through
                 case TUTOR:
-                    tutors.addMembers(userDto.getRzName());
+                    tutors.addMembers(userDto.getUsername());
                     break;
                 default:
                     LOGGER.warn("{} is an administrator and user of the course {}. Cannot handle this user.",
-                        userDto.getRzName(), courseID);
+                        userDto.getUsername(), courseID);
                     break;
                 }
             }
@@ -251,7 +251,7 @@ public class DataPullService {
                 
                 List<ParticipantDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
                 for (ParticipantDto userDto : userofGroup) {
-                    group.addMembers(userDto.getRzName());
+                    group.addMembers(userDto.getUsername());
                 }
                 homeworkGroups.add(group);
             }
