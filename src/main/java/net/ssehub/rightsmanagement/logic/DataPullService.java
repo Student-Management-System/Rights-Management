@@ -148,7 +148,8 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Users via \""
-                    + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getMessage(), e);
+                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getCode() + " - " + e.getResponseBody(),
+                e);
         }
         return studentsOfCourse;
     }
@@ -180,7 +181,8 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Assignments via \""
-                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getMessage(), e);
+                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getCode() + " - " + e.getResponseBody(),
+                e);
         }
         
         return assignments;
@@ -227,7 +229,8 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Groups via \""
-                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getMessage(), e);
+                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getCode() + " - " + e.getResponseBody(),
+                e);
         }
         
         return homeworkGroups;
@@ -257,7 +260,8 @@ public class DataPullService {
             }
         } catch (ApiException e) {
             LOGGER.warn("Could not query student management system for Groups via \""
-                    + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getMessage(), e);
+                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getCode() + " - " + e.getResponseBody(),
+                e);
         }
         
         return homeworkGroups;
