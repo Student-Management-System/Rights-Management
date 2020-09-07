@@ -101,6 +101,10 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             List<Group> groups = getDataPullService().loadGroups();
             course.setHomeworkGroups(groups);
             break;
+        case REGISTRATIONS_CREATED:
+            // Send when all groups are registered, e.g. when assignments became active: Falls through
+        case REGISTRATIONS_REMOVED:
+            // Send when all groups are unregistered, e.g. during debugging: Falls through
         case ASSIGNMENT_CREATED:
             /* Falls through */
         case ASSIGNMENT_STATE_CHANGED:
