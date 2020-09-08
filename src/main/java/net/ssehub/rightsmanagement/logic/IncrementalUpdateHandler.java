@@ -89,26 +89,41 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         // First: Load cached state:
         Course course = getCachedState();
         
-        // Second: Apply delta of the NotificationDto
+        // Second: Apply delta of the NotificationDto^
+        // see https://github.com/Student-Management-System/StudentMgmt-Backend/blob/master/api-docs/docs/events.md
         switch (msg.getEvent()) {
-        case GROUP_UNREGISTERED:
-        case GROUP_REGISTERED:
-        case REGISTRATIONS_CREATED:
-        case REGISTRATIONS_REMOVED:
-        case ASSIGNMENT_CREATED:
-        case ASSIGNMENT_STATE_CHANGED:
-        case ASSIGNMENT_REMOVED:
-        case USER_JOINED_GROUP:
-        case USER_LEFT_GROUP:
+        case ASSIGNMENT_CREATED:       // an assignment was created
+        case ASSIGNMENT_STATE_CHANGED: // an assignment state was changed (e.g. submission phase -> review phase)
+        case ASSIGNMENT_REMOVED:       // an assignment was deleted
+        case REGISTRATIONS_CREATED:    // the initial set of groups for an assignment is created 
+        case REGISTRATIONS_REMOVED:    // all groups for an assignment are removed
+        case GROUP_REGISTERED:         // a new group is added to an assignment
+        case GROUP_UNREGISTERED:       // a group is removed from an assignment
+        case USER_REGISTERED:          // a user was added to a group of an assignment
+        case USER_UNREGISTERED:        // a user was removed from a group of an assignment
             handleAssignmentChanged(course, msg.getAssignmentId());
             break;
-            
-        case USER_REGISTERED:
-        case USER_UNREGISTERED:
+        
+        case USER_JOINED_GROUP:        // a user joined a group in the "global" group list of the course
+        case USER_LEFT_GROUP:          // a user left a group in the "global" group list of the course
+            // do nothing, as no running assignment is affected
+            break;
+
+        case COURSE_JOINED:            // some user has joined the course
+            // update tutors
             Group tutors = getDataPullService().createTutorsGroup();
+            course.setTutors(tutors);
+            
+            // update list of all participants
             List<Individual> studentsOfCourse = getDataPullService().loadStudents(tutors);
             course.setStudents(studentsOfCourse);
-            course.setTutors(tutors);
+            
+            // update all non-group assignments, as the list of students has changed
+            for (Assignment assignment : course.getAssignments()) {
+                if (!assignment.isGroupWork()) {
+                    handleAssignmentChanged(course, assignment.getID());
+                }
+            }
             break;
             
         default:
@@ -134,7 +149,13 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
                 .orElse(null);
         
         if (assignmentId != null && assignment != null) {
-            assignment.setGroups(getDataPullService().loadGroupsPerAssignment(assignmentId));
+            if (assignment.isGroupWork()) {
+                assignment.setGroups(getDataPullService().loadGroupsPerAssignment(assignmentId));
+            } else {
+                course.getStudents().stream()
+                    .map((student) -> Group.createSingleStudentGroup(student.getName()))
+                    .forEach((singleStudentGroup) -> assignment.addGroup(singleStudentGroup));
+            }
         } else {
             LOGGER.warn("Didn't find assignment for ID {}, reloading all assignments", assignmentId);
             course.setAssignments(getDataPullService().loadAssignments(course));
@@ -151,7 +172,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             String content = Files.readString(cacheFile.toPath());
             result = parser.deserialize(content, Course.class);
         } catch (IOException e) {
-            LOGGER.warn("Could not deserialize cachec course information", e);
+            LOGGER.warn("Could not deserialize cached course information", e);
             //TODO SE: throw exception to abort
         }
         return result;
