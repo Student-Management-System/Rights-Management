@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Stores the complete information of a course to configure a repository for the course. 
+ * Stores the complete information of a course to configure a repository for the course.
+ * 
  * @author El-Sharkawy
- *
  */
 public class Course {
     
@@ -14,8 +14,7 @@ public class Course {
     private String semester;
     
     private Group tutors;
-    private List<Group> homeworkGroups = new ArrayList<>();
-    private List<Member> students = new ArrayList<>();
+    private List<Individual> students = new ArrayList<>();
     
     private List<Assignment> assignments = new ArrayList<>();
 
@@ -44,18 +43,10 @@ public class Course {
     }
     
     /**
-     * The homework groups of the course.
-     * @return the homeworkGroups
-     */
-    public List<Group> getHomeworkGroups() {
-        return homeworkGroups;
-    }
-
-    /**
      * The students participating at the curse.
      * @return the students, shouldn't be <tt>null</tt>.
      */
-    public List<Member> getStudents() {
+    public List<Individual> getStudents() {
         return students;
     }
     
@@ -92,18 +83,10 @@ public class Course {
     }
 
     /**
-     * The homework groups of the course.
-     * @param homeworkGroups the homeworkGroups to set
-     */
-    public void setHomeworkGroups(List<Group> homeworkGroups) {
-        this.homeworkGroups = homeworkGroups;
-    }
-    
-    /**
      * The students participating at the curse.
      * @param students the students (must not be <tt>null</tt>).
      */
-    public void setStudents(List<Member> students) {
+    public void setStudents(List<Individual> students) {
         this.students = students;
     }
 

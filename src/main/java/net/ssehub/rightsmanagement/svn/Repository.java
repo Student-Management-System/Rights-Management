@@ -23,7 +23,7 @@ import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.IParticipant;
+import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.rest.resources.UpdateCallback;
 
 
@@ -210,7 +210,7 @@ public class Repository {
      * Creates folders for assignment and groups if the assignment folder doesn`t exist yet.
      * @param updateAssignment <tt>true</tt> if an existing assignment shall be updated, <tt>false</tt>otherwise.
      * @param assignment The name of the assignment that is created/updated.
-     * @param groups The name of the participants for which sub folders shall be created.
+     * @param groups The name of the groups for which sub folders shall be created.
      * @throws SVNException If a failure occurred while connecting to a repository
      */
     private void createFolders(boolean updateAssignment, String assignment, String... groups) throws SVNException {
@@ -250,12 +250,12 @@ public class Repository {
     /**
      * Creates the absolute path to an submission folder for an assignment.
      * @param assignmentName The name of the assignment
-     * @param participantName The name of the participant (group name for group assignments or user name for
+     * @param groupName The name of the group (group name for group assignments or user name for
      * single user assignments)
      * @return <tt>assignmentName / participantName)</tt>
      */
-    private String toPath(String assignmentName, String participantName) {
-        return assignmentName + "/" + participantName;
+    private String toPath(String assignmentName, String groupName) {
+        return assignmentName + "/" + groupName;
     }
     
     /**
@@ -272,9 +272,9 @@ public class Repository {
             if (pathExists(repos, assignment.getName())) {
                 // If folders exists do nothing
                 LOGGER.debug("Folder of assignment \"{}\" already existing", assignment.getName());
-                for (IParticipant member : assignment) {
-                    if (!pathExists(repos, toPath(assignment.getName(), member.getName()))) {
-                        newSubmisionFolders.add(member.getName());
+                for (Group group : assignment) {
+                    if (!pathExists(repos, toPath(assignment.getName(), group.getName()))) {
+                        newSubmisionFolders.add(group.getName());
                     }
                 }
                 repos.closeSession();
@@ -285,7 +285,7 @@ public class Repository {
                 }
             } else {
                 // If folders doesn`t exists create folders for assignment and groups
-                createFolders(false, assignment.getName(), assignment.getParticipants());
+                createFolders(false, assignment.getName(), assignment.getAllGroupNames());
             }
         } finally {
             repos.closeSession();
@@ -313,8 +313,8 @@ public class Repository {
             // Delete all created folders from blacklist
             String assignmentName = assignment.getName();
             folders.remove(assignmentName);
-            for (IParticipant submissionFolder : assignment) {
-                folders.remove(assignmentName + "/" + submissionFolder);
+            for (Group group : assignment) {
+                folders.remove(assignmentName + "/" + group.getName());
             }
             
         }

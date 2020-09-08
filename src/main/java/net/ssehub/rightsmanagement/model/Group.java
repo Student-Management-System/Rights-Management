@@ -1,6 +1,7 @@
 package net.ssehub.rightsmanagement.model;
 
 import java.util.Iterator;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -8,36 +9,53 @@ import java.util.TreeSet;
  * Manages the Groups and Members.
  * 
  * @author Kunold
- *
+ * @author Adam
  */
-public class Group implements Iterable<String>, IParticipant {
+public class Group implements Iterable<Individual>, Comparable<Group> {
     
     private String groupName;
     
-    private Set<String> members = new TreeSet<>();
+    private Set<Individual> members = new TreeSet<>();
     
     /**
-     * Sets the Name of a group.
-     * @param groupName the name of the group.
+     * Creates a group.
+     * 
+     * @param groupName The name of this group.
      */
-    public void setGroupName(String groupName) {
+    public Group(String groupName) {
         this.groupName = groupName;
     }
     
     /**
+     * Creates a {@link Group} for a single {@link Individual} (student). This may be used for non-group assignments.
+     * 
+     * @param studenName The name of the single student.
+     * 
+     * @return A {@link Group} with a single {@link Individual} and the name of that {@link Individual} as the group
+     *      name.
+     */
+    public static Group createSingleStudentGroup(String studenName) {
+        Individual student = new Individual(studenName);
+        Group singleStudent = new Group(studenName);
+        singleStudent.addMembers(student);
+        return singleStudent;
+    }
+    
+    /**
      * Getter for the Name of the Group.
+     * 
      * @return the group name.
      */
-    @Override
     public String getName() {
         return groupName;
     }
     
     /**
      * Adds Members to a group.
+     * 
      * @param members that belongs to a group.
      */
-    public void addMembers(String... members) {
+    public void addMembers(Individual... members) {
         if (null != members) {
             for (int i = 0; i < members.length; i++) {
                 this.members.add(members[i]);
@@ -49,21 +67,46 @@ public class Group implements Iterable<String>, IParticipant {
      * Returns the full list of group members.
      * @return The members of the group.
      */
-    public Set<String> getMembers() {
+    public Set<Individual> getMembers() {
         return members;
     }
 
     @Override
-    public Iterator<String> iterator() {
+    public Iterator<Individual> iterator() {
         return members.iterator();
     }
     
-    /**
-     * Only intended for the Debugger: Returns a meaningful name during debugging.
-     * {@inheritDoc}
-     */
+    @Override
+    public int compareTo(Group other) {
+        return this.groupName.compareTo(other.groupName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(groupName, members);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Group)) {
+            return false;
+        }
+        Group other = (Group) obj;
+        return Objects.equals(groupName, other.groupName) && Objects.equals(members, other.members);
+    }
+
     @Override
     public String toString() {
-        return getName();
+        StringBuilder builder = new StringBuilder();
+        builder.append("Group [groupName=");
+        builder.append(groupName);
+        builder.append(", members=");
+        builder.append(members);
+        builder.append("]");
+        return builder.toString();
     }
+    
 }

@@ -2,22 +2,26 @@ package net.ssehub.rightsmanagement.model;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import net.ssehub.studentmgmt.backend_api.model.AssignmentDto;
 
 /**
- * Manages the Assignments.
+ * Represents an assignment. An assignment has a list of {@link Group}s which in turn contain {@link Individual}s
+ * working on this assignment. Groups may be actual groups of multiple students or simply a single student (in which
+ * case the group name is the user name)
  * 
  * @author Kunold
  * @author El-Sharkawy
- *
+ * @author Adam
  */
-public class Assignment extends net.ssehub.exercisesubmitter.protocol.frontend.Assignment
-    implements Iterable<IParticipant> {
+public class Assignment extends net.ssehub.exercisesubmitter.protocol.frontend.Assignment implements Iterable<Group> {
 
-    private Set<IParticipant> participants = new TreeSet<>();
+    private Set<Group> groups = new TreeSet<>();
     
     /**
      * Creates a new Assignment instance for managing access rights.
@@ -46,47 +50,85 @@ public class Assignment extends net.ssehub.exercisesubmitter.protocol.frontend.A
     }
     
     /**
-     * Adds one participant to the assignment.
-     * @param participant to add to the set.
+     * Adds a group that works on this assignment.
+     * @param group A group working on this assignment.
      */
-    public void addParticipant(IParticipant participant) {
-        participants.add(participant);
+    public void addGroup(Group group) {
+        groups.add(group);
     }
     
     /**
-     * Adds all specified participants to the assignment.
-     * @param participants to add to the set.
+     * Adds all specified groups to the assignment.
+     * 
+     * @param groups To add to the set.
      */
-    public void addAllParticipants(Collection<? extends IParticipant> participants) {
-        for (IParticipant participant : participants) {
-            addParticipant(participant);
+    public void addAllGroups(Collection<Group> groups) {
+        for (Group group : groups) {
+            addGroup(group);
         }
+    }
+    
+    /**
+     * Overrides the previously stored groups.
+     * 
+     * @param groups The new list of groups
+     */
+    public void setGroups(List<Group> groups) {
+        this.groups.clear();
+        this.groups.addAll(groups);
+    }
+    
+    /**
+     * Returns a sorted array of all group names of this exercise.
+     * 
+     * @return An array of all group names.
+     */
+    public String[] getAllGroupNames() {
+        return groups.stream()
+                .map((group) -> group.getName())
+                .collect(Collectors.toList())
+                .toArray(new String[0]);
     }
     
     @Override
-    public Iterator<IParticipant> iterator() {
-        return participants.iterator();
+    public Iterator<Group> iterator() {
+        return groups.iterator();
     }
-    
-    /**
-     * Getter for the participants of the assignment.
-     * @return the participants.
-     */
-    public String[] getParticipants() {
-        String[] participants = new String[this.participants.size()];
-        int index = 0;
-        for (IParticipant participant : this.participants) {
-            participants[index++] = participant.getName();
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + Objects.hash(groups);
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
         }
-        return participants;
+        if (!super.equals(obj)) {
+            return false;
+        }
+        if (!(obj instanceof Assignment)) {
+            return false;
+        }
+        Assignment other = (Assignment) obj;
+        return Objects.equals(groups, other.groups);
     }
-    
-    /**
-     * Only intended for the Debugger: Returns a meaningful name during debugging.
-     * {@inheritDoc}
-     */
+
     @Override
     public String toString() {
-        return getName();
+        StringBuilder builder = new StringBuilder();
+        builder.append("Assignment [getName()=");
+        builder.append(getName());
+        builder.append(", isGroupWork()=");
+        builder.append(isGroupWork());
+        builder.append(", groups=");
+        builder.append(groups);
+        builder.append("]");
+        return builder.toString();
     }
+
 }

@@ -12,7 +12,7 @@ import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.rightsmanagement.model.Individual;
 import net.ssehub.studentmgmt.backend_api.ApiClient;
 import net.ssehub.studentmgmt.backend_api.ApiException;
 import net.ssehub.studentmgmt.backend_api.api.AssignmentRegistrationApi;
@@ -85,13 +85,9 @@ public class DataPullService {
         course.setSemester(semester);
         
         Group tutors = createTutorsGroup();
-        List<Member> studentsOfCourse = loadStudents(tutors);
+        List<Individual> studentsOfCourse = loadStudents(tutors);
         course.setTutors(tutors);
         course.setStudents(studentsOfCourse);
-        
-        // Gather all homework groups
-        List<Group> homeworkGroups = loadGroups();
-        course.setHomeworkGroups(homeworkGroups);
         
         // Collect assignments
         List<Assignment> assignments = loadAssignments(studentsOfCourse);
@@ -107,10 +103,8 @@ public class DataPullService {
      * @return A new, empty group that is intended to store tutors.
      */
     public Group createTutorsGroup() {
-        Group tutors = new Group();
         tutorsGroupName = "Tutors_of_Course_" + courseName.substring(0, 1).toUpperCase() + courseName.substring(1);
-        tutors.setGroupName(tutorsGroupName);
-        
+        Group tutors = new Group(tutorsGroupName);
         return tutors;
     }
 
@@ -123,22 +117,21 @@ public class DataPullService {
      *     further processed.
      * @return The list of participating students
      */
-    public List<Member> loadStudents(Group tutors) {
-        List<Member> studentsOfCourse = new ArrayList<Member>();
+    public List<Individual> loadStudents(Group tutors) {
+        List<Individual> studentsOfCourse = new ArrayList<Individual>();
         try {
             List<ParticipantDto> usersOfCourse =
                     courseParticipantsAPI.getUsersOfCourse(courseID, null, null, null, null);
             for (ParticipantDto userDto : usersOfCourse) {
                 switch (userDto.getRole()) {
                 case STUDENT:
-                    Member student = new Member();
-                    student.setMemberName(userDto.getUsername());
+                    Individual student = new Individual(userDto.getUsername());
                     studentsOfCourse.add(student);
                     break;
                 case LECTURER:
                     // falls through
                 case TUTOR:
-                    tutors.addMembers(userDto.getUsername());
+                    tutors.addMembers(new Individual(userDto.getUsername()));
                     break;
                 default:
                     LOGGER.warn("{} is an administrator and user of the course {}. Cannot handle this user.",
@@ -160,7 +153,7 @@ public class DataPullService {
      * @return The assignments of the course, containing the participants of the assignments (students in case of
      *     single assignments, otherwise the groups).
      */
-    private List<Assignment> loadAssignments(Collection<Member> studentsOfCourse) {
+    private List<Assignment> loadAssignments(Collection<Individual> studentsOfCourse) {
         List<Assignment> assignments = new ArrayList<>();
         try {
             List<AssignmentDto> assignmentsOfServer = assignmentsAPI.getAssignmentsOfCourse(courseID);
@@ -169,9 +162,11 @@ public class DataPullService {
                     Assignment assignment = new Assignment(assignmentDto);
                     if (assignment.isGroupWork()) {
                         List<Group> homeworkGroups = loadGroupsPerAssignment(assignment.getID());
-                        assignment.addAllParticipants(homeworkGroups);   
+                        assignment.addAllGroups(homeworkGroups);   
                     } else {
-                        assignment.addAllParticipants(studentsOfCourse);                        
+                        studentsOfCourse.stream()
+                            .map((student) -> Group.createSingleStudentGroup(student.getName()))
+                            .forEach((singleStudentGroup) -> assignment.addGroup(singleStudentGroup));
                     }
                     assignments.add(assignment);
                 } catch (IllegalArgumentException e) {
@@ -195,45 +190,16 @@ public class DataPullService {
      */
     public List<Assignment> loadAssignments(Course course) {
         // Try to use loaded students
-        List<Member> studentsOfCourse = course.getStudents();
+        List<Individual> studentsOfCourse = course.getStudents();
         if (null == studentsOfCourse) {
             /* 
              * Load all students from server if list is locally not available.
              * Tutors won't be touched /changed -> can be an empty group
              */
-            studentsOfCourse = loadStudents(new Group());
+            studentsOfCourse = loadStudents(new Group("empty tutors"));
         }
         
-        List<Group> homeworkGroups = course.getHomeworkGroups();
-        if (null == homeworkGroups) {
-            homeworkGroups = loadGroups();
-        }
-
         return loadAssignments(studentsOfCourse);
-    }
-    
-    /**
-     * Pulls the information of configured homework groups from the <b>student management system</b>.
-     * @return The configured homework groups of the <b>student management system</b>.
-     */
-    public List<Group> loadGroups() {
-        // Gather all homework groups
-        List<Group> homeworkGroups = new ArrayList<>();
-        try {
-            List<GroupDto> groupsOfServer = groupsAPI.getGroupsOfCourse(courseID, null, null, null, null, null, null);
-            for (GroupDto groupDto : groupsOfServer) {
-                Group group = new Group();
-                group.setGroupName(groupDto.getName());
-                
-                homeworkGroups.add(group);
-            }
-        } catch (ApiException e) {
-            LOGGER.warn("Could not query student management system for Groups via \""
-                + Settings.getConfig().getMgmtServerURL() + "\", cause: " + e.getCode() + " - " + e.getResponseBody(),
-                e);
-        }
-        
-        return homeworkGroups;
     }
     
     /**
@@ -249,12 +215,11 @@ public class DataPullService {
             List<GroupDto> groupsOfServer = apiAssignmentRegistrations.getRegisteredGroups(courseID, assignmentID, null,
                 null, null);
             for (GroupDto groupDto : groupsOfServer) {
-                Group group = new Group();
-                group.setGroupName(groupDto.getName());
+                Group group = new Group(groupDto.getName());
                 
                 List<ParticipantDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
                 for (ParticipantDto userDto : userofGroup) {
-                    group.addMembers(userDto.getUsername());
+                    group.addMembers(new Individual(userDto.getUsername()));
                 }
                 homeworkGroups.add(group);
             }

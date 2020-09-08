@@ -14,7 +14,7 @@ import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.rightsmanagement.model.Individual;
 import net.ssehub.studentmgmt.backend_api.JSON;
 import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
@@ -92,45 +92,25 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         // Second: Apply delta of the NotificationDto
         switch (msg.getEvent()) {
         case GROUP_UNREGISTERED:
-            /* Falls through */
         case GROUP_REGISTERED:
-            /*
-             * TODO SE: Consider to load only the specified group. Currently, all groups are loaded since there
-             * is no other API available.
-             */
-            List<Group> groups = getDataPullService().loadGroups();
-            course.setHomeworkGroups(groups);
-            break;
         case REGISTRATIONS_CREATED:
-            // Send when all groups are registered, e.g. when assignments became active: Falls through
         case REGISTRATIONS_REMOVED:
-            // Send when all groups are unregistered, e.g. during debugging: Falls through
         case ASSIGNMENT_CREATED:
-            /* Falls through */
         case ASSIGNMENT_STATE_CHANGED:
-            /* Falls through */
         case ASSIGNMENT_REMOVED:
-            // TODO SE: Consider to load only the specified assignment. Currently, all assignment.
-            List<Assignment> assignments = getDataPullService().loadAssignments(course);
-            course.setAssignments(assignments);
-            break;
         case USER_JOINED_GROUP:
-            // falls through
         case USER_LEFT_GROUP:
-            List<Group> userGroupRelation = getDataPullService().loadGroups();
-            course.setHomeworkGroups(userGroupRelation);
-            // updates the assignments after a user change groups
-            assignments = getDataPullService().loadAssignments(course);
-            course.setAssignments(assignments);
+            handleAssignmentChanged(course, msg.getAssignmentId());
             break;
+            
         case USER_REGISTERED:
-            // falls through
         case USER_UNREGISTERED:
             Group tutors = getDataPullService().createTutorsGroup();
-            List<Member> studentsOfCourse = getDataPullService().loadStudents(tutors);
+            List<Individual> studentsOfCourse = getDataPullService().loadStudents(tutors);
             course.setStudents(studentsOfCourse);
             course.setTutors(tutors);
             break;
+            
         default:
             LOGGER.warn("{}s of type {} are not supported by {}", NotificationDto.class.getSimpleName(),
                 msg.getEvent(), IncrementalUpdateHandler.class.getSimpleName());
@@ -138,6 +118,27 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         }
         
         return course;
+    }
+    
+    /**
+     * Handles a change in an {@link Assignment}. Tries to only reload this single assignment, but falls back if
+     * the specified assignment ID cannot be found.
+     * 
+     * @param course The course that contains the assignment.
+     * @param assignmentId The ID of the assignment that is changed. May be <code>null</code>.
+     */
+    private void handleAssignmentChanged(Course course, String assignmentId) {
+        Assignment assignment = course.getAssignments().stream()
+                .filter((a) -> a.getID().equals(assignmentId))
+                .findAny()
+                .orElse(null);
+        
+        if (assignmentId != null && assignment != null) {
+            assignment.setGroups(getDataPullService().loadGroupsPerAssignment(assignmentId));
+        } else {
+            LOGGER.warn("Didn't find assignment for ID {}, reloading all assignments", assignmentId);
+            course.setAssignments(getDataPullService().loadAssignments(course));
+        }
     }
     
     /**

@@ -15,7 +15,7 @@ import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * This class contains the test cases that belongs to {@link AccessWriter}.
@@ -54,10 +54,9 @@ public class AccessWriterTests {
      * @throws IOException If an I/O error occurs during writing.
      */
     @Test
-    public void testOneGroupWithTwoMembersAndPermissionsAllRead() throws IOException { 
+    public void testNoAssignementsAndPermissionsAllRead() throws IOException { 
         // Create test data for writing
         Course course = new Course();
-        course.setHomeworkGroups(Arrays.asList(getMemberGroup("JP001")));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -66,7 +65,7 @@ public class AccessWriterTests {
         aWriter.close();
         
         // Compare expected and actual output of aWriter
-        String expected = readAccessFile("groups_oneGroup_access");
+        String expected = readAccessFile("no_groups");
         Assertions.assertEquals(expected, sWriter.toString().trim());
     }
     
@@ -80,14 +79,12 @@ public class AccessWriterTests {
     public void testEmptyTutorsGroup() throws IOException { 
         // Create test data for writing
         Course course = new Course();
-        Group tutorGroup = new Group();
-        tutorGroup.setGroupName("JavaTutoren");
+        Group tutorGroup = new Group("JavaTutoren");
         course.setTutors(tutorGroup);
         Group group = getMemberGroup("JP0001");
         Assignment hw = new Assignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true);
-        hw.addParticipant(group);
+        hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
-        course.setHomeworkGroups(Arrays.asList(group));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -101,27 +98,6 @@ public class AccessWriterTests {
     }
     
     /**
-     * Tests if two groups with two members is correctly written to the {@link AccessWriter}.
-     * @throws IOException If an I/O error occurs during writing.
-     */
-    @Test
-    public void testTwoGroupsWithTwoMembersAndPermissionsAllRead() throws IOException {        
-        // Create test data for writing
-        Course course = new Course();
-        course.setHomeworkGroups(Arrays.asList(getMemberGroup("JP001"), getMemberGroup("JP002")));
-        
-        // Simulate writing data to access file
-        StringWriter sWriter = new StringWriter();
-        AccessWriter aWriter = new AccessWriter(sWriter);
-        aWriter.write(course, "abgabe", null);
-        aWriter.close();
-        
-        // Compare expected and actual output of aWriter
-        String expected = readAccessFile("groups_twoGroups_access");
-        Assertions.assertEquals(expected, sWriter.toString().trim());
-    }
-    
-    /**
      * Tests if the tutor group is correctly written to the {@link AccessWriter}.
      * @throws IOException If an I/O error occurs during writing.
      */
@@ -129,7 +105,7 @@ public class AccessWriterTests {
     public void testTutorGroupWithMembersAndPermissionsAllRead() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        course.setTutors(getTutorGroup());
+        course.setTutors(getTutorGroup("JavaTutoren"));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -147,11 +123,10 @@ public class AccessWriterTests {
      * @throws IOException If an I/O error occurs during writing.
      */
     @Test
-    public void testTutorGroupAndMemberGroupsWithMembers() throws IOException {     
+    public void testTutorGroup() throws IOException {     
         // Create test data for writing
         Course course = new Course();
-        course.setTutors(getTutorGroup());
-        course.setHomeworkGroups(Arrays.asList(getMemberGroup("JP001"), getMemberGroup("JP002")));
+        course.setTutors(getTutorGroup("JavaTutoren"));
         
         // Simulate writing data to access file
         StringWriter sWriter = new StringWriter();
@@ -172,11 +147,10 @@ public class AccessWriterTests {
     public void testPermissionsWithInvisibleHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        course.setTutors(getTutorGroup());
+        course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment("Unsichtbare_Abgabe", null, State.INVISIBLE, true);
-        hw.addParticipant(group);
+        hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -198,11 +172,10 @@ public class AccessWriterTests {
     public void testPermissionsWithInProgressHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        course.setTutors(getTutorGroup());
+        course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true);
-        hw.addParticipant(group);
+        hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -224,11 +197,10 @@ public class AccessWriterTests {
     public void testPermissionsWithInReviewHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        course.setTutors(getTutorGroup());
+        course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment("Unsichtbare_Abgabe", null, State.IN_REVIEW, true);
-        hw.addParticipant(group);
+        hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -251,11 +223,10 @@ public class AccessWriterTests {
     public void testPermissionsWithEvaluatedHomeworkAndOneGroup() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        course.setTutors(getTutorGroup());
+        course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        course.setHomeworkGroups(Arrays.asList(group));
         Assignment hw = new Assignment("Bewertet_Abgabe", null, State.REVIEWED, true);
-        hw.addParticipant(group);
+        hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -279,9 +250,7 @@ public class AccessWriterTests {
         // Create test data for writing
         Course course = new Course();
         Assignment hw = new Assignment("Exam", null, State.SUBMISSION, false);
-        Member aStudent = new Member();
-        aStudent.setMemberName("musterma");
-        hw.addParticipant(aStudent);
+        hw.addGroup(Group.createSingleStudentGroup("musterma"));
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -303,13 +272,10 @@ public class AccessWriterTests {
     public void testPermissionsForSingleAssignmentWithTutors() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        Group tutors = getTutorGroup();
-        tutors.setGroupName("Tutors");
+        Group tutors = getTutorGroup("Tutors");
         course.setTutors(tutors);
         Assignment hw = new Assignment("Exam", null, State.REVIEWED, false);
-        Member aStudent = new Member();
-        aStudent.setMemberName("musterma");
-        hw.addParticipant(aStudent);
+        hw.addGroup(Group.createSingleStudentGroup("musterma"));
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -332,13 +298,12 @@ public class AccessWriterTests {
     public void testPermissionsForDeprecatedFolderWithTutors() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        Group tutors = getTutorGroup();
-        tutors.setGroupName("Tutors");
+        Group tutors = getTutorGroup("Tutors");
         course.setTutors(tutors);
         Assignment hw = new Assignment("Exam", null, State.REVIEWED, false);
-        Member aStudent = new Member();
-        aStudent.setMemberName("musterma");
-        hw.addParticipant(aStudent);
+        Group singleStudent = new Group("musterma");
+        singleStudent.addMembers(new Individual("musterma"));
+        hw.addGroup(singleStudent);
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -359,12 +324,14 @@ public class AccessWriterTests {
     
     /**
      * Getter for the tutor group.
+     * 
+     * @param name The name of the tutor group.
+     * 
      * @return the tutor group.
      */
-    private Group getTutorGroup() {
-        Group tutorGroup = new Group();
-        tutorGroup.setGroupName("JavaTutoren");
-        tutorGroup.addMembers("tutor1", "tutor2");
+    private Group getTutorGroup(String name) {
+        Group tutorGroup = new Group(name);
+        tutorGroup.addMembers(new Individual("tutor1"), new Individual("tutor2"));
         return tutorGroup;
     }
     
@@ -374,9 +341,8 @@ public class AccessWriterTests {
      * @return the member group.
      */
     private Group getMemberGroup(String name) {
-        Group memberGroup = new Group();
-        memberGroup.setGroupName(name);
-        memberGroup.addMembers(name + "_user1", name + "_user2");
+        Group memberGroup = new Group(name);
+        memberGroup.addMembers(new Individual(name + "_user1"), new Individual(name + "_user2"));
         return memberGroup;
     }
 

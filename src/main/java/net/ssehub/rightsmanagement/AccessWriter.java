@@ -10,7 +10,7 @@ import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.IParticipant;
+import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * Writes the access file (containing access right set-up) for the svn.
@@ -47,7 +47,7 @@ public class AccessWriter implements Closeable {
      * @param course The set-up of the course, which should be reflected in the repository
      * @throws IOException If an I/O error occurs during writing.
      */
-    private void writeGroups(Course course) throws IOException {
+    private void writeTutorGroup(Course course) throws IOException {
         
         out.append(GROUP_SECTION);
         out.append(LINE_BREAK);
@@ -58,13 +58,13 @@ public class AccessWriter implements Closeable {
             out.append(tutorGroup.getName());
             out.append(RIGHTS_ASSIGNMENT);
             boolean isFirst = true;
-            for (String member : tutorGroup) {
+            for (Individual member : tutorGroup) {
                 if (isFirst) {
                     isFirst = false;
                 } else {
                     out.append(", ");
                 }
-                out.append(member);
+                out.append(member.getName());
             }  
 
             out.append(LINE_BREAK);
@@ -127,10 +127,10 @@ public class AccessWriter implements Closeable {
                 }
                 
                 // iterates over every group
-                for (IParticipant participant : assignment) {
+                for (Group group : assignment) {
                     out.append(LINE_BREAK);
                     out.append(LINE_BREAK);
-                    writePath(svnName, assignment.getName(), participant.getName());
+                    writePath(svnName, assignment.getName(), group.getName());
                     out.append(ALL_USER);
                     out.append(LINE_BREAK);
                     // Avoid writing an undefined group this will yield in an illegal access file
@@ -140,20 +140,12 @@ public class AccessWriter implements Closeable {
                         out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
                         out.append(LINE_BREAK);
                     }
-                    if (participant instanceof Group && assignment.isGroupWork()) { 
-                        Group group = (Group) participant;
-                        for (String member : group) {
-                            out.append(member);
-                            out.append(RIGHTS_ASSIGNMENT);
-                            out.append(rights);
-                            out.append(LINE_BREAK);
-                        } 
-                    } else {
-                        out.append(participant.getName());
+                    for (Individual member : group) {
+                        out.append(member.getName());
                         out.append(RIGHTS_ASSIGNMENT);
                         out.append(rights);
                         out.append(LINE_BREAK);
-                    }
+                    } 
                 }
             }
             
@@ -169,7 +161,7 @@ public class AccessWriter implements Closeable {
      * @throws IOException If an I/O error occurs during writing.
      */
     public void write(Course course, String svnName, Collection<String> blacklistedFolders) throws IOException {
-        writeGroups(course);
+        writeTutorGroup(course);
         
         out.append(LINE_BREAK);
         writePermissions(course, svnName);

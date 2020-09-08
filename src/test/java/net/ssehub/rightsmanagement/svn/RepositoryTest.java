@@ -23,7 +23,7 @@ import net.ssehub.rightsmanagement.Unzipper;
 import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Member;
+import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * Tests the {@link Repository}.
@@ -136,10 +136,9 @@ public class RepositoryTest {
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Exam", null, State.SUBMISSION, false);
-        Member aStudent = new Member();
-        aStudent.setMemberName("aStudent");
-        assignment.addParticipant(aStudent);
-        Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + aStudent.getName() + "/"));
+        Group singleStudent = Group.createSingleStudentGroup("aStudent");
+        assignment.addGroup(singleStudent);
+        Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + singleStudent.getName() + "/"));
         
         // Write changes to repository
         try {
@@ -148,7 +147,7 @@ public class RepositoryTest {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
-        Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + aStudent.getName() + "/"));
+        Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + singleStudent.getName() + "/"));
     }
     
     /**
@@ -168,11 +167,9 @@ public class RepositoryTest {
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
-        Group group = new Group();
-        group.setGroupName("group1");
-        group.addMembers("student1", "student2");
-        assignment.addParticipant(group);
-        Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + group.getName() + "/"));
+        Group singleStudent = Group.createSingleStudentGroup("student2");
+        assignment.addGroup(singleStudent);
+        Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + singleStudent.getName() + "/"));
         
         // Write changes to repository
         try {
@@ -181,7 +178,7 @@ public class RepositoryTest {
             Assertions.fail("Could not create assignment " + assignment.getName() + " which was explicitly testet.", e);
         }
         
-        Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group.getName() + "/"));
+        Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + singleStudent.getName() + "/"));
     }
     
     /**
@@ -202,13 +199,11 @@ public class RepositoryTest {
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
-        Group group1 = new Group();
-        group1.setGroupName("group1");
-        group1.addMembers("student1", "student2");
-        Group group2 = new Group();
-        group2.setGroupName("group2");
-        group2.addMembers("student3", "student4");
-        assignment.addAllParticipants(Arrays.asList(group1, group2));
+        Group group1 = new Group("group1");
+        group1.addMembers(new Individual("student1"), new Individual("student2"));
+        Group group2 = new Group("group2");
+        group2.addMembers(new Individual("student3"), new Individual("student4"));
+        assignment.addAllGroups(Arrays.asList(group1, group2));
         Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group1.getName() + "/"));
         Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + group2.getName() + "/"));
         
