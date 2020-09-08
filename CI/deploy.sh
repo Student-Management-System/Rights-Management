@@ -1,5 +1,5 @@
 #!/bin/bash
-jarFile=$(find ../target/ -name "RightsManagement*.jar")
+jarFile=$(find ../target/ -name "RightsManagement-*-jar-with-dependencies.jar")
 destFolder=Rightsmanagement
 
 # Copy Unit & JAR
