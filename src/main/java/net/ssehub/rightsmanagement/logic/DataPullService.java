@@ -18,8 +18,6 @@ import net.ssehub.studentmgmt.backend_api.ApiException;
 import net.ssehub.studentmgmt.backend_api.api.AssignmentRegistrationApi;
 import net.ssehub.studentmgmt.backend_api.api.AssignmentsApi;
 import net.ssehub.studentmgmt.backend_api.api.CourseParticipantsApi;
-//import net.ssehub.studentmgmt.backend_api.api.CoursesApi;
-import net.ssehub.studentmgmt.backend_api.api.GroupsApi;
 import net.ssehub.studentmgmt.backend_api.model.AssignmentDto;
 import net.ssehub.studentmgmt.backend_api.model.GroupDto;
 import net.ssehub.studentmgmt.backend_api.model.ParticipantDto;
@@ -38,7 +36,6 @@ public class DataPullService {
     private String courseID;
     private String tutorsGroupName;
     
-    private GroupsApi groupsAPI;
     private AssignmentRegistrationApi apiAssignmentRegistrations;
     private AssignmentsApi assignmentsAPI;
     private CourseParticipantsApi courseParticipantsAPI;
@@ -65,7 +62,6 @@ public class DataPullService {
             client.setAccessToken(Settings.INSTANCE.getLogin().getManagementToken());
         }
         
-        groupsAPI = new GroupsApi(client);
         assignmentsAPI = new AssignmentsApi(client);
         courseParticipantsAPI = new CourseParticipantsApi(client);
         apiAssignmentRegistrations = new AssignmentRegistrationApi(client);
@@ -217,8 +213,7 @@ public class DataPullService {
             for (GroupDto groupDto : groupsOfServer) {
                 Group group = new Group(groupDto.getName());
                 
-                List<ParticipantDto> userofGroup = groupsAPI.getUsersOfGroup(courseID, groupDto.getId());
-                for (ParticipantDto userDto : userofGroup) {
+                for (ParticipantDto userDto : groupDto.getMembers()) {
                     group.addMembers(new Individual(userDto.getUsername()));
                 }
                 homeworkGroups.add(group);
