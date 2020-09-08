@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -152,6 +153,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             if (assignment.isGroupWork()) {
                 assignment.setGroups(getDataPullService().loadGroupsPerAssignment(assignmentId));
             } else {
+                assignment.setGroups(new LinkedList<>()); // clear previous groups
                 course.getStudents().stream()
                     .map((student) -> Group.createSingleStudentGroup(student.getName()))
                     .forEach((singleStudentGroup) -> assignment.addGroup(singleStudentGroup));
