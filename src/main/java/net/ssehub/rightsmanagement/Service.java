@@ -45,7 +45,11 @@ public class Service {
             UpdateChangeListener.INSTANCE.register(handler); 
         }
         
-        new RestServer(Settings.getConfig().getRestPort());
+        RestServer server = new RestServer(Settings.getConfig().getRestPort());
+        
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            server.close();
+        }));
     }
 
 }

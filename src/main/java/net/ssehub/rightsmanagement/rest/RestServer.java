@@ -57,10 +57,5 @@ public class RestServer implements Closeable {
     public void close() {
         server.destroy();
     }
-
-    @Override
-    protected void finalize() throws Throwable {
-        close();
-        super.finalize();
-    }
+    
 }
