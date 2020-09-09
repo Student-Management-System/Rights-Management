@@ -41,7 +41,7 @@ public class Assignment extends net.ssehub.exercisesubmitter.protocol.frontend.A
      * @param isGroupwork <tt>true</tt> for groups, <tt>false</tt> for individuals.
      */
     public Assignment(String name, String assignmentID, State state, boolean isGroupwork) {
-        super(name, assignmentID, state, isGroupwork);
+        super(name, assignmentID, state, isGroupwork, 0);
     }
     
     @Override
