@@ -9,6 +9,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.tmatesoft.svn.core.SVNException;
 
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
@@ -74,28 +75,33 @@ public abstract class AbstractUpdateHandler {
         LOGGER.debug("Received update message \"{}\" for course \"{}\" processed by \"{}\"", msg, getCourseID(),
             getClass().getSimpleName());
         
-        /*
-         * First: Compute whole set-up for the course out of the delta.
-         * This is required, since the access file can only be written for the complete course at once.
-         */
-        Course course = computeFullConfiguration(msg);
-        
-        /*
-         * Second: Update repository.
-         */
-        Set<String> deprecatedFolders = updateRepository(course);
-        
-        /*
-         * Third: Write access file.
-         */
-        AccessWriter writer = createWriter();
         try {
-            writer.write(course, courseConfig.getSvnName(), deprecatedFolders);
-        } catch (IOException e) {
-            // Use logging with concatenation here: As is is almost always printed when reached and to print stack trace
-            LOGGER.error("Could not write access file for course \"" + getCourseID() + "\".", e);
-        } finally {
-            writer.close();
+            /*
+             * First: Compute whole set-up for the course out of the delta.
+             * This is required, since the access file can only be written for the complete course at once.
+             */
+            Course course = computeFullConfiguration(msg);
+            
+            /*
+             * Second: Update repository.
+             */
+            Set<String> deprecatedFolders = updateRepository(course);
+            
+            /*
+             * Third: Write access file.
+             */
+            AccessWriter writer = createWriter();
+            try {
+                writer.write(course, courseConfig.getSvnName(), deprecatedFolders);
+            } catch (IOException e) {
+                // Use logging with concatenation here:
+                // As is is almost always printed when reached and to print stack trace
+                LOGGER.error("Could not write access file for course \"" + getCourseID() + "\".", e);
+            } finally {
+                writer.close();
+            }
+        } catch (NetworkException netExc) {
+            LOGGER.error("Could not query required information, cause: " + netExc.getMessage(), netExc);
         }
         
     }
@@ -114,7 +120,7 @@ public abstract class AbstractUpdateHandler {
      * @param msg The update request produced by the student management service
      * @return The complete set-up for the whole course.
      */
-    protected abstract Course computeFullConfiguration(NotificationDto msg);
+    protected abstract Course computeFullConfiguration(NotificationDto msg) throws NetworkException;
     
     /**
      * Creates the {@link AccessWriter} to write the access file.

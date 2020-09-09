@@ -21,9 +21,9 @@ import org.tmatesoft.svn.core.io.ISVNEditor;
 import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
-import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
 import net.ssehub.rightsmanagement.rest.resources.UpdateCallback;
 
 
@@ -265,7 +265,7 @@ public class Repository {
      * folders need to be created.
      * @throws SVNException If a failure occurred while connecting to a repository
      */
-    protected synchronized void createOrModifyAssignment(Assignment assignment) throws SVNException {
+    protected synchronized void createOrModifyAssignment(ManagedAssignment assignment) throws SVNException {
         SVNRepository repos = loadRepository();
         try {
             List<String> newSubmisionFolders = new ArrayList<>();
@@ -306,7 +306,7 @@ public class Repository {
          */
         Set<String> folders = listFolders();
         
-        for (Assignment assignment : course.getAssignments()) {
+        for (ManagedAssignment assignment : course.getAssignments()) {
             // Create new folders
             createOrModifyAssignment(assignment);
             

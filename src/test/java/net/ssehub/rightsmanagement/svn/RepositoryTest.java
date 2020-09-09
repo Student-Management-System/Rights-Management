@@ -18,12 +18,12 @@ import org.tmatesoft.svn.core.io.SVNRepository;
 import org.tmatesoft.svn.core.io.SVNRepositoryFactory;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.AllTests;
 import net.ssehub.rightsmanagement.Unzipper;
-import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * Tests the {@link Repository}.
@@ -135,8 +135,8 @@ public class RepositoryTest {
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
-        Assignment assignment = new Assignment("Exam", null, State.SUBMISSION, false);
-        Group singleStudent = Group.createSingleStudentGroup("aStudent");
+        ManagedAssignment assignment = new ManagedAssignment("Exam", null, State.SUBMISSION, false, 0);
+        Group singleStudent = Group.createSingleStudentGroup(new User("aStudent", "aStudent", ""));
         assignment.addGroup(singleStudent);
         Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + singleStudent.getName() + "/"));
         
@@ -166,8 +166,8 @@ public class RepositoryTest {
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
-        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
-        Group singleStudent = Group.createSingleStudentGroup("student2");
+        ManagedAssignment assignment = new ManagedAssignment("Homework", null, State.SUBMISSION, true, 0);
+        Group singleStudent = Group.createSingleStudentGroup(new User("student2", "student2", ""));
         assignment.addGroup(singleStudent);
         Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + singleStudent.getName() + "/"));
         
@@ -198,11 +198,11 @@ public class RepositoryTest {
         Repository repoReader = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
-        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
+        ManagedAssignment assignment = new ManagedAssignment("Homework", null, State.SUBMISSION, true, 0);
         Group group1 = new Group("group1");
-        group1.addMembers(new Individual("student1"), new Individual("student2"));
+        group1.addMembers(new User("student1", "student1", ""), new User("student2", "student2", ""));
         Group group2 = new Group("group2");
-        group2.addMembers(new Individual("student3"), new Individual("student4"));
+        group2.addMembers(new User("student3", "student3", ""), new User("student4", "student4", ""));
         assignment.addAllGroups(Arrays.asList(group1, group2));
         Assertions.assertTrue(repoReader.pathExists("/" + assignment.getName() + "/" + group1.getName() + "/"));
         Assertions.assertFalse(repoReader.pathExists("/" + assignment.getName() + "/" + group2.getName() + "/"));
@@ -235,7 +235,7 @@ public class RepositoryTest {
         long oldRevision = repoReader.lastRevision();
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), "test", false);
-        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
+        ManagedAssignment assignment = new ManagedAssignment("Homework", null, State.SUBMISSION, true, 0);
         
         // Write changes to repository
         try {
@@ -258,7 +258,7 @@ public class RepositoryTest {
         repositoryTestFolder = Unzipper.unTarGz(file);
         
         Repository repoWriter = new Repository(repositoryTestFolder.getAbsolutePath(), expectedAuthor, false);
-        Assignment assignment = new Assignment("Homework", null, State.SUBMISSION, true);
+        ManagedAssignment assignment = new ManagedAssignment("Homework", null, State.SUBMISSION, true, 0);
         
         // Check that repository is empty
         SVNRepository repoReader = SVNRepositoryFactory.create(SVNURL.fromFile(repositoryTestFolder.getAbsoluteFile()));

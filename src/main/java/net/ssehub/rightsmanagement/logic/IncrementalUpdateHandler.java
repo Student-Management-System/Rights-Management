@@ -4,18 +4,18 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
-import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Individual;
 import net.ssehub.studentmgmt.backend_api.JSON;
 import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
@@ -71,8 +71,8 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
                 Course course = loadCourse();
                 String content = parser.serialize(course);
                 writer.write(content);
-            } catch (IOException e) {
-                LOGGER.warn("Could not create {}, cause {}", cacheFile.getAbsolutePath(), e);                
+            } catch (NetworkException | IOException e) {
+                LOGGER.warn("Could not create {}, cause {}", cacheFile.getAbsolutePath(), e.getMessage());
             }
         }
     }
@@ -81,12 +81,12 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
      * Loads the full course configuration during initialization, may be overwritten for testing purpose.
      * @return The complete course information
      */
-    protected Course loadCourse() {
+    protected Course loadCourse() throws NetworkException {
         return getDataPullService().computeFullConfiguration();
     }
 
     @Override
-    protected Course computeFullConfiguration(NotificationDto msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) throws NetworkException {
         // First: Load cached state:
         Course course = getCachedState();
         
@@ -102,9 +102,6 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case GROUP_UNREGISTERED:       // a group is removed from an assignment
         case USER_REGISTERED:          // a user was added to a group of an assignment
         case USER_UNREGISTERED:        // a user was removed from a group of an assignment
-            handleAssignmentChanged(course, msg.getAssignmentId());
-            break;
-        
         case USER_JOINED_GROUP:        // a user joined a group in the "global" group list of the course
         case USER_LEFT_GROUP:          // a user left a group in the "global" group list of the course
             // do nothing, as no running assignment is affected
@@ -116,15 +113,12 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             course.setTutors(tutors);
             
             // update list of all participants
-            List<Individual> studentsOfCourse = getDataPullService().loadStudents(tutors);
+            List<User> studentsOfCourse = getDataPullService().loadStudents();
             course.setStudents(studentsOfCourse);
             
             // update all non-group assignments, as the list of students has changed
-            for (Assignment assignment : course.getAssignments()) {
-                if (!assignment.isGroupWork()) {
-                    handleAssignmentChanged(course, assignment.getID());
-                }
-            }
+            List<ManagedAssignment> assignments = getDataPullService().getAssignmnets(studentsOfCourse);
+            course.setAssignments(assignments);
             break;
             
         default:
@@ -134,34 +128,6 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         }
         
         return course;
-    }
-    
-    /**
-     * Handles a change in an {@link Assignment}. Tries to only reload this single assignment, but falls back if
-     * the specified assignment ID cannot be found.
-     * 
-     * @param course The course that contains the assignment.
-     * @param assignmentId The ID of the assignment that is changed. May be <code>null</code>.
-     */
-    private void handleAssignmentChanged(Course course, String assignmentId) {
-        Assignment assignment = course.getAssignments().stream()
-                .filter((a) -> a.getID().equals(assignmentId))
-                .findAny()
-                .orElse(null);
-        
-        if (assignmentId != null && assignment != null) {
-            if (assignment.isGroupWork()) {
-                assignment.setGroups(getDataPullService().loadGroupsPerAssignment(assignmentId));
-            } else {
-                assignment.setGroups(new LinkedList<>()); // clear previous groups
-                course.getStudents().stream()
-                    .map((student) -> Group.createSingleStudentGroup(student.getName()))
-                    .forEach((singleStudentGroup) -> assignment.addGroup(singleStudentGroup));
-            }
-        } else {
-            LOGGER.warn("Didn't find assignment for ID {}, reloading all assignments", assignmentId);
-            course.setAssignments(getDataPullService().loadAssignments(course));
-        }
     }
     
     /**

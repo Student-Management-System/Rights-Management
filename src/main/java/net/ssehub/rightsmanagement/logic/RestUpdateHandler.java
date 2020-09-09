@@ -1,5 +1,6 @@
 package net.ssehub.rightsmanagement.logic;
 
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
@@ -31,7 +32,7 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
     }
 
     @Override
-    protected Course computeFullConfiguration(NotificationDto msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) throws NetworkException {
         return getDataPullService().computeFullConfiguration();
     }
 

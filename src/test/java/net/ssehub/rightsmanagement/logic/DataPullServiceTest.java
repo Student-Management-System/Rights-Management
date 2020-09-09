@@ -8,12 +8,13 @@ import java.util.stream.StreamSupport;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.TestUtils;
-import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * Tests the {@link DataPullService}.<p>
@@ -28,7 +29,7 @@ public class DataPullServiceTest {
      * Tests that the complete and correct information of a course is pulled from the student management system. 
      */
     @Test
-    public void testComputeFullConfiguration() {
+    public void testComputeFullConfiguration() throws NetworkException {
         // Values of the student management system used for the test
         String courseName = "java";
         String semester = "wise1920";
@@ -57,15 +58,15 @@ public class DataPullServiceTest {
             + courseName.substring(0, 1).toUpperCase() + courseName.substring(1);
         Assertions.assertEquals(expectedTutorsGroupName, tutors.getName());
         Assertions.assertEquals(exptectedNoOfTutors, tutors.getMembers().size());
-        Assertions.assertTrue(tutors.getMembers().contains(new Individual(tutorNameForTesting)),
+        Assertions.assertTrue(tutors.getMembers().contains(new User(tutorNameForTesting, tutorNameForTesting, "")),
                 "Expected tutor " + tutorNameForTesting + " not part of tutors");
         
         // Test assignments
-        List<Assignment> assignments = course.getAssignments();
+        List<ManagedAssignment> assignments = course.getAssignments();
         Assertions.assertNotNull(assignments);
         Assertions.assertFalse(assignments.isEmpty(), "Course has no assignments");
         Assertions.assertEquals(assignments.size(), exptectedNoOfAssignments);
-        Assignment assignmentForTest = assignments.stream()
+        ManagedAssignment assignmentForTest = assignments.stream()
             .filter(a -> assignmentNameForTesting.equals(a.getName()))
             .findAny()
             .orElse(null);
@@ -75,7 +76,7 @@ public class DataPullServiceTest {
         Assertions.assertSame(expectedAssignmentState, assignmentForTest.getState());
         
         // Test group in assignment
-        Assignment assignment = assignments.get(2); // TODO: which assignment to use?
+        ManagedAssignment assignment = assignments.get(2); // TODO: which assignment to use?
         assertEquals(expectedNoOfGroups, assignment.getAllGroupNames().length);
         Group groupForTest = StreamSupport.stream(assignment.spliterator(), false)
                 .filter(g -> groupNameForTesting.equals(g.getName()))
