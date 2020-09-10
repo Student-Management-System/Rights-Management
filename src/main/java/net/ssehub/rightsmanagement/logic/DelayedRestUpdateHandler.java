@@ -3,6 +3,7 @@ package net.ssehub.rightsmanagement.logic;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
@@ -38,7 +39,7 @@ public class DelayedRestUpdateHandler extends RestUpdateHandler {
     }
     
     @Override
-    protected Course computeFullConfiguration(NotificationDto msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) throws NetworkException {
         while (System.currentTimeMillis() - lastUpdate < delay) {
             try {
                 Thread.sleep(SLEEP_TIME);

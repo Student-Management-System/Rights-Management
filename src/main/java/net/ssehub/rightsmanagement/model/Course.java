@@ -3,6 +3,10 @@ package net.ssehub.rightsmanagement.model;
 import java.util.ArrayList;
 import java.util.List;
 
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
+
 /**
  * Stores the complete information of a course to configure a repository for the course.
  * 
@@ -14,9 +18,9 @@ public class Course {
     private String semester;
     
     private Group tutors;
-    private List<Individual> students = new ArrayList<>();
+    private List<User> students = new ArrayList<>();
     
-    private List<Assignment> assignments = new ArrayList<>();
+    private List<ManagedAssignment> assignments = new ArrayList<>();
 
     /**
      * The name of the course.
@@ -46,7 +50,7 @@ public class Course {
      * The students participating at the curse.
      * @return the students, shouldn't be <tt>null</tt>.
      */
-    public List<Individual> getStudents() {
+    public List<User> getStudents() {
         return students;
     }
     
@@ -54,7 +58,7 @@ public class Course {
      * The assignments (homework, exams, ...) of the course.
      * @return the assignments
      */
-    public List<Assignment> getAssignments() {
+    public List<ManagedAssignment> getAssignments() {
         return assignments;
     }
 
@@ -86,7 +90,7 @@ public class Course {
      * The students participating at the curse.
      * @param students the students (must not be <tt>null</tt>).
      */
-    public void setStudents(List<Individual> students) {
+    public void setStudents(List<User> students) {
         this.students = students;
     }
 
@@ -94,7 +98,7 @@ public class Course {
      * The assignments (homework, exams, ...) of the course.
      * @param assignments the assignments to set
      */
-    public void setAssignments(List<Assignment> assignments) {
+    public void setAssignments(List<ManagedAssignment> assignments) {
         this.assignments = assignments;
     }
 

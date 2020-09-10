@@ -12,10 +12,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
-import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * This class contains the test cases that belongs to {@link AccessWriter}.
@@ -82,7 +82,7 @@ public class AccessWriterTests {
         Group tutorGroup = new Group("JavaTutoren");
         course.setTutors(tutorGroup);
         Group group = getMemberGroup("JP0001");
-        Assignment hw = new Assignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true);
+        ManagedAssignment hw = new ManagedAssignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true, 0);
         hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -149,7 +149,7 @@ public class AccessWriterTests {
         Course course = new Course();
         course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        Assignment hw = new Assignment("Unsichtbare_Abgabe", null, State.INVISIBLE, true);
+        ManagedAssignment hw = new ManagedAssignment("Unsichtbare_Abgabe", null, State.INVISIBLE, true, 0);
         hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -174,7 +174,7 @@ public class AccessWriterTests {
         Course course = new Course();
         course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        Assignment hw = new Assignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true);
+        ManagedAssignment hw = new ManagedAssignment("In_Bearbeitung_Abgabe", null, State.SUBMISSION, true, 0);
         hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -199,7 +199,7 @@ public class AccessWriterTests {
         Course course = new Course();
         course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        Assignment hw = new Assignment("Unsichtbare_Abgabe", null, State.IN_REVIEW, true);
+        ManagedAssignment hw = new ManagedAssignment("Unsichtbare_Abgabe", null, State.IN_REVIEW, true, 0);
         hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -225,7 +225,7 @@ public class AccessWriterTests {
         Course course = new Course();
         course.setTutors(getTutorGroup("JavaTutoren"));
         Group group = getMemberGroup("JP001");
-        Assignment hw = new Assignment("Bewertet_Abgabe", null, State.REVIEWED, true);
+        ManagedAssignment hw = new ManagedAssignment("Bewertet_Abgabe", null, State.REVIEWED, true, 0);
         hw.addGroup(group);
         course.setAssignments(Arrays.asList(hw));
         
@@ -249,8 +249,8 @@ public class AccessWriterTests {
     public void testPermissionsForSingleAssignmentWoTutors() throws IOException {
         // Create test data for writing
         Course course = new Course();
-        Assignment hw = new Assignment("Exam", null, State.SUBMISSION, false);
-        hw.addGroup(Group.createSingleStudentGroup("musterma"));
+        ManagedAssignment hw = new ManagedAssignment("Exam", null, State.SUBMISSION, false, 0);
+        hw.addGroup(Group.createSingleStudentGroup(new User("musterma", "musterma", "")));
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -274,8 +274,8 @@ public class AccessWriterTests {
         Course course = new Course();
         Group tutors = getTutorGroup("Tutors");
         course.setTutors(tutors);
-        Assignment hw = new Assignment("Exam", null, State.REVIEWED, false);
-        hw.addGroup(Group.createSingleStudentGroup("musterma"));
+        ManagedAssignment hw = new ManagedAssignment("Exam", null, State.REVIEWED, false, 0);
+        hw.addGroup(Group.createSingleStudentGroup(new User("musterma", "musterma", "")));
         course.setAssignments(Arrays.asList(hw));
         
         // Simulate writing data to access file
@@ -300,9 +300,9 @@ public class AccessWriterTests {
         Course course = new Course();
         Group tutors = getTutorGroup("Tutors");
         course.setTutors(tutors);
-        Assignment hw = new Assignment("Exam", null, State.REVIEWED, false);
+        ManagedAssignment hw = new ManagedAssignment("Exam", null, State.REVIEWED, false, 0);
         Group singleStudent = new Group("musterma");
-        singleStudent.addMembers(new Individual("musterma"));
+        singleStudent.addMembers(new User("musterma", "musterma", ""));
         hw.addGroup(singleStudent);
         course.setAssignments(Arrays.asList(hw));
         
@@ -331,7 +331,7 @@ public class AccessWriterTests {
      */
     private Group getTutorGroup(String name) {
         Group tutorGroup = new Group(name);
-        tutorGroup.addMembers(new Individual("tutor1"), new Individual("tutor2"));
+        tutorGroup.addMembers(new User("tutor1", "tutor1", ""), new User("tutor2", "tutor2", ""));
         return tutorGroup;
     }
     
@@ -342,7 +342,8 @@ public class AccessWriterTests {
      */
     private Group getMemberGroup(String name) {
         Group memberGroup = new Group(name);
-        memberGroup.addMembers(new Individual(name + "_user1"), new Individual(name + "_user2"));
+        memberGroup.addMembers(new User(name + "_user1", name + "_user1", ""),
+            new User(name + "_user2", name + "_user2", ""));
         return memberGroup;
     }
 

@@ -7,10 +7,10 @@ import java.util.Collection;
 import java.util.List;
 
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
-import net.ssehub.rightsmanagement.model.Assignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Individual;
 
 /**
  * Writes the access file (containing access right set-up) for the svn.
@@ -58,13 +58,13 @@ public class AccessWriter implements Closeable {
             out.append(tutorGroup.getName());
             out.append(RIGHTS_ASSIGNMENT);
             boolean isFirst = true;
-            for (Individual member : tutorGroup) {
+            for (User member : tutorGroup) {
                 if (isFirst) {
                     isFirst = false;
                 } else {
                     out.append(", ");
                 }
-                out.append(member.getName());
+                out.append(member.getAccountName());
             }  
 
             out.append(LINE_BREAK);
@@ -114,11 +114,11 @@ public class AccessWriter implements Closeable {
         out.append(ALL_USER + READ);
 
         Group tutorGroup = course.getTutors();
-        List<Assignment> assignments = course.getAssignments();
+        List<ManagedAssignment> assignments = course.getAssignments();
         
         if (assignments != null) {
             // iterates over every homework
-            for (Assignment assignment : assignments) {                
+            for (ManagedAssignment assignment : assignments) {                
                 String rights = "";
                 if (assignment.getState() == State.SUBMISSION) {
                     rights = READ_WRITE;
@@ -140,8 +140,8 @@ public class AccessWriter implements Closeable {
                         out.append(RIGHTS_ASSIGNMENT + READ_WRITE);                        
                         out.append(LINE_BREAK);
                     }
-                    for (Individual member : group) {
-                        out.append(member.getName());
+                    for (User member : group) {
+                        out.append(member.getAccountName());
                         out.append(RIGHTS_ASSIGNMENT);
                         out.append(rights);
                         out.append(LINE_BREAK);

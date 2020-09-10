@@ -4,18 +4,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.conf.Settings;
-import net.ssehub.rightsmanagement.model.Assignment;
 import net.ssehub.rightsmanagement.model.Course;
-import net.ssehub.rightsmanagement.model.Group;
-import net.ssehub.rightsmanagement.model.Individual;
 import net.ssehub.studentmgmt.backend_api.JSON;
 import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
 
@@ -50,7 +51,9 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
      *      <tt>null</tt> during tests.
      * @throws IOException If caching file does not exist and cannot be created.
      */
-    protected IncrementalUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) throws IOException {
+    protected IncrementalUpdateHandler(CourseConfiguration courseConfig, RightsManagementProtocol connector)
+        throws IOException {
+        
         super(courseConfig, connector);
         init();
     }
@@ -68,25 +71,17 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             
             try (FileWriter writer = new FileWriter(cacheFile)) {
                 // Pull initial configuration from server
-                Course course = loadCourse();
+                Course course = computeFullConfiguration();
                 String content = parser.serialize(course);
                 writer.write(content);
-            } catch (IOException e) {
-                LOGGER.warn("Could not create {}, cause {}", cacheFile.getAbsolutePath(), e);                
+            } catch (NetworkException | IOException e) {
+                LOGGER.warn("Could not create {}, cause {}", cacheFile.getAbsolutePath(), e.getMessage());
             }
         }
     }
-    
-    /**
-     * Loads the full course configuration during initialization, may be overwritten for testing purpose.
-     * @return The complete course information
-     */
-    protected Course loadCourse() {
-        return getDataPullService().computeFullConfiguration();
-    }
 
     @Override
-    protected Course computeFullConfiguration(NotificationDto msg) {
+    protected Course computeFullConfiguration(NotificationDto msg) throws NetworkException {
         // First: Load cached state:
         Course course = getCachedState();
         
@@ -104,7 +99,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case USER_UNREGISTERED:        // a user was removed from a group of an assignment
             handleAssignmentChanged(course, msg.getAssignmentId());
             break;
-        
+            
         case USER_JOINED_GROUP:        // a user joined a group in the "global" group list of the course
         case USER_LEFT_GROUP:          // a user left a group in the "global" group list of the course
             // do nothing, as no running assignment is affected
@@ -112,19 +107,16 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
 
         case COURSE_JOINED:            // some user has joined the course
             // update tutors
-            Group tutors = getDataPullService().createTutorsGroup();
+            Group tutors = getDataPullService().getTutors();
             course.setTutors(tutors);
             
             // update list of all participants
-            List<Individual> studentsOfCourse = getDataPullService().loadStudents(tutors);
+            List<User> studentsOfCourse = getDataPullService().getStudents();
             course.setStudents(studentsOfCourse);
             
             // update all non-group assignments, as the list of students has changed
-            for (Assignment assignment : course.getAssignments()) {
-                if (!assignment.isGroupWork()) {
-                    handleAssignmentChanged(course, assignment.getID());
-                }
-            }
+            List<ManagedAssignment> assignments = getDataPullService().loadAssignments(studentsOfCourse);
+            course.setAssignments(assignments);
             break;
             
         default:
@@ -134,34 +126,6 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         }
         
         return course;
-    }
-    
-    /**
-     * Handles a change in an {@link Assignment}. Tries to only reload this single assignment, but falls back if
-     * the specified assignment ID cannot be found.
-     * 
-     * @param course The course that contains the assignment.
-     * @param assignmentId The ID of the assignment that is changed. May be <code>null</code>.
-     */
-    private void handleAssignmentChanged(Course course, String assignmentId) {
-        Assignment assignment = course.getAssignments().stream()
-                .filter((a) -> a.getID().equals(assignmentId))
-                .findAny()
-                .orElse(null);
-        
-        if (assignmentId != null && assignment != null) {
-            if (assignment.isGroupWork()) {
-                assignment.setGroups(getDataPullService().loadGroupsPerAssignment(assignmentId));
-            } else {
-                assignment.setGroups(new LinkedList<>()); // clear previous groups
-                course.getStudents().stream()
-                    .map((student) -> Group.createSingleStudentGroup(student.getName()))
-                    .forEach((singleStudentGroup) -> assignment.addGroup(singleStudentGroup));
-            }
-        } else {
-            LOGGER.warn("Didn't find assignment for ID {}, reloading all assignments", assignmentId);
-            course.setAssignments(getDataPullService().loadAssignments(course));
-        }
     }
     
     /**
@@ -178,6 +142,28 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
             //TODO SE: throw exception to abort
         }
         return result;
+    }
+    
+    /**
+     * Handles a change in an {@link Assignment}. Tries to only reload this single assignment, but falls back if
+     * the specified assignment ID cannot be found.
+     * 
+     * @param course The course that contains the assignment.
+     * @param assignmentId The ID of the assignment that is changed. May be <code>null</code>.
+     * @throws NetworkException If network problems occur
+     */
+    private void handleAssignmentChanged(Course course, String assignmentId) throws NetworkException {
+        ManagedAssignment assignment = course.getAssignments().stream()
+                .filter((a) -> a.getID().equals(assignmentId))
+                .findAny()
+                .orElse(null);
+        
+        if (assignment != null) {
+            getDataPullService().updateAssignment(assignment);
+        } else {
+            LOGGER.warn("Didn't find assignment for ID {}, reloading all assignments", assignmentId);
+            course.setAssignments(getDataPullService().loadAssignments(null));
+        }
     }
 
 }
