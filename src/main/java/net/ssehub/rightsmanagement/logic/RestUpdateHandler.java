@@ -1,6 +1,7 @@
 package net.ssehub.rightsmanagement.logic;
 
 import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
+import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
@@ -27,13 +28,13 @@ public class RestUpdateHandler extends AbstractUpdateHandler {
      * @param connector The connector to use {@link DataPullService#DataPullService(CourseConfiguration)} or
      *      <tt>null</tt> during tests.
      */
-    protected RestUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) {
+    protected RestUpdateHandler(CourseConfiguration courseConfig, RightsManagementProtocol connector) {
         super(courseConfig, connector);
     }
 
     @Override
     protected Course computeFullConfiguration(NotificationDto msg) throws NetworkException {
-        return getDataPullService().computeFullConfiguration();
+        return computeFullConfiguration();
     }
 
 }

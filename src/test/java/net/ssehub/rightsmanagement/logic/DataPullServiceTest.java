@@ -12,18 +12,50 @@ import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.exercisesubmitter.protocol.frontend.Group;
 import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
 import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.TestUtils;
+import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Course;
 
 /**
- * Tests the {@link DataPullService}.<p>
- * <font color="red"><b>Warning:</b></font> This is an integration tests, that strongly depends on the test data send
- * by the selected <b>student management system</b>.
+ * Tests the {@link RightsManagementProtocol}.<p>
+ * This test is deprecated and should be removed <font color="red"><b>after</b></font> {@link RightsManagementProtocol}
+ * is completely tested at the Submitter-Protocol.
  * @author El-Sharkawy
  *
  */
 public class DataPullServiceTest {
+    
+    /**
+     * Loads the information from the server for testing.
+     * @param connector The protocol to use
+     * @param courseName The name of the course to use
+     * @param semester the semester to use for the test
+     * @return The information to configure the submission repository
+     * @throws NetworkException If network problems occur
+     */
+    private Course computeFullConfiguration(RightsManagementProtocol connector, String courseName, String semester)
+        throws NetworkException {
+        
+        Course course = new Course();
+        course.setCourseName(courseName);
+        course.setSemester(semester);
+        
+        // update tutors
+        Group tutors = connector.getTutors();
+        course.setTutors(tutors);
+        
+        // update list of all participants
+        List<User> studentsOfCourse = connector.getStudents();
+        course.setStudents(studentsOfCourse);
+        
+        // update all non-group assignments, as the list of students has changed
+        List<ManagedAssignment> assignments = connector.loadAssignments(studentsOfCourse);
+        course.setAssignments(assignments);
+        
+        return course;
+    }
     
     /**
      * Tests that the complete and correct information of a course is pulled from the student management system. 
@@ -36,7 +68,7 @@ public class DataPullServiceTest {
         String groupNameForTesting = "Testgroup 1";
         String tutorNameForTesting = "jdoe";
         String assignmentNameForTesting = "Test_Assignment 01 (Java)";
-        State expectedAssignmentState = State.SUBMISSION;
+        State expectedAssignmentState = State.IN_REVIEW;
         int expectedNoOfGroups = 3;
 //        int exptectedNoOfMembers = 2;
         int exptectedNoOfTutors = 3;
@@ -44,8 +76,9 @@ public class DataPullServiceTest {
         
         // Init and execute
         TestUtils.loginViaVmArgs();
-        DataPullService connector = new DataPullService("http://147.172.178.30:3000", "java", "wise1920");
-        Course course = connector.computeFullConfiguration();
+        RightsManagementProtocol connector = new RightsManagementProtocol("http://147.172.178.30:3000", "java",
+            semester, Settings.INSTANCE.getLogin().getManagementToken());
+        Course course = computeFullConfiguration(connector, courseName, semester);
         
         // Test the course
         Assertions.assertEquals(courseName, course.getCourseName());

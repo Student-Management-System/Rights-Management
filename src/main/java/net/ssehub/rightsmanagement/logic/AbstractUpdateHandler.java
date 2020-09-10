@@ -3,6 +3,7 @@ package net.ssehub.rightsmanagement.logic;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -10,8 +11,13 @@ import org.apache.logging.log4j.Logger;
 import org.tmatesoft.svn.core.SVNException;
 
 import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
+import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.AccessWriter;
 import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
+import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Course;
 import net.ssehub.rightsmanagement.svn.Repository;
 import net.ssehub.rightsmanagement.svn.RepositoryNotFoundException;
@@ -27,14 +33,14 @@ public abstract class AbstractUpdateHandler {
     private static final Logger LOGGER = LogManager.getLogger(AbstractUpdateHandler.class);
     
     private CourseConfiguration courseConfig;
-    private DataPullService connector;
+    private RightsManagementProtocol connector;
     
     /**
      * Creates a handler to manage updates for a course.
      * @param courseConfig The configuration for the managed course.
      */
     public AbstractUpdateHandler(CourseConfiguration courseConfig) {
-        this(courseConfig, new DataPullService(courseConfig));
+        this(courseConfig, createProtocol(courseConfig));
         
         if (courseConfig.isInitRepositoryIfNotExists()) {
             try {
@@ -50,19 +56,33 @@ public abstract class AbstractUpdateHandler {
     /**
      * Alternative constructor for testing purpose.
      * @param courseConfig The configuration for the managed course.
-     * @param connector A manually created {@link DataPullService}
+     * @param connector A manually created {@link RightsManagementProtocol}
      *     (otherwise the configuration will be used to create it).
      */
-    protected AbstractUpdateHandler(CourseConfiguration courseConfig, DataPullService connector) {
+    protected AbstractUpdateHandler(CourseConfiguration courseConfig, RightsManagementProtocol connector) {
         this.courseConfig = courseConfig;
         this.connector = connector;
+    }
+    
+    /**
+     * Part of the constructor to create a {@link RightsManagementProtocol} to use.
+     * @param courseConfig The configuration for the managed course. 
+     * @return The network protocol to use to query the student management service.
+     */
+    private static RightsManagementProtocol createProtocol(CourseConfiguration courseConfig) {
+        String token = null != Settings.INSTANCE.getLogin() ? Settings.INSTANCE.getLogin().getManagementToken() : null;
+        
+        RightsManagementProtocol protocol = new RightsManagementProtocol(Settings.getConfig().getMgmtServerURL(),
+            courseConfig.getCourseName(), courseConfig.getSemester(), token);
+      
+        return protocol;
     }
     
     /**
      * Returns the connector to pull information from the <b>student management system</b> via REST.
      * @return The connection to the <b>student management system</b>.
      */
-    protected DataPullService getDataPullService() {
+    protected RightsManagementProtocol getDataPullService() {
         return connector;
     }
     
@@ -112,6 +132,33 @@ public abstract class AbstractUpdateHandler {
      */
     protected final CourseConfiguration getConfig() {
         return courseConfig;
+    }
+    
+    /**
+     * (re-)loads the complete information from the <b>student management server</b>, which is required to configure
+     * the submission repository.
+     * Doesn't use any cached information.
+     * @return The information to configure the submission repository
+     * @throws NetworkException If network problems occur
+     */
+    protected Course computeFullConfiguration() throws NetworkException {
+        Course course = new Course();
+        course.setCourseName(courseConfig.getCourseName());
+        course.setSemester(courseConfig.getSemester());
+        
+        // update tutors
+        Group tutors = getDataPullService().getTutors();
+        course.setTutors(tutors);
+        
+        // update list of all participants
+        List<User> studentsOfCourse = getDataPullService().getStudents();
+        course.setStudents(studentsOfCourse);
+        
+        // update all non-group assignments, as the list of students has changed
+        List<ManagedAssignment> assignments = getDataPullService().loadAssignments(studentsOfCourse);
+        course.setAssignments(assignments);
+        
+        return course;
     }
     
     /**

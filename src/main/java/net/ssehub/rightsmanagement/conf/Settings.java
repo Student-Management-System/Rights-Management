@@ -18,7 +18,7 @@ import io.gsonfire.GsonFireBuilder;
 import net.ssehub.exercisesubmitter.protocol.backend.LoginComponent;
 import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
 import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
-import net.ssehub.rightsmanagement.logic.DataPullService;
+import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
 import net.ssehub.studentmgmt.backend_api.JSON;
 
 /**
@@ -165,7 +165,8 @@ public class Settings {
      * Returns the login component. Maybe <tt>null</tt> if no auth server was specified or invalid credentials are
      * provided. Please check the logs in this case.
      * 
-     * @return The login component, which provides the access tokens to be used for the {@link DataPullService}.
+     * @return The login component, which provides the access tokens to be used for the
+     * {@link RightsManagementProtocol}.
      */
     public LoginComponent getLogin() {
         return loginComponent;
