@@ -11,6 +11,8 @@ import org.apache.logging.log4j.Logger;
 import org.tmatesoft.svn.core.SVNException;
 
 import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
+import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
+import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
 import net.ssehub.exercisesubmitter.protocol.frontend.Group;
 import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
 import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
@@ -70,11 +72,35 @@ public abstract class AbstractUpdateHandler {
      * @return The network protocol to use to query the student management service.
      */
     private static RightsManagementProtocol createProtocol(CourseConfiguration courseConfig) {
-        String token = null != Settings.INSTANCE.getLogin() ? Settings.INSTANCE.getLogin().getManagementToken() : null;
+        RightsManagementProtocol protocol = new RightsManagementProtocol(Settings.getConfig().getAuthServerURL(),
+            Settings.getConfig().getMgmtServerURL(), courseConfig.getCourseName(), courseConfig.getSemester());
         
-        RightsManagementProtocol protocol = new RightsManagementProtocol(Settings.getConfig().getMgmtServerURL(),
-            courseConfig.getCourseName(), courseConfig.getSemester(), token);
-      
+        String authServer = Settings.getConfig().getAuthServerURL();
+        String mgmtServer = Settings.getConfig().getMgmtServerURL();
+        if (authServer != null) {
+            LOGGER.debug("Provided authentication server, trying to log in via {}", authServer);
+            
+            String user = Settings.getConfig().getAuthUser();
+            String password = Settings.getConfig().getAuthPassword();
+            try {
+                boolean success = protocol.login(user, password);
+                if (success) {
+                    LOGGER.debug("Sucessfully logged in via {}", authServer);
+                } else {
+                    LOGGER.error("Could not reach one of the provided servers {} and {} to login into system for "
+                        + "an unknown reason.", mgmtServer, authServer);
+                }
+            } catch (UnknownCredentialsException e) {
+                boolean usesPassword = null != password && !password.isEmpty();
+                
+                LOGGER.error("Tried to login into {} via {} with user name {} and a password {}, but an error "
+                    + "occured: {}", mgmtServer, authServer, user, usesPassword, e.getMessage());
+            } catch (ServerNotFoundException e) {
+                LOGGER.error("Could not reach one of the provided servers {} and {} to login into system. Reason: {}",
+                    mgmtServer, authServer, e.getMessage());
+            }
+        }
+        
         return protocol;
     }
     

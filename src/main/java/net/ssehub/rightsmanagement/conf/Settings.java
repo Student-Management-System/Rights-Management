@@ -15,10 +15,6 @@ import org.apache.logging.log4j.Logger;
 import com.google.gson.Gson;
 
 import io.gsonfire.GsonFireBuilder;
-import net.ssehub.exercisesubmitter.protocol.backend.LoginComponent;
-import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
-import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
-import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
 import net.ssehub.studentmgmt.backend_api.JSON;
 
 /**
@@ -40,7 +36,7 @@ public class Settings {
     
     private Configuration config;
     private JSON jsonParser;
-    private LoginComponent loginComponent;
+//    private LoginComponent loginComponent;
     private IOException initializationException;
     
     /**
@@ -101,32 +97,32 @@ public class Settings {
             throw new IOException(e);
         }
         
-        // Login into Management server if auth server is provided
-        String authServer = config.getAuthServerURL();
-        String mgmtServer = config.getMgmtServerURL();
-        if (authServer != null) {
-            LOGGER.debug("Provided authentication server, trying to log in via {}", authServer);
-            
-            loginComponent = new LoginComponent(authServer, mgmtServer);
-            try {
-                boolean success = loginComponent.login(config.getAuthUser(), config.getAuthPassword());
-                if (success) {
-                    LOGGER.debug("Sucessfully logged in via {}", config.getAuthServerURL());
-                } else {
-                    LOGGER.error("Could not reach one of the provided servers {} and {} to login into system for "
-                        + "an unknown reason.", mgmtServer, authServer);
-                }
-            } catch (UnknownCredentialsException e) {
-                String password = config.getAuthPassword();
-                boolean usesPassword = null != password && !password.isEmpty();
-                
-                LOGGER.error("Tried to login into {} via {} with user name {} and a password {}, but an error "
-                    + "occured: {}", mgmtServer, authServer, config.getAuthUser(), usesPassword, e.getMessage());
-            } catch (ServerNotFoundException e) {
-                LOGGER.error("Could not reach one of the provided servers {} and {} to login into system. Reason: {}",
-                    mgmtServer, authServer, e.getMessage());
-            }
-        }
+//        // Login into Management server if auth server is provided
+//        String authServer = config.getAuthServerURL();
+//        String mgmtServer = config.getMgmtServerURL();
+//        if (authServer != null) {
+//            LOGGER.debug("Provided authentication server, trying to log in via {}", authServer);
+//            
+//            loginComponent = new LoginComponent(authServer, mgmtServer);
+//            try {
+//                boolean success = loginComponent.login(config.getAuthUser(), config.getAuthPassword());
+//                if (success) {
+//                    LOGGER.debug("Sucessfully logged in via {}", config.getAuthServerURL());
+//                } else {
+//                    LOGGER.error("Could not reach one of the provided servers {} and {} to login into system for "
+//                        + "an unknown reason.", mgmtServer, authServer);
+//                }
+//            } catch (UnknownCredentialsException e) {
+//                String password = config.getAuthPassword();
+//                boolean usesPassword = null != password && !password.isEmpty();
+//                
+//                LOGGER.error("Tried to login into {} via {} with user name {} and a password {}, but an error "
+//                    + "occured: {}", mgmtServer, authServer, config.getAuthUser(), usesPassword, e.getMessage());
+//            } catch (ServerNotFoundException e) {
+//                LOGGER.error("Could not reach one of the provided servers {} and {} to login into system. Reason: {}",
+//                    mgmtServer, authServer, e.getMessage());
+//            }
+//        }
     }
     
     /**
@@ -159,16 +155,5 @@ public class Settings {
      */
     public static Configuration getConfig() {
         return INSTANCE.config;
-    }
-    
-    /**
-     * Returns the login component. Maybe <tt>null</tt> if no auth server was specified or invalid credentials are
-     * provided. Please check the logs in this case.
-     * 
-     * @return The login component, which provides the access tokens to be used for the
-     * {@link RightsManagementProtocol}.
-     */
-    public LoginComponent getLogin() {
-        return loginComponent;
     }
 }

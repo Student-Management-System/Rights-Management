@@ -15,7 +15,6 @@ import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
 import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
 import net.ssehub.exercisesubmitter.protocol.frontend.User;
 import net.ssehub.rightsmanagement.TestUtils;
-import net.ssehub.rightsmanagement.conf.Settings;
 import net.ssehub.rightsmanagement.model.Course;
 
 /**
@@ -75,9 +74,10 @@ public class DataPullServiceTest {
         int exptectedNoOfAssignments = 6;
         
         // Init and execute
-        TestUtils.loginViaVmArgs();
-        RightsManagementProtocol connector = new RightsManagementProtocol("http://147.172.178.30:3000", "java",
-            semester, Settings.INSTANCE.getLogin().getManagementToken());
+        RightsManagementProtocol connector = new RightsManagementProtocol("http://147.172.178.30:8080",
+            "http://147.172.178.30:3000", "java", semester);
+        String[] credentials = TestUtils.retreiveCredentialsFormVmArgs();
+        connector.login(credentials[0], credentials[1]);
         Course course = computeFullConfiguration(connector, courseName, semester);
         
         // Test the course
