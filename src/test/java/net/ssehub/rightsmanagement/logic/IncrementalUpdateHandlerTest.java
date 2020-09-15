@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
 import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
 import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment;
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
 import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
 import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
@@ -164,34 +165,77 @@ public class IncrementalUpdateHandlerTest {
 //        Assertions.assertNotNull(changedGroup, "Group wasn't updated, but removed (not desired).");
 //        Assertions.assertFalse(changedGroup.getMembers().contains(expectedUser), "Expected user not deleted");
 //    }
-//    
-//    /**
-//     * Tests insertion of a new Assignment.
-//     */
-//    @Test
-//    public void testAssignmentInsert() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
-//        String expectedAssignmentName = "Test_Assignment 01 (Java)";
-//        initEmptyCourse();
-//        
-//        // Precondition: Assignment should not be part
-//        Assertions.assertTrue(cachedState.getAssignments().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_AssignmentInsert");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("AssignmentInsert.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: Assignment should be added
-//        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
-//        Assignment newAssignment = changedCourse.getAssignments().stream()
-//            .filter(a -> a.getName().contains(expectedAssignmentName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
-//            + "or test data has changed.");
-//    }
-//    
+    
+    /**
+     * Tests insertion of a new Assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testAssignmentInsertSingle() throws NetworkException {
+       // Must be a valid assignmentname w.r.t the ID of the Notification
+        String expectedAssignmentName = "Test_Assignment 06 (Java) Testat In Progress";
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        
+        // Precondition: Assignment should not be part
+        Assertions.assertTrue(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_ASSIGNMENT_CREATED_SINGLE");
+        NotificationDto updateMsg = UpdateMessageLoader.load("ASSIGNMENT_CREATED_SINGLE.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be added
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        ManagedAssignment actual = changedCourse.getAssignments().get(1);
+        Assignment newAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
+            + "or test data has changed.");
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        Assertions.assertEquals(expectedState, actual.getState());
+        Assertions.assertFalse(actual.isGroupWork());
+    }
+    
+    /**
+     * Tests insertion of a new Assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testAssignmentInsertGroup() throws NetworkException {
+        // Must be a valid assignmentname w.r.t the ID of the Notification
+        String expectedAssignmentName = "Test_Assignment 01 (Java)";
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        
+        // Precondition: Assignment should not be part
+        Assertions.assertTrue(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_ASSIGNMENT_CREATED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("ASSIGNMENT_CREATED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be added
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        Assignment newAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
+            + "or test data has changed.");
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        Assertions.assertEquals(expectedState, actual.getState());
+        Assertions.assertTrue(actual.isGroupWork());
+    }
+
 //    /**
 //     * Tests update an Assignment.
 //     */
@@ -265,7 +309,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testCourseUserRelationInsertGroup() throws NetworkException {
-       // Must be a valid groupname w.r.t the ID of the Notification
+        // Must be a valid groupname w.r.t the ID of the Notification
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
@@ -301,7 +345,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testCourseUserRelationInsertSingle() throws NetworkException {
-       // Must be a valid username w.r.t the ID of the Notifications
+        // Must be a valid username w.r.t the ID of the Notifications
         Set<String> expectedUserNames = new HashSet<>(Arrays.asList("elshar", "hpeter", "kunold", "mmustermann"));
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
