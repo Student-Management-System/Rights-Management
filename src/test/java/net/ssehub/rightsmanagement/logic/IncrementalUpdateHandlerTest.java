@@ -1,5 +1,29 @@
 package net.ssehub.rightsmanagement.logic;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
+import net.ssehub.exercisesubmitter.protocol.backend.NetworkException;
+import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
+import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
+import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
+import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
+import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
+import net.ssehub.rightsmanagement.TestUtils;
+import net.ssehub.rightsmanagement.UpdateMessageLoader;
+import net.ssehub.rightsmanagement.conf.Configuration.CourseConfiguration;
+import net.ssehub.rightsmanagement.conf.Settings;
+import net.ssehub.rightsmanagement.model.Course;
+import net.ssehub.studentmgmt.backend_api.model.NotificationDto;
+
 /**
  * Tests the {@link IncrementalUpdateHandler}.
  * @author El-Sharkawy
@@ -8,26 +32,15 @@ package net.ssehub.rightsmanagement.logic;
  */
 public class IncrementalUpdateHandlerTest {
     
-//    private static final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
-//    private static final String COURSE_NAME_FOR_TESTING = "java";
-//    private static final String SEMESTER_FOR_TESTING = "wise1920";
-//    
-//    private static File cacheFolder;
-//    private static Course cachedState;
+    private static final File TEMP_DIR = new File(System.getProperty("java.io.tmpdir"));
+    private static final String COURSE_NAME_FOR_TESTING = "java";
+    private static final String SEMESTER_FOR_TESTING = "wise1920";
     
-//    static {
-//        if (null == Settings.getConfig()) {
-//            try {
-//                // Create a basis configuration to avoid NullPointers, which may be changed during tests
-//                Settings.INSTANCE.init();
-//            } catch (IOException e) {
-//                Assertions.fail("Could not initialize the configuration", e);
-//            }            
-//        }
-//    }
+    private static File cacheFolder;
+    private static Course cachedState;
+        
+    //TODO AK: update the test suite by adding assignmentIDs to all update messages
     
-//    //TODO AK: update the test suite by adding assignmentIDs to all update messages
-//    
 //    /**
 //     * Tests insertion of a new Group.
 //     */
@@ -244,45 +257,127 @@ public class IncrementalUpdateHandlerTest {
 //            .orElse(null);
 //        Assertions.assertNull(removedAssignment, "Specified assignment not removed");
 //    }
-//    
-//    
-//    /**
-//     * Tests insertion of a new Course-User-Relation.
-//     */
-//    @Test
-//    public void testCourseUserRelationInsert() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
-//        String expectedUserName = "mmustermann";
-//        initEmptyCourse();
-//        
-//        // Precondition: User should not be part of course
-//        Assertions.assertTrue(cachedState.getStudents().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationInsert");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("CourseUserRelationInsert.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: User should be added to course
-//        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-//        Individual newCourseUserRelation = changedCourse.getStudents().stream()
-//            .filter(m -> m.getName().contains(expectedUserName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(newCourseUserRelation,
-//                "Specified course user relation not added. Either algorithm is broken or test data has changed.");
-//    }
-//    
+    
+    
+    /**
+     * Tests insertion of a new Course-User-Relation.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testCourseUserRelationInsertGroup() throws NetworkException {
+       // Must be a valid groupname w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", expectedState, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_USER_REGISTERED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("USER_REGISTERED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be added to group
+        Assertions.assertEquals(1, changedCourse.getAssignments().size(), 
+                "unexpectedly assignments where created or deleted");
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        Assertions.assertEquals(expectedGroupNames.size(), actual.getAllGroupNames().length);
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        Assertions.assertEquals(expectedState, actual.getState());
+    }
+    
+    /**
+     * Tests insertion of a new Course-User-Relation.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testCourseUserRelationInsertSingle() throws NetworkException {
+       // Must be a valid username w.r.t the ID of the Notifications
+        Set<String> expectedUserNames = new HashSet<>(Arrays.asList("elshar", "hpeter", "kunold", "mmustermann"));
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 06 (Java) Testat In Progress", 
+                "5b69db81-edbd-4f73-8928-1450036a75cb", expectedState, false, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_USER_REGISTERED_SINGLE");
+        NotificationDto updateMsg = UpdateMessageLoader.load("USER_REGISTERED_SINGLE.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be added to assignment
+        Assertions.assertEquals(1, changedCourse.getAssignments().size(), 
+                "unexpectedly assignments where created or deleted");
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        Assertions.assertEquals(expectedUserNames.size(), actual.getAllGroupNames().length);
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedUserNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        Assertions.assertEquals(expectedState, actual.getState());
+    }
+    
+    /**
+     * Tests insertion of a new Course-User-Relation.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testCourseUserRelationInsertNoAssignmentID() throws NetworkException {
+        // Must be a valid groupname w.r.t the ID of the Notifications
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "wrong_id", expectedState, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_USER_REGISTERED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("USER_REGISTERED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be added to group
+        Assertions.assertEquals(6, changedCourse.getAssignments().size(), 
+                "unexpectedly assignments where created or deleted");
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        Assertions.assertEquals(expectedGroupNames.size(), actual.getAllGroupNames().length);
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        Assertions.assertEquals(expectedState, actual.getState());
+    }
+    
 //    /**
 //     * Tests removing a Course-User-Relation.
+//     * @throws NetworkException when network problems occur.
 //     */
 //    @Test
-//    public void testCourseUserRelationRemove() {
+//    public void testCourseUserRelationRemove() throws NetworkException {
 //        // Must be a valid name w.r.t the ID of the UpdateMessage
 //        String notExpectedUserName = "Peter Pan";
 //        
 //        initEmptyCourse();
-//        Individual member = new Individual(notExpectedUserName);
+//        User member = new User(notExpectedUserName, "pan", "pan@testmail.com");
 //        cachedState.setStudents(Arrays.asList(member));
 //        
 //        // Precondition: User be part of course
@@ -296,95 +391,97 @@ public class IncrementalUpdateHandlerTest {
 //        // Post condition: User Peter Pan should be removed from course
 //        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
 //        
-//        Individual removedCourseUserRelation = changedCourse.getStudents().stream()
-//            .filter(u -> u.getName().contains(notExpectedUserName))
+//        User removedCourseUserRelation = changedCourse.getStudents().stream()
+//            .filter(u -> u.getFullName().contains(notExpectedUserName))
 //            .findAny()
 //            .orElse(null);
 //        Assertions.assertNull(removedCourseUserRelation, "Specified course user relation not removed");
 //    }
-//    
-//    /**
-//     * Creates a basis {@link Course} object for the tests.
-//     * This can be accessed via {@link #cachedState}.
-//     */
-//    private void initEmptyCourse() {
-//        cachedState = new Course();
-//        cachedState.setCourseName(COURSE_NAME_FOR_TESTING);
-//        cachedState.setSemester(SEMESTER_FOR_TESTING);
-//    }
-//    
-//    /**
-//     * Loads and prepares the {@link IncrementalUpdateHandler} for testing.
-//     * @param testName The name of the test, will be used to create separate, temporary test folders for each test.
-//     * @return The {@link IncrementalUpdateHandler} for testing.
-//     */
-//    private IncrementalUpdateHandler loadHandler(String testName) {
-//        cacheFolder = new File(TEMP_DIR, testName);
-//        cacheFolder.mkdir();
-//        Settings.getConfig().setCacheDir(cacheFolder.getAbsolutePath());
-//        
-//        CourseConfiguration config = new CourseConfiguration();
-//        config.setCourseName(COURSE_NAME_FOR_TESTING);
-//        config.setSemester(SEMESTER_FOR_TESTING);
-//        
-//        // Login in through credentials provided via JVM args
-//        String[] credentials = TestUtils.retreiveCredentialsFormVmArgs();
-//        try {
-//            Settings.INSTANCE.getLogin().login(credentials[0], credentials[1]);
-//        } catch (NetworkException e1) {
-//            Assertions.fail("Could not login system for testing due to: " + e1.getMessage());
-//        }
-//        
-//        IncrementalUpdateHandler testHandler = null;
-//        try {
-//            testHandler = new HandlerForTesting(config);
-//        } catch (IOException e) {
-//            Assertions.fail("Could not create handler for testing", e);
-//        }
-//        
-//        return testHandler;
-//    }
-//    
-//    /**
-//     * Handler class for testing, will use {@link IncrementalUpdateHandlerTest#cachedState} as basis for applying
-//     * changes instead of loading the current course set-up from a server.
-//     * @author El-Sharkawy
-//     *
-//     */
-//    private class HandlerForTesting extends IncrementalUpdateHandler {
-//
-//        /**
-//         * Creates a {@link IncrementalUpdateHandler} instance, that can be used for testing and does not write to
-//         * the local disk.
-//         * @param courseConfig The configuration for the managed course.
-//         * @throws IOException If caching file does not exist and cannot be created.
-//         */
-//        public HandlerForTesting(CourseConfiguration courseConfig) throws IOException {
-//            super(courseConfig, new DataPullService("http://147.172.178.30:3000", COURSE_NAME_FOR_TESTING,
-//                SEMESTER_FOR_TESTING));
-//        }
-//        
-//        @Override
-//        protected Course loadCourse() {
-//            // Course needs to be available before constructor runs -> load it via test class and not as a parameter
-//            return IncrementalUpdateHandlerTest.cachedState;
-//        }
-//        
-//    }
-//    
-//    /**
-//     * Removes temporarily created cache after test execution.
-//     */
-//    @AfterEach
-//    public void tearDown() {
-//        if (null != cacheFolder && cacheFolder.exists()) {
-//            try {
-//                FileUtils.deleteDirectory(cacheFolder);
-//            } catch (IOException e) {
-//                Assertions.fail("Could not clean up " + cacheFolder.getAbsolutePath() + " after test. "
-//                        + "Please delete this folder manually, otherwise next tests will fails.", e);
-//            }
-//        }
-//    }
+    
+    /**
+     * Creates a basis {@link Course} object for the tests.
+     * This can be accessed via {@link #cachedState}.
+     */
+    private void initEmptyCourse() {
+        cachedState = new Course();
+        cachedState.setCourseName(COURSE_NAME_FOR_TESTING);
+        cachedState.setSemester(SEMESTER_FOR_TESTING);
+    }
+    
+    /**
+     * Loads and prepares the {@link IncrementalUpdateHandler} for testing.
+     * @param testName The name of the test, will be used to create separate, temporary test folders for each test.
+     * @return The {@link IncrementalUpdateHandler} for testing.
+     * @throws NetworkException when network problems occur.
+     */
+    private IncrementalUpdateHandler loadHandler(String testName) throws NetworkException {
+        cacheFolder = new File(TEMP_DIR, testName);
+        cacheFolder.mkdir();
+        Settings.getConfig().setCacheDir(cacheFolder.getAbsolutePath());
+        
+        CourseConfiguration config = new CourseConfiguration();
+        config.setCourseName(COURSE_NAME_FOR_TESTING);
+        config.setSemester(SEMESTER_FOR_TESTING);
+        
+        IncrementalUpdateHandler testHandler = null;
+        try {
+            testHandler = new HandlerForTesting(config);
+        } catch (IOException e) {
+            Assertions.fail("Could not create handler for testing", e);
+        } 
+        
+        return testHandler;
+    }
+    
+    /**
+     * Handler class for testing, will use {@link IncrementalUpdateHandlerTest#cachedState} as basis for applying
+     * changes instead of loading the current course set-up from a server.
+     * @author El-Sharkawy
+     *
+     */
+    private class HandlerForTesting extends IncrementalUpdateHandler {
+
+        /**
+         * Creates a {@link IncrementalUpdateHandler} instance, that can be used for testing and does not write to
+         * the local disk.
+         * @param courseConfig The configuration for the managed course.
+         * @throws IOException If caching file does not exist and cannot be created.
+         * @throws NetworkException when network problems occur.
+         */
+        public HandlerForTesting(CourseConfiguration courseConfig) throws IOException, NetworkException {
+            super(courseConfig, new RightsManagementProtocol("http://147.172.178.30:8080", "http://147.172.178.30:3000",
+                    COURSE_NAME_FOR_TESTING, SEMESTER_FOR_TESTING));
+            // Login in through credentials provided via JVM args
+            String[] credentials = TestUtils.retreiveCredentialsFormVmArgs();
+            try {
+                getDataPullService().login(credentials[0], credentials[1]);
+            } catch (UnknownCredentialsException | ServerNotFoundException e) {
+                Assertions.fail("Could not login for testing due to: " + e.getMessage(), e);
+            }
+
+        }
+        
+        @Override
+        protected Course getCachedState() {
+            // Course needs to be available before constructor runs -> load it via test class and not as a parameter
+            return IncrementalUpdateHandlerTest.cachedState;
+        }
+        
+    }
+    
+    /**
+     * Removes temporarily created cache after test execution.
+     */
+    @AfterEach
+    public void tearDown() {
+        if (null != cacheFolder && cacheFolder.exists()) {
+            try {
+                FileUtils.deleteDirectory(cacheFolder);
+            } catch (IOException e) {
+                Assertions.fail("Could not clean up " + cacheFolder.getAbsolutePath() + " after test. "
+                        + "Please delete this folder manually, otherwise next tests will fails.", e);
+            }
+        }
+    }
 
 }
