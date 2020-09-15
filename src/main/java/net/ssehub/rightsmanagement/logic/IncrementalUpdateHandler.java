@@ -96,11 +96,14 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case GROUP_REGISTERED:         // a new group is added to an assignment
         case GROUP_UNREGISTERED:       // a group is removed from an assignment
         case USER_REGISTERED:          // a user was added to a group of an assignment
+            // Falls through
         case USER_UNREGISTERED:        // a user was removed from a group of an assignment
             handleAssignmentChanged(course, msg.getAssignmentId());
             break;
             
         case USER_JOINED_GROUP:        // a user joined a group in the "global" group list of the course
+            // do nothing, as no running assignment is affected
+            break;
         case USER_LEFT_GROUP:          // a user left a group in the "global" group list of the course
             // do nothing, as no running assignment is affected
             break;
@@ -132,7 +135,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
      * Loads the locally cached course information.
      * @return The locally saved {@link Course}.
      */
-    private Course getCachedState() {
+    protected Course getCachedState() {
         Course result = null;
         try {
             String content = Files.readString(cacheFile.toPath());
