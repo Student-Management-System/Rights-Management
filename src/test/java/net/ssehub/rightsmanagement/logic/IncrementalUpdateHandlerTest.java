@@ -167,11 +167,11 @@ public class IncrementalUpdateHandlerTest {
 //    }
     
     /**
-     * Tests insertion of a new Assignment.
+     * Tests creating a new single assignment.
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentInsertSingle() throws NetworkException {
+    public void testAssignmentCreatedSingle() throws NetworkException {
        // Must be a valid assignmentname w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 06 (Java) Testat In Progress";
         State expectedState = State.SUBMISSION;
@@ -194,19 +194,19 @@ public class IncrementalUpdateHandlerTest {
             .orElse(null);
         Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
             + "or test data has changed.");
+        Assertions.assertEquals(expectedState, actual.getState());
+        Assertions.assertFalse(actual.isGroupWork());
         // tutors and users should not be affected
         Assertions.assertNull(cachedState.getTutors());
         Assertions.assertTrue(cachedState.getStudents().isEmpty());
-        Assertions.assertEquals(expectedState, actual.getState());
-        Assertions.assertFalse(actual.isGroupWork());
     }
     
     /**
-     * Tests insertion of a new Assignment.
+     * Tests creation a new group assignment.
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentInsertGroup() throws NetworkException {
+    public void testAssignmentCreatedGroup() throws NetworkException {
         // Must be a valid assignmentname w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 01 (Java)";
         State expectedState = State.SUBMISSION;
@@ -229,43 +229,109 @@ public class IncrementalUpdateHandlerTest {
             .orElse(null);
         Assertions.assertNotNull(newAssignment, "Specified assignment not added. Either algorithm is broken "
             + "or test data has changed.");
+        Assertions.assertEquals(expectedState, actual.getState());
+        Assertions.assertTrue(actual.isGroupWork());
         // tutors and users should not be affected
         Assertions.assertNull(cachedState.getTutors());
         Assertions.assertTrue(cachedState.getStudents().isEmpty());
-        Assertions.assertEquals(expectedState, actual.getState());
-        Assertions.assertTrue(actual.isGroupWork());
     }
 
-//    /**
-//     * Tests update an Assignment.
-//     */
-//    @Test
-//    public void testAssignmentUpdate() {
-//        // Must be a valid name w.r.t the ID of the UpdateMessage
-//        String updatedAssignmentName = "Test_Assignment 01 (Java)";
-//        
-//        initEmptyCourse();
-//        Assignment assignmentPreUpdate = new Assignment(updatedAssignmentName, null, State.SUBMISSION, false);
-//        cachedState.setAssignments(Arrays.asList(assignmentPreUpdate));
-//        
-//        // Precondition: Assignment should be part
-//        Assertions.assertFalse(cachedState.getAssignments().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_AssignmentUpdate");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("AssignmentUpdate.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: Assignment should be updated
-//        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
-//        Assignment updatedAssignment = changedCourse.getAssignments().stream()
-//            .filter(a -> a.getName().contains(updatedAssignmentName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(updatedAssignment, "Specified assignment not updated");
-//        Assertions.assertNotSame(assignmentPreUpdate, updatedAssignment, "Assignment not updated.");
-//    }
-//    
+    /**
+     * Tests update a group assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testAssignmentStateChangedGroup() throws NetworkException {
+        // Must be a valid name w.r.t the ID of the Notification
+        String assignmentName = "Test_Assignment 01 (Java)";
+        State changedState = State.IN_REVIEW;
+        
+        initEmptyCourse();
+        ManagedAssignment assignmentPreUpdate = new ManagedAssignment(assignmentName,
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", changedState, true, 0);
+        cachedState.setAssignments(Arrays.asList(assignmentPreUpdate));
+        
+        // Precondition: Assignment should be part
+        Assertions.assertFalse(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_ASSIGNMENT_STATE_CHANGED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("ASSIGNMENT_STATE_CHANGED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be updated
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        Assignment updatedAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(assignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(updatedAssignment, "Specified assignment not updated");
+        Assertions.assertEquals(changedState, actual.getState());
+        Assertions.assertTrue(actual.isGroupWork());
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        
+        // undo state change
+        ManagedAssignment assignmentAfterTest = new ManagedAssignment(assignmentName,
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", State.SUBMISSION, false, 0);
+        cachedState.setAssignments(Arrays.asList(assignmentAfterTest));        
+        updateMsg = UpdateMessageLoader.load("ASSIGNMENT_STATE_CHANGED_SINGLE.json");
+        changedCourse = handler.computeFullConfiguration(updateMsg);
+        actual = changedCourse.getAssignments().get(0);
+        Assertions.assertEquals(State.SUBMISSION, actual.getState());
+    }
+    
+    /**
+     * Tests update a single assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testAssignmentStateChangedSingle() throws NetworkException {
+        // Must be a valid name w.r.t the ID of the Notification
+        String assignmentName = "Test_Assignment 06 (Java) Testat In Progress";
+        State changedState = State.IN_REVIEW;
+        
+        initEmptyCourse();
+        ManagedAssignment assignment = new ManagedAssignment(assignmentName,
+                "5b69db81-edbd-4f73-8928-1450036a75cb", changedState, false, 0);
+        cachedState.setAssignments(Arrays.asList(assignment));
+        
+        // Precondition: Assignment should be part
+        Assertions.assertFalse(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_ASSIGNMENT_STATE_CHANGED_SINGLE");
+        NotificationDto updateMsg = UpdateMessageLoader.load("ASSIGNMENT_STATE_CHANGED_SINGLE.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment should be updated
+        Assertions.assertFalse(changedCourse.getAssignments().isEmpty());
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        Assignment updatedAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(assignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNotNull(updatedAssignment, "Specified assignment not updated");
+        Assertions.assertEquals(changedState, actual.getState());
+        Assertions.assertFalse(actual.isGroupWork());
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        
+        // undo state change
+        ManagedAssignment assignmentAfterTest = new ManagedAssignment(assignmentName,
+                "5b69db81-edbd-4f73-8928-1450036a75cb", State.SUBMISSION, false, 0);
+        cachedState.setAssignments(Arrays.asList(assignmentAfterTest));        
+        updateMsg = UpdateMessageLoader.load("ASSIGNMENT_STATE_CHANGED_SINGLE.json");
+        changedCourse = handler.computeFullConfiguration(updateMsg);
+        actual = changedCourse.getAssignments().get(0);
+        Assertions.assertEquals(State.SUBMISSION, actual.getState());
+    }
+    
 //    /**
 //     * Tests removing of an Assignment.
 //     */
