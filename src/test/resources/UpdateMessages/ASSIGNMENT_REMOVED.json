@@ -1,5 +1,5 @@
 {
     "event": "ASSIGNMENT_REMOVED",
     "courseId": "java-wise1920",
-    "entityId": "not-an-existing-id"
+    "assignmentId": "not-an-existing-id"
 }

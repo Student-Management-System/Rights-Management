@@ -89,6 +89,7 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         // see https://github.com/Student-Management-System/StudentMgmt-Backend/blob/master/api-docs/docs/events.md
         switch (msg.getEvent()) {
         case ASSIGNMENT_CREATED:       // an assignment was created
+            // Falls through
         case ASSIGNMENT_STATE_CHANGED: // an assignment state was changed (e.g. submission phase -> review phase)
         case ASSIGNMENT_REMOVED:       // an assignment was deleted
         case REGISTRATIONS_CREATED:    // the initial set of groups for an assignment is created 

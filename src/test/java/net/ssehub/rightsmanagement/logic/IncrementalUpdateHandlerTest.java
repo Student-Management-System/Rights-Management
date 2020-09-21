@@ -332,42 +332,73 @@ public class IncrementalUpdateHandlerTest {
         Assertions.assertEquals(State.SUBMISSION, actual.getState());
     }
     
-//    /**
-//     * Tests removing of an Assignment.
-//     */
-//    @Test
-//    public void testAssignmentRemove() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
-//        String expectedAssignmentName = "Test_Assignment 09";
-//        initEmptyCourse();
-//        List<Assignment> assignments = new ArrayList<>();
-//        assignments.add(new Assignment("Test_Assignment 01 (Java)", null, State.SUBMISSION, false));
-//        assignments.add(new Assignment("Test_Assignment 02 (Java)", null, State.SUBMISSION, false));
-//        assignments.add(new Assignment("Test_Assignment 03 (Java)", null, State.SUBMISSION, false));
-//        assignments.add(new Assignment("Test_Assignment 04 (Java)", null, State.SUBMISSION, false));
-//        assignments.add(new Assignment("Test_Assignment 05 (Java) Invisible", null, State.INVISIBLE, false));
-//        assignments.add(new Assignment("Test_Assignment 06 (Java) Testat In Progress", null, State.INVISIBLE, false));
-//        assignments.add(new Assignment(expectedAssignmentName, null, State.INVISIBLE, false));
-//        int nAssignmentsBeforeDelete = assignments.size();
-//        cachedState.setAssignments(assignments);
-//        
-//        // Precondition: Assignment should contain six assignments
-//        Assertions.assertEquals(nAssignmentsBeforeDelete, cachedState.getAssignments().size());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_AssignmentRemove");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("AssignmentRemove.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: Assignment six should be removed
-//        Assertions.assertEquals(nAssignmentsBeforeDelete - 1, changedCourse.getAssignments().size());
-//        Assignment removedAssignment = changedCourse.getAssignments().stream()
-//            .filter(a -> a.getName().contains(expectedAssignmentName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNull(removedAssignment, "Specified assignment not removed");
-//    }
+    /**
+     * Tests removing of a single Assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testAssignmentRemovedSingle() throws NetworkException {
+       // Must be a valid name w.r.t the ID of the Notification
+        String expectedAssignmentName = "Test_Assignment 09";
+        initEmptyCourse();
+        
+        ManagedAssignment assignment = new ManagedAssignment(expectedAssignmentName,
+                "5b69db81-edbd-4f73-8928-1450036a75cb", State.INVISIBLE, false, 0);
+        cachedState.setAssignments(Arrays.asList(assignment));
+        
+        // Precondition: Assignment should contain six assignments
+        Assertions.assertFalse(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_ASSIGNMENT_REMOVED");
+        NotificationDto updateMsg = UpdateMessageLoader.load("ASSIGNMENT_REMOVED.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment six should be removed
+        Assignment removedAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNull(removedAssignment, "Specified assignment not removed");
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
     
+    /**
+     * Tests removing of a group Assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testAssignmentRemovedGroup() throws NetworkException {
+       // Must be a valid name w.r.t the ID of the Notification
+        String expectedAssignmentName = "Test_Assignment 09";
+        initEmptyCourse();
+        
+        ManagedAssignment assignment = new ManagedAssignment(expectedAssignmentName,
+                "5b69db81-edbd-4f73-8928-1450036a75cb", State.INVISIBLE, true, 0);
+        cachedState.setAssignments(Arrays.asList(assignment));
+        
+        // Precondition: Assignment should contain six assignments
+        Assertions.assertFalse(cachedState.getAssignments().isEmpty());
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_ASSIGNMENT_REMOVED");
+        NotificationDto updateMsg = UpdateMessageLoader.load("ASSIGNMENT_REMOVED.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Assignment six should be removed
+        Assignment removedAssignment = changedCourse.getAssignments().stream()
+            .filter(a -> a.getName().contains(expectedAssignmentName))
+            .findAny()
+            .orElse(null);
+        Assertions.assertNull(removedAssignment, "Specified assignment not removed");
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
     
     /**
      * Tests insertion of a new Course-User-Relation.
