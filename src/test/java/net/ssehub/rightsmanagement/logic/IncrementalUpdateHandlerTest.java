@@ -343,7 +343,7 @@ public class IncrementalUpdateHandlerTest {
         initEmptyCourse();
         
         ManagedAssignment assignment = new ManagedAssignment(expectedAssignmentName,
-                "5b69db81-edbd-4f73-8928-1450036a75cb", State.INVISIBLE, false, 0);
+                "not-existing-id", State.INVISIBLE, false, 0);
         cachedState.setAssignments(Arrays.asList(assignment));
         
         // Precondition: Assignment should contain six assignments
@@ -377,7 +377,7 @@ public class IncrementalUpdateHandlerTest {
         initEmptyCourse();
         
         ManagedAssignment assignment = new ManagedAssignment(expectedAssignmentName,
-                "5b69db81-edbd-4f73-8928-1450036a75cb", State.INVISIBLE, true, 0);
+                "not-existing-id", State.INVISIBLE, true, 0);
         cachedState.setAssignments(Arrays.asList(assignment));
         
         // Precondition: Assignment should contain six assignments
