@@ -42,33 +42,115 @@ public class IncrementalUpdateHandlerTest {
         
     //TODO AK: update the test suite by adding assignmentIDs to all update messages
     
-//    /**
-//     * Tests insertion of a new Group.
-//     */
-//    @Test
-//    public void testGroupInsert() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
-//        String expectedGroupName = "Testgroup 1";
-//        initEmptyCourse();
-//        
-//        // Precondition: Group should not be part
-//        Assertions.assertTrue(cachedState.getHomeworkGroups().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_GroupInsert");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("GroupInsert.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: Group should be added
-//        Assertions.assertFalse(changedCourse.getHomeworkGroups().isEmpty());
-//        Group newGroup = changedCourse.getHomeworkGroups().stream()
-//            .filter(g -> g.getName().contains(expectedGroupName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(newGroup, "Specified group not added. Either algorithm is broken "
-//            + "or test data has changed.");
-//    }
-//    
+    /**
+     * Tests register of a new Group for a group assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testGroupRegisteredGroupAssignment() throws NetworkException {
+       // Must be a valid name w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", expectedState, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Precondition: Group should not be part
+        Assertions.assertEquals(0, cachedState.getAssignments().get(0).getAllGroupNames().length);
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_GROUP_REGISTERED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("GROUP_REGISTERED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        
+        // Post condition: Group should be added
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
+    
+    /**
+     * Tests register of a new Group for a single assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testGroupRegisteredSingleAssignment() throws NetworkException {
+        // Must be a valid name w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("elshar", "hpeter", "kunold", "mmustermann"));
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 06 (Java) Testat In Progress", 
+                "5b69db81-edbd-4f73-8928-1450036a75cb", expectedState, false, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Precondition: Group should not be part
+        Assertions.assertEquals(0, cachedState.getAssignments().get(0).getAllGroupNames().length);
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_GROUP_REGISTERED_SINGLE");
+        NotificationDto updateMsg = UpdateMessageLoader.load("GROUP_REGISTERED_SINGLE.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        
+        // Post condition: Group should be added
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
+    
+    /**
+     * Tests register of a new Group for a group assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testGroupRegisteredNoAssignmentId() throws NetworkException {
+       // Must be a valid name w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        State expectedState = State.SUBMISSION;
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "wrong_id", expectedState, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Precondition: Group should not be part
+        Assertions.assertEquals(0, cachedState.getAssignments().get(0).getAllGroupNames().length);
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_GROUP_REGISTERED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("GROUP_REGISTERED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        
+        // Post condition: Group should be added
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
+
+    
 //    /**
 //     * Tests removing a Group.
 //     */
@@ -171,7 +253,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentCreatedSingle() throws NetworkException {
+    public void testAssignmentCreatedSingleAssignment() throws NetworkException {
        // Must be a valid assignmentname w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 06 (Java) Testat In Progress";
         State expectedState = State.SUBMISSION;
@@ -206,7 +288,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentCreatedGroup() throws NetworkException {
+    public void testAssignmentCreatedGroupAssignment() throws NetworkException {
         // Must be a valid assignmentname w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 01 (Java)";
         State expectedState = State.SUBMISSION;
@@ -241,7 +323,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentStateChangedGroup() throws NetworkException {
+    public void testAssignmentStateChangedGroupAssignment() throws NetworkException {
         // Must be a valid name w.r.t the ID of the Notification
         String assignmentName = "Test_Assignment 01 (Java)";
         State changedState = State.IN_REVIEW;
@@ -289,7 +371,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentStateChangedSingle() throws NetworkException {
+    public void testAssignmentStateChangedSingleAssignment() throws NetworkException {
         // Must be a valid name w.r.t the ID of the Notification
         String assignmentName = "Test_Assignment 06 (Java) Testat In Progress";
         State changedState = State.IN_REVIEW;
@@ -337,7 +419,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentRemovedSingle() throws NetworkException {
+    public void testAssignmentRemovedSingleAssignment() throws NetworkException {
        // Must be a valid name w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 09";
         initEmptyCourse();
@@ -371,7 +453,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testAssignmentRemovedGroup() throws NetworkException {
+    public void testAssignmentRemovedGroupAssignment() throws NetworkException {
        // Must be a valid name w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 09";
         initEmptyCourse();
@@ -405,7 +487,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testUserRegisteredGroup() throws NetworkException {
+    public void testUserRegisteredGroupAssignment() throws NetworkException {
         // Must be a valid groupname w.r.t the ID of the Notification
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
@@ -441,7 +523,7 @@ public class IncrementalUpdateHandlerTest {
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testUserRegisteredSingle() throws NetworkException {
+    public void testUserRegisteredSingleAssignment() throws NetworkException {
         // Must be a valid username w.r.t the ID of the Notifications
         Set<String> expectedUserNames = new HashSet<>(Arrays.asList("elshar", "hpeter", "kunold", "mmustermann"));
         State expectedState = State.SUBMISSION;
