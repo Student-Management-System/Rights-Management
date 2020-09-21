@@ -401,11 +401,11 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests insertion of a new Course-User-Relation.
+     * Tests adding of a user to a group of a group assignment.
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testCourseUserRelationInsertGroup() throws NetworkException {
+    public void testUserRegisteredGroup() throws NetworkException {
         // Must be a valid groupname w.r.t the ID of the Notification
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
@@ -437,11 +437,11 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests insertion of a new Course-User-Relation.
+     * Tests adding of a user to a group of a single assignment.
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testCourseUserRelationInsertSingle() throws NetworkException {
+    public void testUserRegisteredSingle() throws NetworkException {
         // Must be a valid username w.r.t the ID of the Notifications
         Set<String> expectedUserNames = new HashSet<>(Arrays.asList("elshar", "hpeter", "kunold", "mmustermann"));
         State expectedState = State.SUBMISSION;
@@ -473,11 +473,11 @@ public class IncrementalUpdateHandlerTest {
     }
     
     /**
-     * Tests insertion of a new Course-User-Relation.
+     * Tests adding of a user to a group of a group assignment.
      * @throws NetworkException when network problems occur.
      */
     @Test
-    public void testCourseUserRelationInsertNoAssignmentID() throws NetworkException {
+    public void testUserRegisteredNoAssignmentID() throws NetworkException {
         // Must be a valid groupname w.r.t the ID of the Notifications
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
