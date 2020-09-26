@@ -39,8 +39,6 @@ public class IncrementalUpdateHandlerTest {
     
     private static File cacheFolder;
     private static Course cachedState;
-        
-    //TODO AK: update the test suite by adding assignmentIDs to all update messages
     
     /**
      * Tests register of a new Group for a group assignment.
@@ -152,11 +150,11 @@ public class IncrementalUpdateHandlerTest {
 
     
 //    /**
-//     * Tests removing a Group.
+//     * Tests unregister of a Group.
 //     */
 //    @Test
-//    public void testGroupRemove() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
+//    public void testGroupUnregister() {
+//       // Must be a valid name w.r.t the ID of the Notification
 //        String expectedGroupName = "Testgroup 4";
 //        int nGroupsBeforeDelte = 4;
 //        initEmptyCourse();
@@ -170,8 +168,8 @@ public class IncrementalUpdateHandlerTest {
 //        Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getHomeworkGroups().size());
 //        
 //        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_GroupRemove");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("GroupRemove.json");
+//        IncrementalUpdateHandler handler = loadHandler("test_GROUP_UNREGISTERED");
+//        NotificationDto updateMsg = UpdateMessageLoader.load("GROUP_UNREGISTERED.json");
 //        Course changedCourse = handler.computeFullConfiguration(updateMsg);
 //        
 //        // Post condition: Group 3 should be removed
@@ -182,13 +180,13 @@ public class IncrementalUpdateHandlerTest {
 //            .orElse(null);
 //        Assertions.assertNull(removedGroup, "Specified group not removed.");
 //    }
-//    
+    
 //    /**
-//     * Tests insertion of a new User-Group-Relation.
+//     * Tests user joins a group.
 //     */
 //    @Test
-//    public void testUserGroupRelationInsert() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
+//    public void testUserJoinGroup() {
+//       // Must be a valid name w.r.t the ID of the Notification
 //        Individual expectedUser = new Individual("mmustermann");
 //        initEmptyCourse();
 //        
@@ -196,8 +194,8 @@ public class IncrementalUpdateHandlerTest {
 //        Assertions.assertTrue(cachedState.getHomeworkGroups().isEmpty());
 //        
 //        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationInsert");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("UserGroupRelationInsert.json");
+//        IncrementalUpdateHandler handler = loadHandler("test_USER_JOINED_GROUP");
+//        NotificationDto updateMsg = UpdateMessageLoader.load("USER_JOINED_GROUP.json");
 //        Course changedCourse = handler.computeFullConfiguration(updateMsg);
 //        
 //        // Temporary fix "Homework groups do not longer contain user"
@@ -215,11 +213,11 @@ public class IncrementalUpdateHandlerTest {
 //    }
 //    
 //    /**
-//     * Tests removing a user from a Group.
+//     * Tests user left group.
 //     */
 //    @Test
-//    public void testUserGroupRelationRemove() {
-//       // Must be a valid name w.r.t the ID of the UpdateMessage
+//    public void testUserLeftGroup() {
+//       // Must be a valid name w.r.t the ID of the Notification
 //        Individual expectedUser = new Individual("Peter Pan");
 //        int nGroups = 3;
 //        initEmptyCourse();
@@ -234,8 +232,8 @@ public class IncrementalUpdateHandlerTest {
 //        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
 //        
 //        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_UserGroupRelationRemove");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("UserGroupRelationRemove.json");
+//        IncrementalUpdateHandler handler = loadHandler("test_USER_LEFT_GROUP");
+//        NotificationDto updateMsg = UpdateMessageLoader.load("USER_LEFT_GROUP.json");
 //        Course changedCourse = handler.computeFullConfiguration(updateMsg);
 //        
 //        // Post condition: User of Group 2 should be removed
@@ -591,12 +589,12 @@ public class IncrementalUpdateHandlerTest {
     }
     
 //    /**
-//     * Tests removing a Course-User-Relation.
+//     * Tests user unregistered.
 //     * @throws NetworkException when network problems occur.
 //     */
 //    @Test
 //    public void testCourseUserRelationRemove() throws NetworkException {
-//        // Must be a valid name w.r.t the ID of the UpdateMessage
+//        // Must be a valid name w.r.t the ID of the Notifiaction
 //        String notExpectedUserName = "Peter Pan";
 //        
 //        initEmptyCourse();
@@ -607,8 +605,8 @@ public class IncrementalUpdateHandlerTest {
 //        Assertions.assertFalse(cachedState.getStudents().isEmpty());
 //        
 //        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_CourseUserRelationRemove");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("CourseUserRelationRemove.json");
+//        IncrementalUpdateHandler handler = loadHandler("test_USER_UNREGISTERED");
+//        NotificationDto updateMsg = UpdateMessageLoader.load("USER_UNREGISTERED.json");
 //        Course changedCourse = handler.computeFullConfiguration(updateMsg);
 //        
 //        // Post condition: User Peter Pan should be removed from course
