@@ -534,7 +534,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testUserRegisteredSingleAssignment() throws NetworkException {
-        // Must be a valid username w.r.t the ID of the Notifications
+        // Must be a valid username w.r.t the ID of the Notification
         Set<String> expectedUserNames = new HashSet<>(Arrays.asList("elshar", "hpeter", "kunold", "mmustermann"));
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
@@ -570,7 +570,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testUserRegisteredNoAssignmentID() throws NetworkException {
-        // Must be a valid groupname w.r.t the ID of the Notifications
+        // Must be a valid groupname w.r.t the ID of the Notification
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
@@ -600,36 +600,43 @@ public class IncrementalUpdateHandlerTest {
         Assertions.assertEquals(expectedState, actual.getState());
     }
     
-//    /**
-//     * Tests user unregistered.
-//     * @throws NetworkException when network problems occur.
-//     */
-//    @Test
-//    public void testCourseUserRelationRemove() throws NetworkException {
-//        // Must be a valid name w.r.t the ID of the Notifiaction
-//        String notExpectedUserName = "Peter Pan";
-//        
-//        initEmptyCourse();
-//        User member = new User(notExpectedUserName, "pan", "pan@testmail.com");
-//        cachedState.setStudents(Arrays.asList(member));
-//        
-//        // Precondition: User be part of course
-//        Assertions.assertFalse(cachedState.getStudents().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_USER_UNREGISTERED");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("USER_UNREGISTERED.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: User Peter Pan should be removed from course
-//        Assertions.assertFalse(changedCourse.getStudents().isEmpty());
-//        
-//        User removedCourseUserRelation = changedCourse.getStudents().stream()
-//            .filter(u -> u.getFullName().contains(notExpectedUserName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNull(removedCourseUserRelation, "Specified course user relation not removed");
-//    }
+    /**
+     * Tests removing a user from a group of an assignment.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testCourseUserRelationRemove() throws NetworkException {
+        // Must be a valid groupname w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        State expectedState = State.SUBMISSION;
+        
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", expectedState, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_USER_UNREGISTERED");
+        NotificationDto updateMsg = UpdateMessageLoader.load("USER_UNREGISTERED.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: User should be removed from group
+        Assertions.assertEquals(6, changedCourse.getAssignments().size(), 
+                "unexpectedly assignments where created or deleted");
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        Assertions.assertEquals(expectedGroupNames.size(), actual.getAllGroupNames().length);
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+        Assertions.assertEquals(expectedState, actual.getState());
+    }
     
     /**
      * Creates a basis {@link Course} object for the tests.
