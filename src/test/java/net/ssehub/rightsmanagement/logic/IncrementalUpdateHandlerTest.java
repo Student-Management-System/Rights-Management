@@ -16,6 +16,7 @@ import net.ssehub.exercisesubmitter.protocol.backend.ServerNotFoundException;
 import net.ssehub.exercisesubmitter.protocol.backend.UnknownCredentialsException;
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment;
 import net.ssehub.exercisesubmitter.protocol.frontend.Assignment.State;
+import net.ssehub.exercisesubmitter.protocol.frontend.Group;
 import net.ssehub.exercisesubmitter.protocol.frontend.ManagedAssignment;
 import net.ssehub.exercisesubmitter.protocol.frontend.RightsManagementProtocol;
 import net.ssehub.rightsmanagement.TestUtils;
@@ -46,7 +47,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testGroupRegisteredGroupAssignment() throws NetworkException {
-       // Must be a valid name w.r.t the ID of the Notification
+        // Must be a valid name w.r.t the ID of the Notification
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
@@ -149,37 +150,48 @@ public class IncrementalUpdateHandlerTest {
     }
 
     
-//    /**
-//     * Tests unregister of a Group.
-//     */
-//    @Test
-//    public void testGroupUnregister() {
-//       // Must be a valid name w.r.t the ID of the Notification
-//        String expectedGroupName = "Testgroup 4";
-//        int nGroupsBeforeDelte = 4;
-//        initEmptyCourse();
-//        Group g1 = new Group("Testgroup 1");
-//        Group g2 = new Group("Testgroup 2");
-//        Group g3 = new Group("Testgroup 3");
-//        Group g4 = new Group("Testgroup 4");
-//        cachedState.setHomeworkGroups(Arrays.asList(g1, g2, g3, g4));
-//        
-//        // Precondition: Group should contain three groups
-//        Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getHomeworkGroups().size());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_GROUP_UNREGISTERED");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("GROUP_UNREGISTERED.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: Group 3 should be removed
-//        Assertions.assertEquals(nGroupsBeforeDelte - 1, changedCourse.getHomeworkGroups().size());
-//        Group removedGroup = changedCourse.getHomeworkGroups().stream()
-//            .filter(g -> g.getName().contains(expectedGroupName))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNull(removedGroup, "Specified group not removed.");
-//    }
+    /**
+     * Tests unregister of a Group.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testGroupUnregister() throws NetworkException {
+        // Must be a valid name w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        int nGroupsBeforeDelte = 4;
+        initEmptyCourse();
+        Group g1 = new Group("Testgroup 1");
+        Group g2 = new Group("Testgroup 2");
+        Group g3 = new Group("Testgroup 3");
+        Group g4 = new Group("Testgroup 4");
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "wrong_id", State.SUBMISSION, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        cachedState.getAssignments().get(0).setGroups(Arrays.asList(g1, g2, g3, g4));
+        
+        // Precondition: Group should contain four groups
+        Assertions.assertEquals(nGroupsBeforeDelte, cachedState.getAssignments().get(0).getAllGroupNames().length);
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_GROUP_UNREGISTERED");
+        NotificationDto updateMsg = UpdateMessageLoader.load("GROUP_UNREGISTERED.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // Post condition: Group 4 should be removed
+        Assertions.assertEquals(nGroupsBeforeDelte - 1, 
+                changedCourse.getAssignments().get(0).getAllGroupNames().length);
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
     
 //    /**
 //     * Tests user joins a group.
