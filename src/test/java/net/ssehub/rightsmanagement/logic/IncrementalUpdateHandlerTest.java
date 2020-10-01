@@ -119,7 +119,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testGroupRegisteredNoAssignmentId() throws NetworkException {
-       // Must be a valid name w.r.t the ID of the Notification
+        // Must be a valid name w.r.t the ID of the Notification
         Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
@@ -193,70 +193,77 @@ public class IncrementalUpdateHandlerTest {
         Assertions.assertTrue(cachedState.getStudents().isEmpty());
     }
     
-//    /**
-//     * Tests user joins a group.
-//     */
-//    @Test
-//    public void testUserJoinGroup() {
-//       // Must be a valid name w.r.t the ID of the Notification
-//        Individual expectedUser = new Individual("mmustermann");
-//        initEmptyCourse();
-//        
-//        // Precondition: Group should not be part
-//        Assertions.assertTrue(cachedState.getHomeworkGroups().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_USER_JOINED_GROUP");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("USER_JOINED_GROUP.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Temporary fix "Homework groups do not longer contain user"
-//        Group homeworkGroup = new Group("New Group");
-//        homeworkGroup.addMembers(expectedUser);
-//        changedCourse.setHomeworkGroups(Arrays.asList(homeworkGroup));
-//        
-//        // Post condition: Group should be added
-//        Group newUserGroupRelation = changedCourse.getHomeworkGroups().stream()
-//            .filter(g -> g.getMembers().contains(expectedUser))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(newUserGroupRelation, "Specified user-group-relation not added. Either algorithm is "
-//                + "broken or test data has changed.");
-//    }
-//    
-//    /**
-//     * Tests user left group.
-//     */
-//    @Test
-//    public void testUserLeftGroup() {
-//       // Must be a valid name w.r.t the ID of the Notification
-//        Individual expectedUser = new Individual("Peter Pan");
-//        int nGroups = 3;
-//        initEmptyCourse();
-//        Group g1 = new Group("Testgroup 1");
-//        Group g2 = new Group("Testgroup 2");
-//        g2.addMembers(expectedUser);
-//        Group g3 = new Group("Testgroup 3");
-//        cachedState.setHomeworkGroups(Arrays.asList(g1, g2, g3));
-//        
-//        // Precondition: Group should contain two groups
-//        Assertions.assertEquals(nGroups, cachedState.getHomeworkGroups().size());
-//        Assertions.assertFalse(cachedState.getHomeworkGroups().isEmpty());
-//        
-//        // Apply update
-//        IncrementalUpdateHandler handler = loadHandler("test_USER_LEFT_GROUP");
-//        NotificationDto updateMsg = UpdateMessageLoader.load("USER_LEFT_GROUP.json");
-//        Course changedCourse = handler.computeFullConfiguration(updateMsg);
-//        
-//        // Post condition: User of Group 2 should be removed
-//        Assertions.assertEquals(nGroups, changedCourse.getHomeworkGroups().size());
-//        Group changedGroup = changedCourse.getHomeworkGroups().stream()
-//            .filter(g -> g.getName().equals(g2.getName()))
-//            .findAny()
-//            .orElse(null);
-//        Assertions.assertNotNull(changedGroup, "Group wasn't updated, but removed (not desired).");
-//        Assertions.assertFalse(changedGroup.getMembers().contains(expectedUser), "Expected user not deleted");
-//    }
+    /**
+     * Tests user joins a group.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testUserJoinGroup() throws NetworkException {
+        // Must be a valid groupname w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", State.SUBMISSION, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Precondition: Group should not be part
+        Assertions.assertEquals(0, cachedState.getAssignments().get(0).getAllGroupNames().length);
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_USER_JOINED_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("USER_JOINED_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+        
+        // "Homework groups do not longer contain user"        
+        // Post condition: Group should be added
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
+    
+    /**
+     * Tests user left group.
+     * @throws NetworkException when network problems occur.
+     */
+    @Test
+    public void testUserLeftGroup() throws NetworkException {
+        // Must be a valid name w.r.t the ID of the Notification
+        Set<String> expectedGroupNames = new HashSet<>(Arrays.asList("Testgroup 1", "Testgroup 2", "Testgroup 3"));
+        initEmptyCourse();
+        ManagedAssignment ma = new ManagedAssignment("Test_Assignment 01 (Java)", 
+                "b2f6c008-b9f7-477f-9e8b-ff34ce339077", State.SUBMISSION, true, 0);
+        cachedState.setAssignments(Arrays.asList(ma));
+        
+        // Precondition: Group should not be part
+        Assertions.assertEquals(0, cachedState.getAssignments().get(0).getAllGroupNames().length);
+        
+        // Apply update
+        IncrementalUpdateHandler handler = loadHandler("test_USER_LEFT_GROUP");
+        NotificationDto updateMsg = UpdateMessageLoader.load("USER_LEFT_GROUP.json");
+        Course changedCourse = handler.computeFullConfiguration(updateMsg);
+
+        // "Homework groups do not longer contain user"        
+        // Post condition: Group should be added
+        ManagedAssignment actual = changedCourse.getAssignments().get(0);
+        
+        String[] actualGroups = actual.getAllGroupNames();
+        for (int i = 0; i < actualGroups.length; i++) {
+            Assertions.assertTrue(expectedGroupNames.contains(actualGroups[i]), "'" + actualGroups[i]
+                + "' was managed as group of assignment '" + actual.getName() + "', but not expected.");
+        }
+        
+        // tutors and users should not be affected
+        Assertions.assertNull(cachedState.getTutors());
+        Assertions.assertTrue(cachedState.getStudents().isEmpty());
+    }
     
     /**
      * Tests creating a new single assignment.
@@ -264,7 +271,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testAssignmentCreatedSingleAssignment() throws NetworkException {
-       // Must be a valid assignmentname w.r.t the ID of the Notification
+        // Must be a valid assignmentname w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 06 (Java) Testat In Progress";
         State expectedState = State.SUBMISSION;
         initEmptyCourse();
@@ -430,7 +437,7 @@ public class IncrementalUpdateHandlerTest {
      */
     @Test
     public void testAssignmentRemovedSingleAssignment() throws NetworkException {
-       // Must be a valid name w.r.t the ID of the Notification
+        // Must be a valid name w.r.t the ID of the Notification
         String expectedAssignmentName = "Test_Assignment 09";
         initEmptyCourse();
         
