@@ -91,11 +91,17 @@ public class IncrementalUpdateHandler extends AbstractUpdateHandler {
         case ASSIGNMENT_CREATED:       // an assignment was created
             // Falls through
         case ASSIGNMENT_STATE_CHANGED: // an assignment state was changed (e.g. submission phase -> review phase)
+            // Falls through
         case ASSIGNMENT_REMOVED:       // an assignment was deleted
+            // Falls through
         case REGISTRATIONS_CREATED:    // the initial set of groups for an assignment is created 
+            // Falls through
         case REGISTRATIONS_REMOVED:    // all groups for an assignment are removed
+            // Falls through
         case GROUP_REGISTERED:         // a new group is added to an assignment
+            // Falls through
         case GROUP_UNREGISTERED:       // a group is removed from an assignment
+            // Falls through
         case USER_REGISTERED:          // a user was added to a group of an assignment
             // Falls through
         case USER_UNREGISTERED:        // a user was removed from a group of an assignment
