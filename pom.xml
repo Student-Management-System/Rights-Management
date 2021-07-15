@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>ssehub.net.studentmgmt</groupId>
 	<artifactId>RightsManagement</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 
 	<properties>
 		<maven-plugin-version>1.0.0</maven-plugin-version>
@@ -195,19 +195,19 @@
 		</dependency>
 
 		<dependency>
-			<groupId>net.ssehub.studentmgmt</groupId>
-			<artifactId>backend_api</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>net.ssehub.studentmgmt</groupId>
-			<artifactId>sparkyservice_api</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
-		</dependency>
+      <groupId>net.ssehub.studentmgmt</groupId>
+      <artifactId>backend_api</artifactId>
+      <version>1.1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>net.ssehub.studentmgmt</groupId>
+      <artifactId>sparkyservice_api</artifactId>
+      <version>1.1.1</version>
+    </dependency>
 		<dependency>
 			<groupId>net.ssehub.studentmgmt</groupId>
 			<artifactId>submitter-protocol</artifactId>
-			<version>0.0.2-SNAPSHOT</version>
+			<version>1.1.2</version>
 		</dependency>
 
 		<!-- Junit -->
@@ -244,4 +244,13 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	
+	<distributionManagement>
+    <repository>
+      <id>student-management-system-github</id>
+      <name>Student-Management-System GitHub Packages</name>
+      <url>https://maven.pkg.github.com/student-management-system/mavenpackages
+      </url>
+    </repository>
+  </distributionManagement>
 </project>
