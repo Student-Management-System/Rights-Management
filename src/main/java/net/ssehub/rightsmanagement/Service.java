@@ -31,7 +31,7 @@ import net.ssehub.studentmgmt.sparkyservice_api.model.CredentialsDto;
 public class Service {
     private static final Logger LOGGER = LogManager.getLogger(Service.class);
 
-    private String listenerId = String.format("svn-rights-management-%d04",
+    private String listenerId = String.format("svn-rights-management-%04d",
             (int) (Math.random() * 10000));
     
     private List<String> subscribedCourses = new LinkedList<>();
