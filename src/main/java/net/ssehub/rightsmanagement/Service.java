@@ -60,7 +60,7 @@ public class Service {
             mgmtClient.setBasePath(Settings.getConfig().getMgmtServerURL());
             mgmtClient.setAccessToken(authResult.getToken().getToken());
         } catch (ApiException e) {
-            System.err.println("Failed to authenticate: " + e.getCode() + ", " + e.getResponseBody());
+            LOGGER.error("Failed to authenticate: " + e.getCode() + ", " + e.getResponseBody());
         }
         
         return mgmtClient;
@@ -84,14 +84,20 @@ public class Service {
             events.put("ALL", true);
             subscriber.setEvents(events);
             
+            LOGGER.info("Subscribing as listener " + listenerId + " with URL " + subscriber.getUrl()
+                + " to all events");
+            
             for (CourseConfiguration courseConfig : Settings.getConfig().getCourses()) {
                 String courseId = courseConfig.getCourseName() + "-" + courseConfig.getSemester();
                 try {
                     notificationApi.subscribe(subscriber, courseConfig.getCourseName() + "-"
                             + courseConfig.getSemester(), listenerId);
+                    
+                    LOGGER.info("Subscribed to course " + courseId);
+                    
                     subscribedCourses.add(courseId);
                 } catch (net.ssehub.studentmgmt.backend_api.ApiException e) {
-                    System.err.println("Failed to subscribe to course " + courseId + ": " + e.getCode()
+                    LOGGER.error("Failed to subscribe to course " + courseId + ": " + e.getCode()
                             + ", " + e.getResponseBody());
                 }
             }
@@ -113,8 +119,10 @@ public class Service {
         for (String courseId : subscribedCourses) {
             try {
                 notificationApi.unsubscribe(courseId, listenerId);
+                LOGGER.info("Unsubscribed from course " + courseId);
+                
             } catch (net.ssehub.studentmgmt.backend_api.ApiException e) {
-                System.err.println("Failed to unsubscribe from course " + courseId + ": " + e.getCode()
+                LOGGER.error("Failed to unsubscribe from course " + courseId + ": " + e.getCode()
                     + ", " + e.getResponseBody());
             }
         }
@@ -123,10 +131,10 @@ public class Service {
     
     /**
      * Runs this service.
-     * 
-     * @throws IOException If caching was specified and the required file cannot be created and does not exist.
      */
-    public void run() throws IOException {
+    // checkstyle: stop exception type check (used interface of library throws exception)
+    public void run() throws Exception {
+    // checkstyle: resume exception type check
         try {
             Settings.INSTANCE.checkForInitializationError();
         } catch (IOException e) {
@@ -145,29 +153,37 @@ public class Service {
             UpdateChangeListener.INSTANCE.register(handler); 
         }
         
-        RestServer server = new RestServer(Settings.getConfig().getRestPort());
-        
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            server.close();
-            unregisterListener();
-        }));
-        
-        while (!registerListener()) {
-            System.out.println("Failed to register this service as a listener in the management instance"
-                    + ", retrying in 10 seconds...");
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
+        try (RestServer server = new RestServer(Settings.getConfig().getRestPort())) {
+            while (!registerListener()) {
+                LOGGER.error("Failed to register this service as a listener in the management instance"
+                        + ", retrying in 10 seconds...");
+                try {
+                    Thread.sleep(10000);
+                } catch (InterruptedException e) {
+                }
             }
+            
+            boolean success = false;
+            while (!success) {
+                try {
+                    server.join();
+                    success = true;
+                } catch (InterruptedException e) {
+                }
+            }
+        } finally {
+            unregisterListener();
         }
+        
     }
     
     /**
      * Starting point of this service.
      * @param args Will be ignored
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException {        
+    // checkstyle: stop exception type check (used interface of library throws exception)
+    public static void main(String[] args) throws Exception {
+    // checkstyle: resume exception type check
         new Service().run();
     }
 

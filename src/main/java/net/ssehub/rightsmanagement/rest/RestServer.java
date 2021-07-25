@@ -26,9 +26,11 @@ public class RestServer implements Closeable {
      * Creates a new {@link RestServer} instance.
      * @param port The port at which it should listen for new messages.
      */
-    public RestServer(int port) {
+    // checkstyle: stop exception type check (used interface of library throws exception)
+    public RestServer(int port) throws Exception {
+    // checkstyle: resume exception type check
         LOGGER.info("Starting server on port: {}", port);
-        Server server = new Server(port);
+        server = new Server(port);
         
         ServletContextHandler servletContextHandler = new ServletContextHandler(ServletContextHandler.NO_SESSIONS);
 
@@ -42,15 +44,16 @@ public class RestServer implements Closeable {
                 "net.ssehub.rightsmanagement.rest.resources"
         );
 
-        try {
-            server.start();
-            server.join();
-            // checkstyle: stop exception type check (used interface of library throws exception)
-        } catch (Exception ex) {
-            // checkstyle: resume exception type check
-            server.destroy();
-            System.exit(1);
-        }
+        server.start();
+    }
+    
+    /**
+     * Waits for the server to finish.
+     * 
+     * @throws InterruptedException If waiting fails.
+     */
+    public void join() throws InterruptedException {
+        server.join();
     }
     
     @Override
