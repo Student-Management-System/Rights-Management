@@ -1,5 +1,6 @@
 {
-  "restServerPort": 0,
+  "restServerHost": "147.172.178.30",
+  "restServerPort": 1111,
   "authServerURL": "http://147.172.178.30:8080",
   "mgmtServerURL": "http://147.172.178.30:3000",
   "cacheDir": "cache/",

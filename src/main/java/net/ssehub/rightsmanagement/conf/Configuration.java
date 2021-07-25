@@ -157,6 +157,7 @@ public class Configuration {
         }
     }
     
+    private String restServerHost;
     private int restServerPort;
     private String authServerURL;
     private String mgmtServerURL;
@@ -174,11 +175,30 @@ public class Configuration {
     }
     
     /**
+     * The host where other applications can reach this REST server.
+     * 
+     * @return The host of this machine.
+     */
+    public String getRestHost() {
+        return restServerHost;
+    }
+    
+    /**
      * The port at which service listens for incoming update events.
      * @return the restPort
      */
     public int getRestPort() {
         return restServerPort;
+    }
+    
+    /**
+     * Returns the full path to the REST endpoint of this server. Combines {@link #getRestHost()} and
+     * {@link #getRestPort()}.
+     * 
+     * @return The full API path where the notifications land.
+     */
+    public String getRestPath() {
+        return "http://" + getRestHost() + ":" + getRestPort() + "/rest/update";
     }
     
     /**
@@ -227,6 +247,15 @@ public class Configuration {
      */
     public void setCourses(List<CourseConfiguration> courses) {
         this.courses = courses;
+    }
+    
+    /**
+     * Sets the host of this REST server.
+     * 
+     * @param restServerHost The host of this server.
+     */
+    public void setRestHost(String restServerHost) {
+        this.restServerHost = restServerHost;
     }
     
     /**
