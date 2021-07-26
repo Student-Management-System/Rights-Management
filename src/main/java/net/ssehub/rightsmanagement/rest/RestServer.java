@@ -1,11 +1,11 @@
 package net.ssehub.rightsmanagement.rest;
 import java.io.Closeable;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.log.Log;
-import org.eclipse.jetty.util.log.Logger;
 import org.glassfish.jersey.servlet.ServletContainer;
 
 /**
@@ -18,7 +18,7 @@ import org.glassfish.jersey.servlet.ServletContainer;
 public class RestServer implements Closeable {
     private static final String REST_PATH = "/rest/*";
 
-    private static final Logger LOGGER = Log.getLogger(RestServer.class);
+    private static final Logger LOGGER = LogManager.getLogger(RestServer.class);
     
     private Server server;
     
