@@ -45,3 +45,5 @@ These settings can be configured per observed course. However, observing more th
 
 ### Updates
 The tool listens for course changes at: `<ip>:<port>/rest/update`
+
+You can check if the server is up at: `<ip>:<port>/rest/heartbeat`
